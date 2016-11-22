@@ -1,0 +1,45 @@
+d2js.exports.fetchColumn =true;
+d2js.fetchColumn = function(){
+	var sql = "select * from exam_question where id = -1"
+	return this.query(sql);
+};
+
+d2js.create = function(rcd){
+	this.doTransaction(function(){
+		rcd.id = this.nextId("exam_question_id_seq");
+		rcd.node=JSON.stringify(this.session.user.node.name);
+		this.insertRow('exam_question', rcd, ["id","difficulty","type","content","state","knowledge","score","r_num","w_num","creatdate","node"]);
+	});
+		
+};
+d2js.exports.fetchKnowledge =true;
+d2js.fetchKnowledge = function(params){
+	var sql1 = "with ndr as ("+
+				"with recursive t as (select *, 1 lv, name::varchar(2000) path "+
+				"from node "+
+				"where id = "+ this.session.user.node.id + 
+				"union "+
+				"select d.*, t.lv + 1, (t.path || d.name) :: varchar(2000) "+
+				"from node d, t where d.id = t.parent_id  and d.type in ('OFFICE','DEPT','COMPANY','ROOT'))"+
+				"select id, name, parent_id, type, lv, path from t order by path)"+
+				"select id from ndr where type !='OFFICE' limit 1";
+	
+	
+	var deptId = this.query(sql1).rows[0].id;
+//	logger.info("---------------"+deptId);
+	
+	var sql2 = "select * from knowledge_point WHERE node in "+
+	 		"( with nd as (with recursive t as (select *, 1 lv, name::varchar(2000) path "+
+			 "from node where id = "+deptId+" union select d.*, t.lv + 1, (t.path || d.name) :: varchar(2000) "+
+			 "from node d, t where d.parent_id = t.id  and d.type in ('OFFICE','DEPT','COMPANY','ROOT') ) "+
+			 "select id, name, parent_id, type, lv, path from t order by path) SELECT id from nd)";
+//	logger.info("---------------"+sql2); 
+	return this.query(sql2);
+}
+
+d2js.destroy = function(rcd){
+	this.deleteRows('exam_question',{'id':rcd.id});
+};
+
+
+

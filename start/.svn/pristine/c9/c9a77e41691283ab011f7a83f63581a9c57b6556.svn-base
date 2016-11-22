@@ -1,0 +1,118 @@
+[% if(request._la == 'true'){ 
+return out.printJson(
+[{name : '查询在线人员',code : 'online.query', status : 'N'}, 
+{name : '强制人员下线', code : 'online.offline', status :'N', dependence : 'online.query'}]); } 
+ 
+ var anonymous =request.anonymous;
+ if(session.user == null && !anonymous){ 
+ return response.sendRedirect(website + 'index.jssp'); 
+ } %]
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>在线人员管理</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+[% this.includeJssp('../common/include_lib.jssp'); %]
+
+</head>
+<body style="background-color:white">
+	<div molecule-def='Online'>
+
+		<div molecule="TableList" table="ns_online,online" >
+			<h1 class="page-title">在线人员</h1>
+			<div class="search-bar">
+				<form molecule="SearchForm" style="float:none;">
+					<div molecule="SearchFormItem" col="parent_id" text="所属单位：">
+						<div molecule="DropDownTree" table="ns_online,node" value-col="id" display-col="name" autocomplete-col="name" select="single" paging="false"
+							show-header="false" data="node" data-width="200">
+							<tr>
+								<m:th molecule="TreeNode" col="name" text="单位名称"></m:th>
+							</tr>
+						</div>
+					</div>
+					
+					<div molecule="SearchFormItem" col="name" text="用户名称：">
+						<input type="text" molecule="Input">
+					</div>
+					
+					<button molecule="SearchButton" role="search">搜索</button>
+					
+					<button id="resetBtn" class="btn btn-default" style="color: #ffffff;background-color: #2d94ff;border-color: #2d94ff;width: 114px;height: 30px;">重置</button>
+					
+				</form>
+			</div>
+            
+			<div molecule="TableError"></div>
+
+            <div class="main-table">
+			<table id="grdMain" molecule="List" >
+				<thead>
+					<tr>
+						<th molecule="Header" sortable="false" col="employee_no" text="员工编号" ></th>
+						<th molecule="Header" sortable="false" col="employee_name" text="姓名" ></th>
+						<th molecule="Header" sortable="false" col="node_name" text="所属单位"></th>
+						<th molecule="Header" sortable="false" col="login_d" text="登录时间" format="yyyy-MM-dd HH:mm" renderer="date|std"></th>
+						<th data-t="em_id" renderer="offLink"></th> 
+					</tr>
+				</thead>
+			</table>
+        	</div>
+		</div>
+
+
+		<script>
+			//MOLECULE-DEF
+			function Online() {
+				var $el = this.$el;
+				var dataset = d2js.dataset.create('ns_online');
+
+				var table = dataset.addTable('online', '../sys/online_user.d2js');
+				table.on('load', function(error) {
+					$el.render(dataset);
+				});
+				table.load('fetch');
+				
+				table.on("submit",function(err){
+					if(!err){
+						node.reload();
+					}
+				});
+				var node = dataset.addTable('node', '../common/node.d2js');
+				node.on('load', function(error) {
+					$el.render(dataset);
+				});
+				node.load({_m:'listAll',"types":[%~ findAncientTypes('OFFICE') %]});
+				
+				this.dispose = function() {
+					d2js.dataset.release('ns_online');
+				}
+				
+				d2js.Renderers.offLink = function (element, v) {
+            		var row = d2js.findArg(arguments, 'row');
+	            	var $e = $(element);
+	     	        $e.html('');
+	     	        var a = $(document.createElement('a')).appendTo($e);
+	     	        a.html('强制下线');
+	     	        a.attr('href', '###');
+	     	        a.data('t', v);
+	     	        var idColumn = arguments[arguments.length-2];
+	     	        a.on('click', function () {
+	     	        	var em = $(this).data('t');
+						$.post('/start/login.d2js?_m=logout','em='+em,function(info){
+							location.reload(true);
+						})
+	     	        });
+         	    };
+         	    
+         	    $el.on("click","#resetBtn",function(){
+         	    	table.load('fetch',{});
+         	    });
+			}
+			// MOLECULE-DEF-END
+			Molecule.create(Online);
+		</script>
+	</div>
+	<div molecule='Online'></div>
+</body>
+</html>

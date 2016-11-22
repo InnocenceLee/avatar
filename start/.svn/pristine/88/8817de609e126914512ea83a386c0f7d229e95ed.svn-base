@@ -1,0 +1,111 @@
+@CHARSET "UTF-8";
+/*///////////////分页〉//////////////////*/
+.ui-pager .ui-pager-wrap {
+    height: 30px;
+    line-height: 30px;
+    padding: 27px 16px 27px 0;
+    background-color: #fff;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num {
+    text-align: right;
+    font-size: 12px;
+}
+.ui-page-num a{
+    color: #5f646b;
+}
+.ui-pager .ui-pager-wrap .ui-page-num a, .ui-pager .ui-pager-wrap .ui-page-num span, .ui-pager .ui-pager-wrap .ui-page-num .targe-page-btn {
+    display: inline-block;
+    height: 20px;
+    line-height: 19px;
+    width: 24px;
+    margin: 0 5px;
+    text-align: center;
+    font-size: 12px;
+    border: 1px solid #d6d3d3;
+    border-radius: 1px;
+    cursor: pointer;
+    text-
+}
+.ui-pager .ui-pager-wrap .ui-page-num a.tpage {
+    width: auto;
+    padding: 0 5px;
+}
+/* .ui-pager .ui-pager-wrap .ui-page-num a.prev {
+    border: none;
+    background: url(../../images/page-prev.png);
+    vertical-align: 1px;
+}
+.ui-pager .ui-pager-wrap .ui-page-num a.next {
+    border: none;
+    background: url(../../images/page-next.png);
+    vertical-align: 1px;
+} */
+
+.ui-pager .ui-pager-wrap .ui-page-num a.tpage {
+    color: #2d94ff;
+    border-color: #2d94ff;
+}
+.ui-pager .ui-pager-wrap .ui-page-num a:hover {
+    text-decoration: none;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.disabled {
+    background-color: #f7f6f4;
+    color: #dad9d9;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.disabled:hover {
+    background-color: #f7f6f4;
+    border-color: #d6d3d3;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num input {
+    padding: 0 6px;
+    height: 20px;
+    line-height: 20px;
+    width: 28px;
+    margin: 0 5px;
+    text-align: center;
+    font-size: 12px;
+    border: 1px solid #d6d3d3;
+    border-radius: 1px;
+}
+.target-page-btn{
+    color: white !important;
+    background-color:#4d90fe ;
+}
+.target-page-btn:hover{
+    color: white !important;
+}
+.ui-pager .ui-pager-wrap .ui-page-num .target-page-btn {
+    border-radius: 2px;
+    width: 40px;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.current, .ui-pager .ui-pager-wrap .ui-page-num span.current {
+    color: #fff;
+    border-color: #4d90fe;
+    background-color:#4d90fe;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.current:hover, .ui-pager .ui-pager-wrap .ui-page-num span.current:hover {
+    color: #fff;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num .tpage-ellipsis {
+    border: none;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num .prev, .ui-pager .ui-pager-wrap .ui-page-num .next {
+    font-weight: bold;
+}
+/* 添加人员页面的分页 */
+#myamModal .ui-pager .ui-pager-wrap{
+    width:100%;
+}
+#myamModal .container-fluid {
+    margin-right:13px;
+    padding-right:3px;
+}
+/*分页结束*/

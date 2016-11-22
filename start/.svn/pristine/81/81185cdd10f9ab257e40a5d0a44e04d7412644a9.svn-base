@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+
+	<description>系统权限标签</description>
+	<display-name>sys_perm</display-name>
+	<tlib-version>1.0</tlib-version>
+	<short-name>perm</short-name>
+	<uri>/mytags</uri>
+
+	<function>
+		<description>判断用户有无权限</description>
+		<name>checkPerm</name>
+		<function-class>com.sobey.edu.config.Global</function-class>
+		<function-signature>java.lang.Boolean checkPerm()</function-signature>
+		<example>${perm:checkPerm()}</example>
+	</function>
+
+</taglib>

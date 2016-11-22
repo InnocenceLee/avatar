@@ -1,0 +1,59 @@
+
+d2js.fetch=function(params){
+       logger.error("hubin" + params.personid);
+		sql{.
+		
+	     SELECT 
+			train_plan.name AS plan_name,
+			train_course.name AS course_name,
+			train_lesson.name AS lesson_name,
+			train_student_learn_course.plan_start,
+			train_student_learn_course.plan_end,
+			train_student_progress.learn_state AS progress
+		FROM person
+		LEFT JOIN train_student_learn_course  ON train_student_learn_course.student =  person.id
+		LEFT JOIN train_plan ON train_student_learn_course.train_plan = train_plan.id
+		LEFT JOIN train_course  ON train_student_learn_course.train_course_lesson =  train_course.id
+		LEFT JOIN train_lesson ON train_lesson.train_course = train_course.id
+		LEFT JOIN train_student_progress ON  train_student_progress.student_learn_course = train_student_learn_course.id AND train_student_progress.train_lesson = train_lesson.id 
+		WHERE  
+		person.id = to_number(:personid, '99999999999')
+		sql{.?(params.coursename)
+			 	and strpos(train_course.name, :coursename) > 0 
+		.} 
+		sql{.?(params.learnname)
+			 	and strpos(train_plan.name, :learnname) > 0 
+		.} 
+		 sql{.?(params.lessonname)
+			 	and strpos(train_lesson.name, :lessonname) > 0 
+		.} 
+		ORDER BY plan_name ,course_name,lesson_name
+		.}
+
+	return this.query(sql, params,params._page);
+
+};
+
+d2js.exports.examination = d2js.examination =function(params){
+       logger.error("hubin" + params.personid);
+		sql{.
+		
+	    SELECT
+	        exam.id   AS   exam_id,
+			exam_plan.name AS plan_name, 
+			exam_paper.name AS paper_name, 
+			exam.exam_score AS exam_score, 
+			exam.exam_start AS start_time, 
+			exam.exam_end AS  end_time 
+			FROM person
+			LEFT JOIN exam ON exam.student = person.id
+			LEFT JOIN exam_plan ON exam.exam_plan = exam_plan.id
+			LEFT JOIN exam_paper ON exam_paper.id = exam_plan.exam_paper
+			WHERE person.id = to_number(:personid, '99999999999')
+			ORDER BY plan_name ,paper_name,start_time
+	    .}
+
+	return this.query(sql, params,params._page);
+
+};
+

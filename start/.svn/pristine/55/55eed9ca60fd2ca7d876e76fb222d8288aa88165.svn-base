@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.NotifyDao">
+
+	<select id="list" resultType="java.util.Map" parameterType="java.util.Map">
+	    select id,title,sender,array_to_string(receiver,',') receiver,to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') create_date,content from notify 
+	    where 1=1 
+	    <if test="keyword != null and keyword !=''">  
+	        and title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%'
+	    </if>  
+	    <if test="dateBegin != null and dateBegin !=''">  
+	        and to_char(create_date, 'YYYY-MM-DD') >= #{dateBegin}
+	    </if>  
+	    <if test="dateEnd != null and dateEnd !=''">
+	        and to_char(create_date, 'YYYY-MM-DD') &lt;= #{dateEnd}
+	    </if> 
+	    <if test="persionId != null">  
+	        and sender = #{persionId}
+	    </if>  
+	    order by  create_date desc
+	    limit  #{size} offset #{start}
+	    
+	</select>
+	
+	<select id="listByPerson" resultType="java.util.Map" parameterType="java.util.Map">
+	    select id,title,sender,array_to_string(receiver,',') receiver,to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') create_date,content,
+	    case when #{persionId}=any(read) then '' else 'new' end as readState from notify 
+	    where #{persionId}=any(receiver) 
+	    <if test="keyword != null and keyword !=''">  
+	        and title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%'
+	    </if>  
+	    <if test="dateBegin != null and dateBegin !=''">  
+	        and to_char(create_date, 'YYYY-MM-DD') >= #{dateBegin}
+	    </if>  
+	    <if test="dateEnd != null and dateEnd !=''">
+	        and to_char(create_date, 'YYYY-MM-DD') &lt;= #{dateEnd}
+	    </if> 
+	    order by  read  desc,create_date desc limit  #{size} offset #{start}
+	</select>
+	
+	
+	<select id="listCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+	    select count(1) from notify 
+	    where 1=1 
+	    <if test="keyword != null and keyword !=''">  
+	        and title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%'
+	    </if>  
+	    <if test="dateBegin != null and dateBegin !=''">  
+	        and to_char(create_date, 'YYYY-MM-DD') >= #{dateBegin}
+	    </if>  
+	    <if test="dateEnd != null and dateEnd !=''">
+	        and to_char(create_date, 'YYYY-MM-DD') &lt;= #{dateEnd}
+	    </if> 
+	    <if test="persionId != null">  
+	        and sender = #{persionId}
+	    </if>  
+	</select>
+	
+	
+	<select id="listNewCountByPerson" resultType="java.lang.Integer" parameterType="java.util.Map">
+	    select count(1) from notify where #{persionId}=any(receiver) and  (#{persionId}&lt;&gt;all(read) or read is null); 
+	</select>
+	
+	
+	<select id="getById" resultType="java.util.Map" parameterType="java.util.Map">
+	    select id,title,sender,array_to_string(receiver,',') receiver,to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') create_date,content from notify 
+	    where id=#{id}
+	</select>
+	
+	<update id="updateNotifyById" parameterType="java.util.Map">
+		update notify set read=array_append(read, #{persionId}) where id=#{id} and (#{persionId}&lt;&gt;all(read) or read is null)
+	</update>
+	
+	<select id="getNodeName" resultType="java.lang.String" parameterType="java.util.Map">
+	    select c.name from person_station a,sys_station b,node c where a.station=b.id and b.node=c.id and a.person = #{person} and station=#{station}
+<!-- 	    <if test="station != null and station !=''">   -->
+<!-- 	        and station=#{station} -->
+<!-- 	    </if> -->
+	    
+	</select>
+	
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into notify(id,title,sender,receiver,create_date,content)
+ 			values(DEFAULT,#{title},#{sender},ARRAY[
+ 			<foreach collection="receiver" index="index" item="item" separator=",">   
+       	 		#{item}   
+    		</foreach>
+ 			],#{create_date},#{content})
+	</insert>
+	
+	<update id="update" parameterType="java.util.Map">
+		update notify set title = #{title},receiver = ARRAY[
+			<foreach collection="receiver" index="index" item="item" separator=",">   
+       	 		#{item}   
+    		</foreach>
+		],create_date = #{create_date},content = #{content} where id = #{id}
+	</update>
+	
+	<delete id="delNotifyByIds" parameterType="com.alibaba.fastjson.JSONArray">
+		delete from notify where id in 
+		<foreach collection="list" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag}
+    	</foreach>
+	</delete>
+</mapper>

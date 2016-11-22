@@ -1,0 +1,33 @@
+@CHARSET "UTF-8";
+.control-group p,#mySepage .optionlist p{
+	margin:-20px 0 0 40px;
+}
+.portlet-body p:nth-of-type(2){
+	/* background-color:red; */
+	margin-left:20px;
+	margin-top:-20px;
+}
+.portlet-body p:nth-of-type(6){
+	margin-left:70px;
+	margin-top:-30px;
+}
+#mySepage .optionlist{
+	margin-left:20px;
+}
+#mySepage .mycheck{
+	display:inline-block;
+	line-height:24px;
+	height:24px;
+	text-aline:center;
+	margin-right:5px;
+}
+#mySepage .myOptionTitle{
+	display:inline-block;
+	margin-top:5px;
+}
+#mySerpage .subject{
+	margin-top:25px;
+}
+#mySerpage .subject:nth-of-type(2){
+	margin-left:0px;
+}

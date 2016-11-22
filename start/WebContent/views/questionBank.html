@@ -1,0 +1,500 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+  <%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<base href=" <%=basePath%>">
+	<title>题库管理</title>
+
+	<meta content="" name="description" />
+	<meta content="" name="author" />
+	<c:import url="common/head.jsp"></c:import> 
+	
+     <link rel="stylesheet" href="./css/bootstrap-modal.css">
+<!--�༭��-->
+<!--     <link href="http://libs.useso.com/js/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/common/default.css"/> -->
+    <link rel="stylesheet" href="./css/common/editor.css"/>
+
+<!--��ǰҳ-->
+    <link rel="stylesheet" href="./css/common/questionBank.css"/>
+
+
+
+    <!--[if IE]>
+    <script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+
+<!-- BEGIN BODY -->
+<body class="page-header-fixed">
+
+	<c:import url="common/top.jsp"></c:import> 
+	
+	<!-- BEGIN CONTAINER -->
+
+	<div class="page-container">
+	
+		<!-- BEGIN SIDEBAR -->
+		<div class="page-sidebar nav-collapse collapse" id="page-container-nav">
+			<!-- BEGIN SIDEBAR MENU -->
+			<ul class="page-sidebar-menu">
+				<li>
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+					<div class="sidebar-toggler hidden-phone" id="sidebar-toggler-menu"></div>
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+				</li>
+
+				<li>
+					<!-- BEGIN RESPONSIVE QUICK SEARCH FORM -->
+
+					<form class="sidebar-search">
+
+						<div class="input-box">
+
+							<a href="javascript:;" class="remove"></a>
+
+							<input type="text" placeholder="&nbsp;����" />
+
+							<input type="button" class="submit" value=" " />
+						</div>
+					</form>
+
+					<!-- END RESPONSIVE QUICK SEARCH FORM -->
+				</li>
+				<li class="">
+					<a href="javascript:;" id="page-sidebar-menu-a">
+					<img width="30px" class="myimgl" src="./image/nav_icon/notification.svg" alt=""/>
+					<img width="30px" class="myimg12" src="./image/nav_icon/notification_click.svg" alt=""/>
+					<span class="title">֪ͨ����</span>
+					<!-- <span class="arrow "></span> -->
+					</a>
+				</li>
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimgk" src="./image/nav_icon/myLessons.svg" alt=""/>
+						<img class="myimg11" src="./image/nav_icon/myLessons_click.svg" alt=""/>
+					<span class="title">�ҵĿγ�</span>
+					<!-- <span class="arrow "></span> -->
+					</a>
+				</li>
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimgm" src="./image/nav_icon/myExam.svg" alt=""/>
+						<img class="myimg13" src="./image/nav_icon/myExam_click.svg" alt=""/>
+					<span class="title">�ҵĿ���</span>
+					
+					<!-- <span class="arrow "></span> -->
+					</a>
+				</li>
+				<li class="">
+				<!-- response.sendRedirect("thexuan.jsp?action=transparams&detail=directe") -->
+					<a href="views/knowledgepoint.jsp">
+						<img class="myimgf" src="./image/nav_icon/knowledgePointManagement.svg" alt=""/>
+						<img class="myimg6" src="./image/nav_icon/knowledgePointManagement_click.svg" alt=""/>
+					    <span class="title">֪ʶ�����</span>
+				<!-- 	<span class="arrow "></span> -->
+					</a>
+				</li>
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimgi" src="./image/nav_icon/courseManagement.svg" alt=""/>
+						<img class="myimg10" src="./image/nav_icon/courseManagement_click.svg" alt=""/>
+					 <span class="title">�γ̹���</span>
+					 <span class="arrow "></span> 
+					</a>
+					<ul class="sub-menu">
+						<li >
+							<a href="views/courseList.jsp">
+							<!-- <i class="icon-time"></i> -->
+							�γ��б�</a>
+						</li>
+						<li >
+							<a href="views/courseAuditing.jsp">
+							<!--<i class="icon-cogs"></i> -->
+							�γ����</a>
+						</li>
+					</ul>
+				</li>
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimge" src="./image/nav_icon/learningPlanManagement.svg" alt=""/>
+						<img class="myimg5" src="./image/nav_icon/learningPlanManagement_click.svg" alt=""/>
+					    <span class="title">ѧϰ�ƻ�</span>
+
+						<!-- <span class="arrow "></span> -->
+					</a>
+				</li>
+				<li class="open">
+					<a href="views/systemParameter.jsp">
+						<img class="myimgg" src="./image/nav_icon/itemBankManagement.svg" alt=""/>
+						<img class="myimg7" src="./image/nav_icon/itemBankManagement_click.svg" alt=""/>
+					    <span class="title">������</span>
+					    <!-- <span class="arrow "></span> -->
+					</a>
+				</li>
+				<li>
+					<a class="" href="javascript:;">
+						<img class="myimgh" src="./image/nav_icon/testPaperManagement.svg" alt=""/>
+						<img class="myimg8" src="./image/nav_icon/testPaperManagement_click.svg" alt=""/>
+					    <span class="title">�Ծ����</span>
+				        <span class="arrow "></span>
+					</a>
+					<ul class="sub-menu">
+						<li>
+							<a href="javascript:;">�Ծ����<!-- <span class="arrow"></span> --></a>
+						<!--<ul class="sub-menu">
+								<li><a href="#">Sample Link 1</a></li>
+								<li><a href="#">Sample Link 2</a></li>
+								<li><a href="#">Sample Link 3</a></li>
+							</ul> -->
+						</li>
+						<li>
+							<a href="javascript:;">�Ծ��б�</a>
+						</li>				
+					</ul>
+
+				</li>
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimgj" src="./image/nav_icon/examinationManagement.svg" alt=""/>
+						<img class="myimg9" src="./image/nav_icon/examinationManagement_click.svg" alt=""/>
+					    <span class="title">���Թ���</span>
+					    <span class="arrow "></span>
+					</a>
+					<ul class="sub-menu">
+						<li >
+							<a href="javascript:;">�����б�</a>
+						</li>
+					</ul>
+				</li>	
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimgd" src="./image/nav_icon/noEntryPersonnelManagement.svg" alt=""/>
+						<img class="myimg4" src="./image/nav_icon/noEntryPersonnelManagement_click.svg" alt=""/>
+					    <span class="title">δ��ְ��Ա����</span>
+					<!-- <span class="arrow "></span> -->
+					</a>
+				</li>
+
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimgc" src="./image/nav_icon/authorityManagement.svg" alt=""/>
+						<img class="myimg3" src="./image/nav_icon/authorityManagement_click.svg" alt=""/>
+						<span class="title">Ȩ�޹���</span>
+					<!-- <span class="arrow "></span> -->
+					</a>
+				</li>
+				<li class="">
+					<a href="javascript:;">
+						<img class="myimgb" src="./image/nav_icon/announcementManagement.svg" alt=""/>
+						<img class="myimg2" src="./image/nav_icon/announcementManagement_click.svg" alt=""/>
+						<span class="title">�������</span>
+						<!-- <span class="arrow "></span> -->
+					</a>	
+				</li>
+
+				<li class="last ">
+					<a href="views/systemParameter.jsp">
+						<img class="myimga" src="./image/nav_icon/parameterSetting.svg" alt=""/>
+						<img class="myimg1" src="./image/nav_icon/parameterSetting_click.svg" alt=""/>
+						<span class="title">��������</span>
+					</a>
+				</li>
+			</ul>
+			<!-- END SIDEBAR MENU -->
+		</div>
+		<!-- END SIDEBAR -->
+		<!-- BEGIN PAGE -->
+		<div class="page-content">
+			<div class="container-fluid" id="page-questionBank">
+			    <h4>������</h4>
+			
+			   <div class="" id="content-questionBank"> <span>���ͣ�</span>
+			    <select name="" id=""></select>
+			
+			    <span>�Ѷ�ϵ����</span>
+			    <select name="" ></select>
+			    <button>����</button>
+			    </div>
+			    <div class="" id="contentTwo">
+			        <button>ɾ��</button>
+			
+			        <button type="button" class="btn btn-primary btn-lg clean-data" data-toggle="modal" data-target="#myAddQeModal">
+			            ����
+			        </button>
+			
+			        <!-- Modal -->
+			        <div class="modal fade" id="myAddQeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			            <div class="modal-dialog" role="document">
+			                <div class="modal-content">
+			                    <div class="modal-header">
+			                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			                        <h4 class="modal-title" id="myModalLabel">�������</h4>
+			                    </div>
+			                    <div class="modal-body" id="QuesModal">
+			                        <p>
+			                            ���� :
+			                            <select name="" id="questionBank-type">
+			                                <option>��ѡ��</option>
+			                            </select>
+			                        </p>
+			                        <p>
+			                            �Ѷ�ϵ�� :
+			                            <select name="" id="difficulty">
+			                                <option>��ѡ��</option>
+			                            </select>
+			                        </p>
+			                        <p id="knowledgepointp">
+			
+			                            ֪ʶ�� :
+			                            <input type="text" id="knowledgepoint"/>
+			                           &nbsp; <input type="file" name="picpath" id="modal-input" value="ѡ��μ�"/>
+			                            <input type="button" id="Upload-btn" value="ѡ��μ�"/>
+			                            <!--<input type="file" name="picpath" id="picpath" onchange="document.formen.path.value = this.value" style="display: none"/>-->
+			                            <!--<input name="path" readonly>-->
+			                            <!--<input type="button" value="Browse" onclick="document.formen.picpath.click()">-->
+			                        </p>
+			
+			
+			                        <div class="container-fluid Ques-txtEditor">
+			                            �γ�������
+			
+			                                    <textarea class="txtEditor-a"></textarea>
+			
+			                        </div>
+			                        <div class="container-fluid Ques-txtEditor" id="quesOption">
+			                            <button>��Ӵ��⿨ѡ��</button>
+			
+			                            <div class="row" id="quesRow">
+			                                <div class="col-sm-1"><span>A</span></div>
+			                                <div class="col-sm-8"><textarea class="txtEditor-b"></textarea></div>
+			                                <div class="col-sm-3">
+			                                    <p><input type="checkbox"/>���Ϊ��ȷѡ��</p>
+			                                    <p><input type="checkbox"/>ɾ����ѡ��</p>
+			                                </div>
+			                            </div>
+			                        </div>
+			
+			                        <div class="container-fluid Ques-txtEditor">
+			                           �������:
+			
+			                            <textarea class="txtEditor-c"></textarea>
+			                        </div>
+			
+			
+			                    </div>
+			                    <div class="modal-footer">
+			                        <span style=" margin-right:50px" class="Bomb-box"></span>
+			                        <button type="button" class="btn btn-default" data-dismiss="modal">ȡ��</button>
+			                        <button id='addQues' type="button" class="btn btn-primary">����</button>
+			                    </div>
+			                </div>
+			            </div>
+			        </div>
+			
+			        <button>Word����</button>
+			        <button>Excel����</button>
+			        <button>����</button>
+			        <button>ģ������</button>
+			    </div>
+			    <div class="container-fluid">
+			
+			        <table class="table table-striped" id="questionBank-table">
+			            <!--<caption>���Ʊ�񲼾�</caption>-->
+			            <thead class="questionBank-thead">
+			            <tr>
+			                <th>���</th>
+			                <th>����</th>
+			                <th>�Ѷ�ϵ��</th>
+			                <th>�𰸣���ѡ/��ѡ�д��</th>
+			                <th>��ȷ��</th>
+			                <th>����ʱ��</th>
+			                <th>��������</th>
+			                <th>����</th>
+			            </tr>
+			            </thead>
+			            <tbody id="questionBank-tbody">
+			            <tr>
+			                <td><span><input type="checkbox"/></span>��������������</td>
+			                <td>��ѡ��</td>
+			                <td>1</td>
+			                <td>A XX B XX C XX D XX</td>
+			                <td>A</td>
+			                <td>2015-5-5</td>
+			                <td>���в�</td>
+			                <td><span>�޸�</span><span>ɾ��</span></td>
+			            </tr>
+			            <tr>
+			                <td><span><input type="checkbox"/></span>��������������</td>
+			                <td>��ѡ��</td>
+			                <td>1</td>
+			                <td>A XX B XX C XX D XX</td>
+			                <td>A</td>
+			                <td>2015-5-5</td>
+			                <td>���в�</td>
+			                <td><span>�޸�</span><span>ɾ��</span></td>
+			            </tr>
+			            <tr>
+			                <td><span><input type="checkbox"/></span>��������������</td>
+			                <td>��ѡ��</td>
+			                <td>1</td>
+			                <td>A XX B XX C XX D XX</td>
+			                <td>A</td>
+			                <td>2015-5-5</td>
+			                <td>���в�</td>
+			                <td><span>�޸�</span><span>ɾ��</span></td>
+			            </tr>
+			            <tr>
+			                <td><span><input type="checkbox"/></span>��������������</td>
+			                <td>��ѡ��</td>
+			                <td>1</td>
+			                <td>A XX B XX C XX D XX</td>
+			                <td>A</td>
+			                <td>2015-5-5</td>
+			                <td>���в�</td>
+			                <td><span>�޸�</span><span>ɾ��</span></td>
+			            </tr>
+			            </tbody>
+			        </table>
+			        <!--////////////////��ҳ//////////////-->
+			        <div class="container-fluid">
+			            <div class="ui-pager">
+			                <div class="ui-pager-wrap">
+			                    <div class="ui-page-num">
+			                        <a class="prev disable">&lt;</a> <a href="#" class="next">&gt;</a>
+			                        ��<em class="page-count">6</em>ҳ������ <input
+			                            class="target-page-text" type="text">ҳ <a
+			                            class="target-page-btn">ȷ��</a>
+			                    </div>
+			                </div>
+			            </div>
+			
+			        </div>
+			    </div>
+			    <!-- Button trigger modal -->
+			    <!-- Modal -->
+			</div>
+		</div>
+	</div>
+	
+	<c:import url="common/bottom.jsp"></c:import>
+	
+	<!--��ҳ-->
+	<script src="./js/common/twilight.js" type="text/javascript"></script>
+	<script src="./js/common/ui.ajaxpager.js" type="text/javascript"></script>
+	<!--�༭��-->
+	<script src="./js/questionBank/editor.js" type="text/javascript"></script>
+	<script>
+	    $(function () {
+	//        $('#build').click(build);//.trigger('click');
+	//        $('#cells, #rows').keyup(function (e) {
+	//            if (e.keyCode === 13) {
+	//                build();
+	//            }
+	
+	        $(".txtEditor-a").Editor();
+	        $(".txtEditor-b").Editor();
+	        $(".txtEditor-c").Editor();
+	
+	
+	
+	        });
+	
+	
+	</script>
+	
+	<script>
+	
+	    $(function(){
+	    	var page=1;
+	    	var maxPage=6;
+	        var data=[{
+	            "a": 0,
+	            "b": "Item 0",
+	            "c": "$0",
+	            "d": "$0",
+	            "e": "$0",
+	            "f": "$0",
+	            "g": "$0",
+	            "h": "$0"
+	        },
+	            {
+	                "a": 0,
+	                "b": "Item 0",
+	                "c": "$0",
+	                "d": "$1",
+	                "e": "$2",
+	                "f": "$3",
+	                "g": "$4",
+	                "h": "$5"
+	            }];
+	        
+	        /*ҳ�����ʱAjax����   */
+	        tableAjax();
+	        /* tableƴ��  */
+	        function addTable(){
+	        	 for(var i=0;i<data.length;i++){
+	             	/* $("#questionBank-tbody").html($("#questionBank-tbody").html()+"<tr><td><span><input type='checkbox'/></span>"+data[i].a+"</td><td>"+data[i].b+"</td><td>"+data[i].c+"</td><td>"+data[i].d+"</td><td>"+data[i].e+"</td><td>"+data[i].f+"</td><td>"+data[i].g+"</td><td><span>�޸�</span><span>ɾ��</span></td></tr>") */	  
+	             	var tbody=document.getElementById("questionBank-tbody");
+	            	tbody.innerHTM="";
+	             	tbody.innerHTML+="<tr><td><span><input type='checkbox'/></span>"+data[i].a+"</td><td>"+data[i].b+"</td><td>"+data[i].c+"</td><td>"+data[i].d+"</td><td>"+data[i].e+"</td><td>"+data[i].f+"</td><td>"+data[i].g+"</td><td><span>�޸�</span><span>ɾ��</span></td></tr>"
+	
+	             }
+	        }
+	       
+	    /* ����Ajax  */
+	    	function tableAjax(){
+	    		
+	    		$.ajax({
+	    			
+	    			   type: "post",
+	           	    url: "jv/knowledgepoint/list.do",
+	           	    data: {
+	           	    	page:{
+	           	    		'page':page,
+	           	    		'size':4
+	           	    	},
+	           	    	data:{}
+	           	    },
+	           	    dataType: "json",
+	           	    success: function(data){
+	           	    	var data=data;
+	           	    	addTable();
+	           	    }
+	    		})
+	    		
+	    	}
+	    
+	    
+	    
+	    /* ��ҳ   */
+	        /*ʹ�÷���*/
+	        $t.using('ajaxPager').init({
+	            maxPage:maxPage,//���ҳ��
+	            currPage:1,//��ǰҳ��
+	            callback:function(pageIndex){
+	    console.log(pageIndex)
+	            var page=pageIndex;
+	    tableAjax();
+	            }//�ص�
+	        });    
+	    });
+	    
+	     
+	</script>
+	<!-- END JAVASCRIPTS -->
+
+	<script type="text/javascript">  var _gaq = _gaq || [];  _gaq.push(['_setAccount', 'UA-37564768-1']);  _gaq.push(['_setDomainName', 'keenthemes.com']);  _gaq.push(['_setAllowLinker', true]);  _gaq.push(['_trackPageview']);  (function() {    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;    ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();</script>
+
+</body>
+
+<!-- END BODY -->
+</html>

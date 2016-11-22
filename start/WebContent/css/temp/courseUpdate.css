@@ -1,0 +1,138 @@
+@CHARSET "UTF-8";
+body{
+    color: #A2A5AA;
+}
+h4{
+    font-size: 14px;
+    color: #363942;
+}
+h3{
+    font-size: 18px;
+    color: #363942;
+}
+/*���еı���*/
+#content-courseList .form-control{
+    display: inline;
+    border-radius: 3px;
+    height: 32px;
+    color:  #A2A5AA;
+}
+#content-courseList .mytextarea{
+    height: auto;
+    width: 400px;
+}
+/*ǰ�ÿγ�*/
+#content-courseList .upTextarea{
+    display: inline-block;
+}
+#content-courseList .Upspan1{
+    display: inline-block;
+    padding-top: -50px;
+}
+/*ǰ�ÿγ��Ϸ���ʾ��*/
+#content-courseList .input-group-addon{
+    width: 413px;
+    height:20px;
+    border-radius: 3px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+     background-color: #F2F2F4;
+     margin:0px;
+     border:1px solid #c3c3c3;
+     border-bottom:none;
+}
+#content-courseList .upTextarea .input-group-addon .fa-folder{
+     color:#c3c3c3;
+     font-size:18px;
+    margin-left: -360px;
+    font-size: 18px;
+}
+/*��ʱ˳��̶�ѡ��ť*/
+#content-courseList .checkbox{
+    margin-left: 75px;
+    background-color: #FFFFFF;
+}
+/*ɾ����������ť*/
+#contentTwo button{
+    width: 110px;
+    color: #FFFFFF;
+    margin-top:10px;
+    margin-bottom:20px;
+}
+#contentTwo button:nth-of-type(1){
+    background-color: #F65036;
+}
+#contentTwo button:nth-of-type(2){
+    background-color: #37D1C1;
+}
+.myDtr1{
+    color: #494d56;
+}
+#contentTwo{
+    border-bottom: none;
+}
+/*���水ť*/
+.btn-danger{
+    width: 110px;
+    background-color: #F65036;
+    height: 30px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 3px;
+}
+/*----modal--------------*/
+#content-courseList .upTextarea .modal {
+     overflow-y: visible;
+}
+/*��������������ʽ����������Ӱ��*/
+/*����ʱ��λ��*/
+.input-group .modal.fade.in{
+    top: 8%;
+    left: 90%;
+}
+/*��ʧʱ��λ��*/
+.input-group .modal.fade.fade{
+    left: 90%;
+}
+#content-courseList .upTextarea .modal .modal-dialog .modal-content .modal-body .btn-danger{
+    display: inline;
+    width: 90px;
+    margin-left: 20px;
+}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    border: 1px solid #F2F2F4;
+}
+#content-courseList .upTextarea .modal .modal-dialog .modal-content .modal-body #content-courseUpdate{
+    margin-bottom: 10px;
+}
+#content-courseList .upTextarea .modal .modal-dialog .modal-content .modal-footer{
+    margin-top: -15px;
+    height: 60px;
+}
+#content-courseList .upTextarea .modal .modal-dialog .modal-content .modal-footer button{
+   margin-top: -7px;
+}
+ /* textarea{
+	width:80%;!important;
+} */
+input, textarea, .uneditable-input {
+    width: auto;
+}
+/* 修改的样式 */
+#myclModal1 .modal-body span{
+	 display: inline-block;
+	width:70px;
+}
+#contentTwo #myclModal1 .modal-header .close{
+	background-color: #ffffff;
+	color: #7b869b;
+     margin-right: -20px;
+}
+.modal {
+     overflow-y:inherit; 
+}
+.table>tbody>tr>td:first-child {
+   /*  display: none; */
+    padding-left:20px;
+    height:39px;
+}

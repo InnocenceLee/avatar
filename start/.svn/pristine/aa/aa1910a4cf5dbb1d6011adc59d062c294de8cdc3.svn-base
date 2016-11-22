@@ -1,0 +1,52 @@
+
+
+handler.fetch = function(params, body, pageDef){
+	var sql = 'select id,node,name,email,phone,tel from developer ';
+	
+	sql += ' where 1=1 ';
+
+	if(params.node != null) sql += ' and node = :node';
+
+	if(params.name != null) sql += ' and name = :name';
+	
+	sql = this.appendSort(sql, params._sorts);
+	
+	return this.query(sql, params, params._page);
+};
+
+
+
+handler.create = function(params, rcd){
+	 	 	
+	$V(rcd, {id : [],  
+		node : [],  
+		name : [V.longest(20)],  
+		email : [V.longest(40)],  
+		phone : [V.longest(20)],  
+		tel : [V.longest(20)]  
+		
+	});
+
+	
+	rcd.id = this.nextId("SEQ_ENTITY");
+	this.insertRow('developer', rcd, ["id","node","name","email","phone","tel"]);		
+};
+
+handler.modify = function(params, rcd){
+	 	 	
+	$V(rcd, {id : [],  
+		node : [],  
+		name : [V.longest(20)],  
+		email : [V.longest(40)],  
+		phone : [V.longest(20)],  
+		tel : [V.longest(20)]  
+		
+	});
+
+	
+	this.updateRow('developer', rcd, ["id","node","name","email","phone","tel"]);
+};
+
+handler.destroy = function(params, rcd){	
+	this.deleteRow('developer', rcd);
+};

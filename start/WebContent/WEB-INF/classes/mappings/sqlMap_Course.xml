@@ -1,0 +1,1130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.CourseDao">
+	
+	<resultMap type="java.util.Map" id="courseMap">  
+	    <id column="id" property="id"/>
+	    <result column="name" property="name" />
+	    <result column="introduction" property="introduction" />
+	    <result column="en_name" property="enName"/>
+	    <result column="remarks" property="remarks"/>
+	    <result column="knowledge_point" property="knowledgePoint"/>
+	    <result column="knowledgePointName" property="knowledgePointName"/>
+	    <result column="knowledge_point_id" property="knowledgePointId"/>
+	    <result column="lesson_order" property="lessonOrder"/>
+	    <result column="pre_courses" property="preCourses"/> 
+	    <result column="train_type" property="trainType"/>
+	    <result column="state" property="state"/>
+	    <result column="train_log" property="trainLog"/>
+	    <result column="lesson_classifications" property="lessonClassifications"/>
+	    <result column="person" property="person"/>
+	    <result column="createdate" property="createdate"/>
+	    <result column="node" property="node"/>
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="personMap">  
+	    <result column="lesson_name" property="lessonName" />
+	    <result column="id" property="id" />
+	    <result column="person_name" property="personName" />
+	    <result column="node_name" property="nodeName" />
+	    <result column="employee_no" property="employeeNo" />
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="commentMap">  
+	    <result column="lesson_name" property="lessonName" />
+	    <result column="evaluation" property="evaluation" />
+	    <result column="person_name" property="personName" />
+	    <result column="train_comment" property="trainComment" />
+	    <result column="createdate" property="createdate" />
+	    <result column="person_id" property="personId" />
+	    <result column="comment_time" property="commentTime" />
+	    <result column="empoly_no" property="empoly_no" />
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="idsMap">
+	    <result column="lessonId" property="lessonId" />
+	    <result column="courseId" property="courseId" />
+	    <result column="type" property="type" />
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="list4StudentMap">
+	    <result column="state" property="state" />
+	    <result column="id" property="id" />
+	    <result column="course_id" property="courseId" />
+	    <result column="name" property="name" />
+	    <result column="lesson_classifications" property="lessonClassifications" />
+	    <result column="train_type" property="trainType" />
+	    <result column="plan_start" property="planStart" />
+	    <result column="plan_end" property="planEnd" />
+	    <result column="pre_courses" property="preCourses" />
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="sumLessonMap">
+	    <result column="train_time" property="trainTime" />
+	    <result column="sumLesson" property="sumLesson" />
+	    <result column="sumPassLesson" property="sumPassLesson" />
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="checkNodeMap">
+		<id column="id" property="id"/>
+	    <result column="name" property="name" />
+  	</resultMap>
+  	
+  	<select id="list4Student" resultMap="list4StudentMap" parameterType="java.util.Map">
+  		SELECT *
+		FROM (
+	  		select
+				a.state,
+				a.student,
+				a.id,
+				b.id as course_id,
+				b.name,
+				b.train_type,
+				b.lesson_classifications,
+				to_char(a.plan_start,'yyyy-MM-dd') as plan_start,
+				to_char(a.plan_end,'yyyy-MM-dd') as plan_end,
+				b.pre_courses
+			from
+				train_student_learn_course as a
+			 join train_course as b
+				on a.train_course_lesson = b.id
+			<if test="name != NULL and name != ''">
+				and b.name like '%'||#{name}||'%'
+			</if> 
+			where
+				#{id} = a.student
+		) a
+		WHERE a.id &lt;= (
+			SELECT b.id
+			FROM (
+		  		select
+					a.state,
+					a.id,
+					b.id as course_id,
+					b.name,
+					b.train_type,
+					b.lesson_classifications,
+					to_char(a.plan_start,'yyyy-MM-dd') as plan_start,
+					to_char(a.plan_end,'yyyy-MM-dd') as plan_end,
+					b.pre_courses
+				from
+					train_student_learn_course as a
+				 join train_course as b
+					on a.train_course_lesson = b.id
+				<if test="name != NULL and name != ''">
+					and b.name like '%'||#{name}||'%'
+				</if> 
+				where
+					#{id} = a.student
+			) b
+			ORDER BY b.id DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.id DESC
+		LIMIT #{size}
+  	</select>
+  	
+  	<select id="list4StudentConut" resultType="java.lang.Integer" parameterType="java.util.Map">
+	  	select
+			count(a.id)
+		from
+			train_student_learn_course as a
+		 join train_course as b
+			on a.train_course_lesson = b.id
+		<if test="name != NULL and name != ''">
+			and b.name like '%'||#{name}||'%'
+		</if> 
+		where
+			#{id} = a.student
+  	</select>
+  	
+  	<select id="countSumTrain" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+	  	select
+			count(train_time)
+		from
+			train_student_progress
+		where
+			#{id} = student_learn_course
+  	</select>
+  	
+  	<select id="listTrainLessonNameById" resultType="java.lang.String" parameterType="java.lang.Integer">
+  		select name from train_lesson where id=#{id}
+  	
+  	</select>
+  	
+  	<select id="listTrainCourseNameById" resultType="java.lang.String" parameterType="java.lang.Integer">
+  		select name from train_course where id=#{id}
+  	</select>
+  	
+  	
+  	<select id="sumTrain" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+	  	select
+			sum(train_time) as train_time
+		from
+			train_student_progress
+		where
+			#{id} = student_learn_course
+  	</select>
+  	
+  	<select id="sumLesson" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+	  	select
+			count(a.id)
+		from
+			train_student_learn_course as a
+		left join train_lesson as b
+		on b.train_course = a.train_course_lesson
+		where
+			#{id} = a.id 
+			<!-- AND b.type = 'E' -->
+  	</select>
+  	
+  	<select id="sumPassLesson" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+	  	select
+			count(a.id) as sumPassLesson
+		from
+			train_student_progress as a
+		left join train_lesson as b
+		on b.id = a.train_lesson
+		where
+			#{id} = a.student_learn_course
+			and 1 = a.learn_state
+			and b.type = 'E'
+  	</select>
+  	
+	<select id="list" resultMap="courseMap" parameterType="java.util.Map">
+		SELECT * FROM (
+				<!-- SELECT A.ID,A.NAME,A.TRAIN_TYPE,to_char(A.CREATEDATE,'YYYY-MM-DD') AS CREATEDATE,D.NAME AS NODE,A.STATE
+				FROM 	TRAIN_COURSE AS A
+				LEFT JOIN PERSON_STATION AS B
+					ON A.PERSON = B.PERSON
+				LEFT JOIN SYS_STATION AS C
+					ON B.STATION = C.ID
+				LEFT JOIN NODE AS D
+					ON C.NODE = D.ID
+				WHERE 
+					1=1 -->
+				${nodeSql}
+				SELECT A.ID,A.NAME,A.TRAIN_TYPE,to_char(A.CREATEDATE,'YYYY-MM-DD') AS CREATEDATE,person.name AS person, D.NAME AS NODE,A.STATE
+				FROM 	TRAIN_COURSE AS A
+				JOIN ND AS D
+				ON A.NODE = D.ID
+				LEFT JOIN person
+				ON  A.person = person.id
+				WHERE 
+					A.STATE != 'D'
+				<if test="name != NULL and name != ''">
+					AND A.NAME LIKE '%'||#{name}||'%'
+				</if> 
+				<if test="node != NULL and node != ''">
+					AND D.NAME LIKE '%'||#{node}||'%'
+				</if> 
+				<if test="state != NULL and state != ''">
+					AND A.STATE = #{state}
+				</if> 
+				<if test="type != NULL and type != ''">
+					AND A.TRAIN_TYPE = #{type}
+				</if> 
+		) A
+		WHERE A.ID &lt;= (
+			SELECT B.ID
+			FROM (
+				<!-- SELECT A.ID,A.NAME,A.TRAIN_TYPE,to_char(A.CREATEDATE,'YYYY-MM-DD') AS CREATEDATE,D.NAME AS NODE,A.STATE
+				FROM 	TRAIN_COURSE AS A
+				LEFT JOIN PERSON_STATION AS B
+					ON A.PERSON = B.PERSON
+				LEFT JOIN SYS_STATION AS C
+					ON B.STATION = C.ID
+				LEFT JOIN NODE AS D
+					ON C.NODE = D.ID
+				WHERE 
+					1=1 -->
+				${nodeSql}
+				SELECT A.ID,A.NAME,A.TRAIN_TYPE,to_char(A.CREATEDATE,'YYYY-MM-DD') AS CREATEDATE,person.name AS person, D.NAME AS NODE,A.STATE
+				FROM 	TRAIN_COURSE AS A
+				JOIN ND AS D
+				ON A.NODE = D.ID
+				LEFT JOIN person
+				ON  A.person = person.id
+				WHERE 
+					A.STATE != 'D'
+				<if test="name != NULL and name != ''">
+					AND A.NAME LIKE '%'||#{name}||'%'
+				</if> 
+				<if test="node != NULL and node != ''">
+					AND D.NAME LIKE '%'||#{node}||'%'
+				</if> 
+				<if test="state != NULL and state != ''">
+					AND A.STATE = #{state}
+				</if> 
+				<if test="type != NULL and type != ''">
+					AND A.TRAIN_TYPE = #{type}
+				</if> 
+		) B
+			ORDER BY B.ID DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY A.ID DESC
+		LIMIT #{size}
+	</select>
+	
+	<select id="count4List" resultType="java.lang.Integer" parameterType="java.util.Map">
+		<!-- SELECT
+			COUNT(A.ID)
+		FROM 
+				TRAIN_COURSE AS A
+		LEFT JOIN PERSON_STATION AS B
+			ON A.PERSON = B.PERSON
+		LEFT JOIN SYS_STATION AS C
+			ON B.STATION = C.ID
+		LEFT JOIN NODE AS D
+			ON C.NODE = D.ID
+		WHERE 
+			A.STATE != 'D' -->
+		${nodeSql}
+		SELECT COUNT(A.ID)
+		FROM 	TRAIN_COURSE AS A
+		JOIN ND AS D
+		ON A.NODE = D.ID
+		WHERE 
+			A.STATE != 'D'
+		<if test="name != NULL and name != ''">
+			AND A.NAME LIKE '%'||#{name}||'%'
+		</if> 
+		<if test="node != NULL and node != ''">
+			AND D.NAME LIKE '%'||#{node}||'%'
+		</if> 
+		<if test="state != NULL and state != ''">
+			AND A.STATE = #{state}
+		</if> 
+		<if test="type != NULL and type != ''">
+			AND A.TRAIN_TYPE = #{type}
+		</if> 
+	</select>
+	
+	<select id="listAuditing" resultMap="courseMap">
+		 SELECT *
+		FROM (
+			<!-- select 
+		    	a.id,
+		    	a.name,
+				a.train_type,
+				to_char(a.createdate, 'yyyy-MM-dd') as createdate,
+				a.train_log,
+				a.state 
+				from train_course as a
+				left join person_solo_station(a.person) as b
+				on b.person = a.id
+				left join sys_station as c
+				on b.station = c.id
+				left join node as d
+				on c.node = d.id
+				 <if test="node != NULL and node == 47">hr查询条件
+				 	and d.id &lt;&gt; #{node}
+				 </if>
+				 <if test="node != NULL and node != 47">非hr查询条件(领导)
+				 	<if test="node != 0">
+				 		and d.id = 4747:人事部课程
+				 	</if>
+				 </if> -->
+			${nodeSql}
+		 	select 
+		    	a.id,
+		    	a.name,
+				a.train_type,
+				to_char(a.createdate, 'yyyy-MM-dd') as createdate,
+				a.train_log,
+				a.state 
+				from train_course as a
+				join nd as d
+				on a.node = d.id
+			where
+				 'D' != a.state
+				 <if test="state != NULL and state != ''">
+				 	and a.state = #{state}
+				 </if>
+				 <if test="name != NULL and name != ''">
+					and a.name like '%'||#{name}||'%'
+				</if> 
+		) a
+		WHERE a.id &lt;= (
+			SELECT b.id
+			FROM (
+				<!-- select 
+			    	a.id,
+			    	a.name,
+					a.train_type,
+					to_char(a.createdate, 'yyyy-MM-dd') as createdate,
+					a.train_log,
+					a.state 
+					from train_course as a
+					left join person_solo_station(a.person) as b
+					on b.person = a.id
+					left join sys_station as c
+					on b.station = c.id
+					left join node as d
+					on c.node = d.id 
+					 <if test="node != NULL and node == 47">hr查询条件
+					 	and d.id &lt;&gt; #{node}
+					 </if>
+					 <if test="node != NULL and node != 47">非hr查询条件(领导)
+					 	<if test="node != 0">
+					 		and d.id = 4747:人事部课程
+					 	</if>
+					 </if> -->
+				${nodeSql}
+			 	select 
+			    	a.id,
+			    	a.name,
+					a.train_type,
+					to_char(a.createdate, 'yyyy-MM-dd') as createdate,
+					a.train_log,
+					a.state 
+					from train_course as a
+					join nd as d
+					on a.node = d.id
+				where
+					 'D' != a.state
+					 <if test="state != NULL and state != ''">
+					 	and a.state = #{state}
+					 </if>
+					 <if test="name != NULL and name != ''">
+						and a.name like '%'||#{name}||'%'
+					</if> 
+			) b
+			ORDER BY b.id DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.id DESC
+		LIMIT #{size}
+	</select>
+	
+	<select id="count4ListAuditing" resultType="java.lang.Integer" parameterType="java.util.Map">
+		<!-- select 
+			    	count(a.id)
+					from train_course as a
+					left join person_solo_station(a.person) as b
+					on b.person = a.id
+					left join sys_station as c
+					on b.station = c.id
+					left join node as d
+					on c.node = d.id 
+					 <if test="node != NULL and node == 47">hr查询条件
+					 	and d.id &lt;&gt; #{node}
+					 </if>
+					 <if test="node != NULL and node != 47">非hr查询条件(领导)
+					 	<if test="node != 0">
+					 		and d.id = 4747:人事部课程
+					 	</if>
+					 </if> -->
+				${nodeSql}
+			 	select 
+			    	count(a.id)
+					from train_course as a
+					join nd as d
+					on a.node = d.id
+				where
+					 'D' != a.state
+					 <if test="state != NULL and state != ''">
+					 	and a.state = #{state}
+					 </if>
+					 <if test="name != NULL and name != ''">
+						and a.name like '%'||#{name}||'%'
+					</if> 
+	</select>
+	
+  	<select id="notLearnPerson" resultMap="personMap" parameterType="java.util.Map">
+		SELECT id,employee_no,lesson_name,person_name,
+			array_to_string(array(select name from node where id in(select s.node from person_station p,sys_station s where p.station=s.id and p.person=a.id )),',') as node_name
+		FROM (
+			  	select 
+					distinct d.id,
+					d.username as employee_no,
+					c.name as lesson_name,
+					d.name as person_name					
+				from 
+					train_student_learn_course as a,
+					train_course as b,
+					train_lesson as c,
+					person as d,
+					person_station as e,
+					sys_station as f,
+					node as g
+				where
+					#{trainPlanId} = a.train_plan and
+					#{courseId} = b.id and
+					b.id = c.train_course and
+					a.student = d.id and
+					d.id = e.person and
+					e.station = f.id and
+					f.node = g.id and 
+					a.state = 'R'
+					<if test="lessonId != NULL">
+						and c.id = #{lessonId}
+					</if>
+					<if test="personId != NULL">
+						and d.username like '%'||#{personId}||'%'
+					</if>
+					<if test="personName != NULL and personName != ''">
+						and d.name like '%'||#{personName}||'%'
+					</if>
+					<if test="nodeName != NULL and nodeName != ''">
+						and g.name like '%'||#{nodeName}||'%'
+					</if>
+		) a
+		WHERE a.id &lt;= (
+			SELECT  b.id
+			FROM (
+			  	select 
+			  		distinct 
+					c.name as lesson_name,
+					d.username as employee_no,
+					d.id,
+					d.name as person_name
+				
+				from 
+					train_student_learn_course as a,
+					train_course as b,
+					train_lesson as c,
+					person as d,
+					person_station as e,
+					sys_station as f,
+					node as g
+				where
+					#{trainPlanId} = a.train_plan and
+					#{courseId} = b.id and
+					b.id = c.train_course and
+					a.student = d.id and
+					d.id = e.person and
+					e.station = f.id and
+					f.node = g.id and 
+					a.state = 'R'
+					<if test="lessonId != NULL">
+						and c.id = #{lessonId}
+					</if>
+					<if test="personId != NULL">
+						and d.username like '%'||#{personId}||'%'
+					</if>
+					<if test="personName != NULL and personName != ''">
+						and d.name like '%'||#{personName}||'%'
+					</if>
+					<if test="nodeName != NULL and nodeName != ''">
+						and g.name like '%'||#{nodeName}||'%'
+					</if>
+			) b
+			ORDER BY b.id DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.id DESC
+		LIMIT #{size}
+	</select>
+	
+	<select id="getNoLearnPerson" resultMap="personMap" parameterType="java.util.Map">
+			   select 
+				c.name as lesson_name,
+				d.id,
+				d.username as employee_no,
+				d.name as person_name,
+				string_agg((select node.name from node WHERE g.id = node.id ),'|') AS node_name
+				from 
+				train_student_learn_course a
+        		LEFT JOIN train_course  b ON a.train_course_lesson = b.id
+        		LEFT JOIN train_lesson  c ON c.train_course = b.id
+        		LEFT JOIN person  d ON a.student = d.id
+        		LEFT JOIN person_station  e ON d.id = e.person
+        		LEFT JOIN sys_station   f ON	e.station = f.id 
+        		LEFT JOIN node g ON f.node = g.id
+			    where
+			    a.state = 'R' and
+				#{trainPlanId} = a.train_plan and
+				#{courseId} = b.id
+
+				<if test="lessonId != NULL and lessonId != 0">
+					and c.id = #{lessonId}
+				</if>
+				<if test="personId != NULL">
+					and d.id = #{personId} 
+				</if>
+				<if test="personName != NULL and personName != ''">
+					and d.name like '%'||#{personName}||'%'
+				</if>
+				<if test="nodeName != NULL and nodeName != ''">
+					and g.name like '%'||#{nodeName}||'%'
+				</if> 
+	        GROUP BY c.id,d.id
+	</select>
+	
+	
+	
+	
+  	<select id="countNotLearnPerson" resultType="java.lang.Integer" parameterType="java.util.Map">
+	  	select 
+			count(distinct d.id)
+		from 
+			train_student_learn_course as a,
+			train_course as b,
+			train_lesson as c,
+			person as d,
+			person_station as e,
+			sys_station as f,
+			node as g
+		where
+			#{trainPlanId} = a.train_plan and
+			#{courseId} = b.id and
+			b.id = c.train_course and
+			a.student = d.id and
+			d.id = e.person and
+			e.station = f.id and
+			f.node = g.id and 
+			a.state='R'
+			<if test="lessonId != NULL">
+				and c.id = #{lessonId}
+			</if>
+			<if test="personId != NULL">
+				and d.username like '%'||#{personId}||'%'
+			</if>
+			<if test="personName != NULL and personName != ''">
+				and d.name like '%'||#{personName}||'%'
+			</if>
+			<if test="nodeName != NULL and nodeName != ''">
+				and g.name like '%'||#{nodeName}||'%'
+			</if>
+	</select>
+	
+  		<select id="getComment2" resultMap="commentMap" parameterType="java.util.Map">
+  			SELECT *
+			FROM (
+				select  
+				   distinct
+					a.id,
+					b.username as person_id,
+					b.name as person_name,
+					g.name as lesson_name,
+					h.evaluation,
+					h.train_comment,
+					f.createdate,
+					h.progress->>'end' as comment_time
+				from train_student_learn_course as a
+				left join person as b
+				on a.student = b.id
+				left join person_station as c
+				on b.id = c.person
+				left join sys_station as d
+				on c.station = d.id
+				left join node as e
+				on d.node = e.id
+				left join train_course as f
+				on a.train_course_lesson = f.id
+				left join train_lesson as g
+				on f.id = g.train_course
+				left join train_student_progress as h
+				on a.id = h.student_learn_course 
+				where g.id = h.train_lesson and a.train_course_lesson = #{courseId}
+					and a.train_plan = #{planId}
+					and h.evaluation &gt; 0
+				<if test="lessonId != NULL and lessonId != 0">
+					and g.id = #{lessonId}
+				</if>
+				<if test="personId != NULL">
+				and b.username like '%'||#{personId}||'%'  
+				</if>
+				<if test="personName != NULL and personName != ''">
+					AND b.name LIKE '%'||#{personName}||'%'
+				</if> 
+				<if test="nodeName != NULL and nodeName != ''">
+					and e.name like '%'||#{nodeName}||'%'
+				</if>
+				<if test="lessonName != NULL and lessonName != ''">
+					and g.name like '%'||#{lessonName}||'%'
+				</if>
+			) a
+	</select>
+	
+  	<select id="comment" resultMap="commentMap" parameterType="java.util.Map">
+  			SELECT *
+			FROM (
+				select  
+				   distinct
+					a.id,
+					b.username as person_id,
+					b.name as person_name,
+					g.name as lesson_name,
+					h.evaluation,
+					h.train_comment,
+					f.createdate,
+					h.progress->>'end' as comment_time
+				from train_student_learn_course as a
+				left join person as b
+				on a.student = b.id
+				left join person_station as c
+				on b.id = c.person
+				left join sys_station as d
+				on c.station = d.id
+				left join node as e
+				on d.node = e.id
+				left join train_course as f
+				on a.train_course_lesson = f.id
+				left join train_lesson as g
+				on f.id = g.train_course
+				left join train_student_progress as h
+				on a.id = h.student_learn_course 
+				where g.id = h.train_lesson and a.train_course_lesson = #{courseId}
+					and a.train_plan = #{planId}
+					and h.evaluation &gt; 0
+				<if test="lessonId != NULL">
+					and g.id = #{lessonId}
+				</if>
+				<if test="personId != NULL">
+				and b.username = #{personId}  
+				</if>
+				<if test="personName != NULL and personName != ''">
+					AND b.name LIKE '%'||#{personName}||'%'
+				</if> 
+				<if test="nodeName != NULL and nodeName != ''">
+					and e.name like '%'||#{nodeName}||'%'
+				</if>
+				<if test="lessonName != NULL and lessonName != ''">
+					and g.name like '%'||#{lessonName}||'%'
+				</if>
+			) a
+			<!-- WHERE a.id &lt;= (
+				SELECT b.id
+				FROM (
+					select 
+					distinct
+						a.id,
+						b.username as person_id,
+						b.name as person_name,
+						g.name as lesson_name,
+						h.evaluation,
+						h.train_comment,
+						f.createdate
+					from train_student_learn_course as a
+					left join person as b
+					on a.student = b.id
+					left join person_station as c
+					on b.id = c.person
+					left join sys_station as d
+					on c.station = d.id
+					left join node as e
+					on d.node = e.id
+					left join train_course as f
+					on a.train_course_lesson = f.id
+					left join train_lesson as g
+					on f.id = g.train_course
+					left join train_student_progress as h
+					on a.id = h.student_learn_course 
+					where  g.id = h.train_lesson and  a.train_course_lesson = #{courseId}
+						and a.train_plan = #{planId}
+						and h.evaluation &gt; 0
+				<if test="lessonId != NULL">
+					and g.id = #{lessonId}
+				</if>
+				<if test="personId != NULL">
+				and b.username like '%'||#{personId}||'%'  
+				</if>
+				<if test="personName != NULL and personName != ''">
+					AND b.name LIKE '%'||#{personName}||'%'
+				</if> 
+				<if test="nodeName != NULL and nodeName != ''">
+					and e.name like '%'||#{nodeName}||'%'
+				</if>
+				<if test="lessonName != NULL and lessonName != ''">
+					and g.name like '%'||#{lessonName}||'%'
+				</if>
+				) b
+				ORDER BY b.id DESC
+				LIMIT 1
+				OFFSET #{page}
+				) -->
+			LIMIT #{size}  OFFSET #{page}
+	</select>
+	
+	
+	<select id="getComment"  resultMap="commentMap" parameterType="java.util.Map">
+			select 
+				a.id,
+				b.username as person_id,
+				b.name as person_name,
+				g.name as lesson_name,
+				h.evaluation,
+				h.train_comment,
+				f.createdate
+			from train_student_learn_course as a
+			left join person as b
+			on a.student = b.id
+			<if test="personId != NULL">
+				and b.username like '%'||#{personId}||'%' 
+			</if> 
+			<if test="personName != NULL and personName != ''">
+				AND b.name LIKE '%'||#{personName}||'%'
+			</if> 
+			left join person_station as c
+			on b.id = c.person
+			left join sys_station as d
+			on c.station = d.id
+			left join node as e
+			on d.node = e.id
+			<if test="nodeName != NULL and nodeName != ''">
+				and e.name like '%'||#{nodeName}||'%'
+			</if>
+			left join train_course as f
+			on a.train_course_lesson = f.id
+			left join train_lesson as g
+			on f.id = g.train_course
+			<if test="lessonName != NULL and lessonName != ''">
+				and g.name like '%'||#{lessonName}||'%'
+			</if>
+			left join train_student_progress as h
+			on a.id = h.student_learn_course 
+			where a.train_course_lesson = #{courseId}
+				and a.train_plan = #{planId}
+				and h.evaluation &gt; 0
+			<if test="lessonId != NULL">
+				and g.id = #{lessonId}
+			</if>
+				
+	</select>
+	
+	<select id="count4ListComment" resultType="java.lang.Integer" parameterType="java.util.Map">
+				select count(*)
+				from (select  
+				   distinct
+					a.id,
+					b.username as person_id,
+					b.name as person_name,
+					g.name as lesson_name,
+					h.evaluation,
+					h.train_comment,
+					f.createdate,
+					h.progress->>'end' as comment_time
+				from train_student_learn_course as a
+				left join person as b
+				on a.student = b.id
+				left join person_station as c
+				on b.id = c.person
+				left join sys_station as d
+				on c.station = d.id
+				left join node as e
+				on d.node = e.id
+				left join train_course as f
+				on a.train_course_lesson = f.id
+				left join train_lesson as g
+				on f.id = g.train_course
+				left join train_student_progress as h
+				on a.id = h.student_learn_course 
+				where g.id = h.train_lesson and a.train_course_lesson = #{courseId}
+					and a.train_plan = #{planId}
+					and h.evaluation &gt; 0
+				<if test="lessonId != NULL">
+					and g.id = #{lessonId}
+				</if>
+				<if test="personId != NULL">
+				and b.username = #{personId} 
+				</if>
+				<if test="personName != NULL and personName != ''">
+					AND b.name LIKE '%'||#{personName}||'%'
+				</if> 
+				<if test="nodeName != NULL and nodeName != ''">
+					and e.name like '%'||#{nodeName}||'%'
+				</if>
+				<if test="lessonName != NULL and lessonName != ''">
+					and g.name like '%'||#{lessonName}||'%'
+				</if>
+			) a
+	</select>
+	
+	<select id="detail" resultMap="courseMap" parameterType="java.lang.Integer">
+	   select b.title as knowledgePointName,a.*
+		from knowledge_point as b,
+		( select 
+	    	t0.id,
+	    	t0.name,
+			t0.train_type,
+			t0.lesson_classifications,
+			t0.pre_courses,
+			t0.lesson_order,
+			t0.introduction,
+			t0.state,
+			t0.train_log,
+			t1.base as knowledge_point,
+			t1.id as knowledge_point_id
+			from 
+				train_course t0
+			left join 
+				knowledge_point t1
+			on
+				t0.knowledge_point = t1.base
+				and  t0.name = t1.title 
+			where
+				 #{id} = t0.id) as a
+		where a.knowledge_point = b.id
+	</select>
+	
+	<select id="getNames" resultMap="courseMap">
+		select name from train_course
+		where id = ANY (
+        ARRAY[
+				<foreach collection="list" item="item" index="index" separator="," >
+					#{item}  
+	    		</foreach>
+			]
+		::integer[]);
+	</select>
+	
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into train_course(
+			id,
+			name,
+			introduction,
+			en_name,
+			remarks,
+			knowledge_point,
+			lesson_order,
+			<if test="preCourses != null">  
+				<if test="preCourses.size > 0">
+					pre_courses,
+				</if>
+			</if>
+			train_type,
+			state,
+			train_log,
+			lesson_classifications,
+			person,
+			createdate,
+			node)
+		values(
+			DEFAULT,
+			#{name,jdbcType=VARCHAR},
+			
+			<if test="introduction != null">  
+	        #{introduction,jdbcType=VARCHAR},
+	    	</if>
+	    	<if test="introduction == null">
+	        DEFAULT,
+	    	</if>
+	    	
+			<if test="enName != null">  
+	        #{enName,jdbcType=VARCHAR},
+	    	</if>
+	    	<if test="enName == null">
+	        DEFAULT,
+	    	</if>
+	    	
+			<if test="remarks != null">  
+	        #{remarks,jdbcType=VARCHAR},
+	    	</if>
+	    	<if test="remarks == null">
+	        DEFAULT,
+	    	</if>
+	    	
+			<if test="knowledgePoint != null">  
+	        #{knowledgePoint,jdbcType=INTEGER},
+	    	</if>
+	    	<if test="knowledgePoint == null">
+	        DEFAULT,
+	    	</if>
+	    	
+	    	#{lessonOrder,jdbcType=VARCHAR},
+	    	
+			<if test="preCourses != null"> 
+				<if test="preCourses.size > 0"> 
+			    	ARRAY[
+						<foreach collection="preCourses" item="item" index="index" separator="," >
+							#{item}  
+			    		</foreach>
+					],
+				</if>
+			</if>
+	    	#{trainType,jdbcType=VARCHAR},
+	    	#{state,jdbcType=VARCHAR},
+	    	#{trainLog,jdbcType=OTHER,typeHandler=JSONOBJECT},
+	    	#{lessonClassifications,jdbcType=VARCHAR},
+	    	#{person,jdbcType=INTEGER},
+	    	current_timestamp,
+	    	#{node,jdbcType=INTEGER}
+		)
+	</insert>
+	
+	<update id="update" parameterType="java.util.Map">
+		update 
+			train_course 
+		set 
+			name = #{name,jdbcType=VARCHAR},
+			train_type = #{trainType,jdbcType=VARCHAR},
+			state = #{state,jdbcType=VARCHAR},
+			<if test="preCourses!=null">
+					pre_courses = 
+						ARRAY[
+						<foreach collection="preCourses" item="item" index="index" separator="," >
+							#{item}
+			    		</foreach>
+						],
+			</if>
+			<if test="knowledgePoint != null">
+				knowledge_point = #{knowledgePoint,jdbcType=INTEGER},
+			</if>
+			lesson_order = #{lessonOrder,jdbcType=VARCHAR},
+			introduction = #{introduction,jdbcType=VARCHAR}
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="del" parameterType="com.alibaba.fastjson.JSONArray">
+		delete from train_course where id in 
+		<foreach collection="list" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag}
+    	</foreach>
+	</delete>
+	
+	<select id="count4del" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(b.id) 
+		from 
+			train_plan as b
+		where 
+			#{id} = ANY(b.courses::integer[]);
+	</select>
+	
+	<select id="count4delPre" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(id)
+		from train_course
+		where #{id} = any(pre_courses :: integer[])
+	</select>
+	
+	<select id="checkName" parameterType="java.util.Map" resultType="java.lang.Integer">
+	    select count(id) from train_course
+	    	where
+	    		name = #{name}
+	</select>
+	
+	<select id="listById" parameterType="java.util.Map" resultMap="idsMap">
+	    select
+			b.id as lessonId,
+			c.id as courseId,
+			b.type
+		from
+			train_course as a,
+			train_lesson as b,
+			train_courseware as c
+		where
+			#{id} = a.id and
+			a.id  = b.train_course and
+			b.id = train_course_lesson
+	</select>
+	
+	<select id="checkNode" resultMap="checkNodeMap" parameterType="java.util.Map">
+		select d.id,d.name from person as a
+		
+		left join person_solo_station(a.id) as b
+		on b.person = a.id
+		left join sys_station as c
+		on b.station = c.id
+		left join node as d
+		on c.node = d.id
+		
+		where #{person} = a.id 
+	</select>
+	
+	<update id="updateAuditing" parameterType="java.util.Map">
+		update 
+			train_course 
+		set 
+			train_log = #{trainLog,jdbcType=OTHER,typeHandler=JSONOBJECT},
+			state = #{state,jdbcType=VARCHAR}
+		where 
+			id = #{id}
+	</update>
+	
+	<select id="getPersonName" resultType="java.lang.String" parameterType="java.lang.Integer">
+		select name from person
+		where #{id} = id	
+	</select>
+	
+	
+	<resultMap type="java.util.Map" id="lessonResultMap">
+		<id column="lessonId" property="lessonId" />
+		<result column="lessonName" property="lessonName" />
+		<result column="courseId" property="courseId" />
+		<result column="duration" property="duration" />
+		<result column="lessonType" property="lessonType" />
+		<result column="knowledgePointId" property="knowledgePointId" />
+		<result column="introduction" property="introduction" />
+		<result column="examPaper" property="examPaper" />
+		<result column="dragFlag" property="dragFlag" />
+		<result column="jionSystem" property="jionSystem" />
+		<result column="sequence" property="sequence" />
+		<collection property="coursewares" ofType="java.util.Map" javaType="java.util.ArrayList">
+			<id column="coursewareId" property="coursewareId" />
+			<result column="coursewareName" property="coursewareName" />
+			<result column="mime" property="mime" />
+			<result column="remarks" property="remarks" />
+			<result column="coursewareType" property="coursewareType" />
+			<result column="filename" property="filename" />
+		</collection>	
+	</resultMap>
+	
+	<select id="listLessonsByCourseId" resultMap="lessonResultMap" parameterType="java.lang.Integer">
+		select 
+		a.id as lessonId,
+		a.name as lessonName,
+		a.train_course as courseId,
+		a.duration as duration,
+		a.type as lessonType,
+		a.knowledge_point as knowledgePointId,
+		a.introduction as introduction,
+		a.exam_paper as examPaper,
+		a.drag_flag as dragFlag,
+		a.jion_system as jionSystem,
+		a.sequence as sequence,
+		b.id as coursewareId,
+		b.name as coursewareName,
+		b.mime as mime,
+		b.remarks as remarks,
+		b.type as coursewareType,
+		b.filename as filename
+		from train_lesson a 
+		left join train_courseware b 
+		on b.train_course_lesson = a.id
+		where a.train_course=#{courseId} order by a.id
+	</select>
+	
+	<select id="count4DelCourse" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		select count(id)
+		from train_student_learn_course
+		where train_course_lesson = any(ARRAY[
+			<foreach collection="id" item="item" index="index" separator="," >
+				#{item}
+    		</foreach>
+		] :: integer[])
+	</select>
+	
+	
+<!-- 学员端课程列表 前置课程 20160829 yangyixuan Start -->
+	
+	<resultMap type="java.util.Map" id="preCoursesMap">
+		<id column="id" property="preCourseId" />
+		<result column="train_course_lesson" property="train_course_lesson" />
+		<result column="student" property="student" />
+	</resultMap>
+	
+	<select id="count4PreCourses" resultMap="preCoursesMap" parameterType="java.util.Map">
+		
+		select ts.id,ts.train_course_lesson,ts.student from train_student_learn_course ts
+		where train_course_lesson = any(
+		array[
+			<foreach collection="preCourses" item="item" index="index" separator="," >
+				#{item}
+    		</foreach>
+		]
+		 :: integer[])
+		and state &lt;&gt; 'O' and student = #{student}
+		
+	</select>
+
+<!-- 学员端课程列表 前置课程 20160829 yangyixuan end -->
+	
+</mapper>

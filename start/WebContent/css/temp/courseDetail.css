@@ -1,0 +1,225 @@
+*{
+    font-family:"微软雅黑" , "Microsoft YaHei", sans-serif;
+}
+#page-courseDetail{
+    padding: 12px;
+}
+
+#page-courseDetail>h4{
+    padding: 8px;
+    border-bottom: 1px solid gainsboro;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+#page-courseDetail #basic-courseDetail{
+    border-bottom: 1px solid gainsboro;
+}
+#page-courseDetail h3{
+    font-size: 18px;
+    color: #101010;
+}
+ /*----基本信息------------------ */
+#page-courseDetail #basic-courseDetail p{
+    color: #696f76;
+}
+#page-courseDetail #basic-courseDetail button{
+    background-color: #FFFFFF;
+    color: #37D1C1;
+    height: 24px;
+    width: 40px;
+    line-height: 6px;
+    font-size: 12px;
+    border: 1px solid #37D1C1;
+    border-radius: 2px;
+}
+/*改预览位置*/
+.btn-lg{
+    padding: 0px;
+}
+#page-courseDetail #basic-courseDetail .myp1{
+    width: 60%;
+
+}
+#page-courseDetail #basic-courseDetail .myp1 span{
+    display: inline-block;
+    text-indent: 5em;
+}
+/*课程内容一*/
+.contentTwo{
+    padding-left: 8px;
+    padding-top: 20px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid gainsboro;
+}
+#page-courseDetail .contentTwo .form-control{
+    width: 157px;
+    display: inline;
+    height: 28px;
+    border-radius: 0;
+    margin-top: 9px;
+}
+#page-courseDetail .contentTwo .myDinput1{
+    margin-right: 20px;
+}
+/*搜索和导出按钮*/
+#page-courseDetail .contentTwo .mybtnD1{
+    background-color: #f16855;
+    border-color: #f16855;
+    margin-left: 40px;
+    color: #FFFFFF;
+}
+#page-courseDetail .contentTwo .mybtnD2{
+    background-color: #37D1C1;
+    border-color: #37D1C1;
+    color: #FFFFFF;
+    margin-left: 40px;
+}
+#content-courseList>button,.contentTwo>button{
+    width: 90px;
+    height: 30px;
+    outline: none;
+    border: none;
+    border-radius: 3px;
+}
+/*第一张内容表*/
+#page-courseDetail .contentTwo .courseDetail-table .courseDetail-tbody td:first-child{
+      width: 20%;
+}
+#page-courseDetail .contentTwo .courseDetail-table .myDtr1{
+    background-color: #F2F2F4;
+}
+/*修改奇偶行的背景颜色*/
+.table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th{
+   background-color: #F2F2F4;
+}
+.table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th{
+    background-color: #FFFFFF;
+}
+/*修改td的border-top值*/
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+     border-top: none;
+}
+
+.courseDetail-table{
+    border: 1px solid gainsboro;
+}
+.courseDetail-thead>tr>th{
+    height: 40px;
+    padding-left: 0 !important;
+    /*line-height: 40px !important;*/
+}
+/*首列缩进的距离*/
+.courseDetail-thead>tr>th:first-child{
+    padding-left: 30px !important;
+}
+.table>tbody>tr>td{
+    padding-left: 0;
+}
+.table>tbody>tr>td:first-child{
+    padding-left: 30px;
+}
+.table tbody tr td:nth-child(2){
+    /*display: inline-block;*/
+    padding-left: -50px;
+}
+.table>tbody>tr>td>input{
+    border: 1px solid #F87768;
+    outline: 1px solid #F87768;
+}
+.table>tbody>tr>td>span:first-child{
+    margin-right:20px;
+    color: #39D1C0;
+    cursor: pointer;
+}
+/*星星的样式*/
+.fa-star{
+    color: #e47772;
+    font-size: 18px;
+}
+#contentTwo3{
+    border-bottom: none;
+}
+/*///////////////分页//////////////////*/
+.ui-pager .ui-pager-wrap {
+    height: 30px;
+    line-height: 30px;
+    padding: 27px 16px 27px 0;
+    background-color: #fff;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num {
+    text-align: right;
+    font-size: 12px;
+}
+.ui-page-num a{
+    color: #5f646b;
+}
+.ui-pager .ui-pager-wrap .ui-page-num a, .ui-pager .ui-pager-wrap .ui-page-num span, .ui-pager .ui-pager-wrap .ui-page-num .targe-page-btn {
+    display: inline-block;
+    height: 28px;
+    line-height: 28px;
+    width: 28px;
+    margin: 0 5px;
+    text-align: center;
+    font-size: 12px;
+    border: 1px solid #d6d3d3;
+    border-radius: 1px;
+    cursor: pointer;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a:hover {
+    color: #34D1C0;
+    border-color: #34D1C0;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.disabled {
+    background-color: #f7f6f4;
+    color: #dad9d9;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.disabled:hover {
+    background-color: #f7f6f4;
+    border-color: #d6d3d3;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num input {
+    padding: 0 6px;
+    height: 28px;
+    line-height: 28px;
+    width: 28px;
+    margin: 0 5px;
+    text-align: center;
+    font-size: 12px;
+    border: 1px solid #d6d3d3;
+    border-radius: 1px;
+}
+.target-page-btn{
+    color: white !important;
+    background-color:#34D1C0 ;
+}
+.target-page-btn:hover{
+    color: white !important;
+}
+.ui-pager .ui-pager-wrap .ui-page-num .target-page-btn {
+    width: 58px;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.current, .ui-pager .ui-pager-wrap .ui-page-num span.current {
+    color: #fff;
+    border-color: #34D1C0;
+    background-color:#34D1C0;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num a.current:hover, .ui-pager .ui-pager-wrap .ui-page-num span.current:hover {
+    color: #fff;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num .tpage-ellipsis {
+    border: none;
+}
+
+.ui-pager .ui-pager-wrap .ui-page-num .prev, .ui-pager .ui-pager-wrap .ui-page-num .next {
+    font-weight: bold;
+}
+
+

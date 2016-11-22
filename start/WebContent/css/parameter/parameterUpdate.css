@@ -1,0 +1,122 @@
+body{
+	color:#7a818b;
+	font-family:"微软雅黑" ;
+}
+h4{
+    font-size: 14px;
+    color: #343941;
+    margin-left:0px;
+}
+h3{
+    font-size: 18px;
+    color: #343941;
+    margin-bottom:0px;
+     margin-left:0px;
+}
+/*���еı���*/
+#content-courseList .form-control,#content-courseList .myp1 .form-control{
+    display: inline;
+    border-radius: 3px;
+    height: 32px;
+    color:  #A2A5AA;
+}
+#content-courseList .mytextarea{
+    height: auto;
+    width: 400px;
+}
+#content-courseList .myRemind{
+    width: 60px;
+    height: 28px;
+}
+/*�޸ı�margin-right*/
+#content-courseList>input, #content-courseList>select {
+    margin-right: 2px;
+}
+#content-courseList .mycheckbox1{
+    display: inline-block;
+}
+#content-courseList .mycheckbox1:nth-of-type(2){
+    margin-top: -5px;
+    margin-right: 30px;
+}
+#content-courseList .form-control{
+    height: 28px;
+    padding: 0 0 0 10px;
+}
+#content-courseList .mycontrol1{
+   /*  margin-left: 20px; */
+}
+#content-courseList .mycontrol3{
+    margin-left: 49px;
+}
+#content-courseList .mycontrol4{
+    margin-left: 45px;
+}
+#content-courseList .myspan1{
+    margin-left: 50px;
+}
+#content-courseList .myspan2{
+    margin-left: 62px;
+}
+#content-courseList .mycontrol5{
+    margin-left: 20px;
+}
+#content-courseList .myh3{
+    margin-top: 50px;
+}
+#content-courseList .mycontrol6{
+    margin: 0 20px 0 20px;
+}
+.btn-danger{
+   margin: 20px auto;
+    display: block;
+    background-color: #2d94ff;
+    border-color: #2d94ff;
+    width: 110px;
+    border-radius: 3px;
+    height: 30px;
+    color:#ffffff;
+     text-align: center;
+      line-height: 14px;
+}
+#content-courseList{
+    border-bottom: none;
+}
+/*��ʱ��γ̵ľ���*/
+#content-courseList .myCh3{
+    margin-top: 40px;
+}
+#content-courseList .control-group{
+	margin-left:0px;
+}
+#content-courseList #myUpCheck1{
+	margin-left:30px;
+}
+#content-courseList #day{
+	height:20px;
+	width:40px;
+}
+#content-courseList input{
+	border-radius:2px !important;
+}
+#page-courseList .control-group input{
+	float:left;
+}
+#page-courseList .control-group .myTotal{
+	margin-left:0px;
+}
+#page-courseList .control-group .myTotal1{
+	margin-left:0px;
+	margin-right:20px;
+}
+
+#page-courseList .myPrompt{
+	margin-left:-5px;
+	text-align: left;
+}
+#page-courseList .myAllCondition{
+	text-align: left;
+}
+#page-courseList .params-group {
+    margin-left: 50px;
+}

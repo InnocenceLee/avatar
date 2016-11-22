@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.HelpDao">
+	
+	<insert id="add" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id" >
+	    
+	    insert into help_document
+			(
+			    id,
+				name,
+				content
+			) values (
+			    DEFAULT,
+				#{name,jdbcType=VARCHAR},
+				#{content,jdbcType=VARCHAR}
+			)
+	</insert>
+	<update id="modyfy" parameterType="java.util.Map">
+	    update help_document set name = #{name,jdbcType=VARCHAR},content=#{content,jdbcType=VARCHAR}
+	    WHERE id =  #{id,jdbcType=INTEGER}
+	</update>
+	
+	<select id="helpList" resultType="java.util.Map">
+	    SELECT * 
+        from help_document 
+	</select>
+	
+   <select id="gethelpDetail" resultType="java.util.Map" parameterType="int">
+	    SELECT * 
+        from help_document 
+        where help_document.id = #{value}
+	</select>
+	<delete id="helpDel" parameterType="int">
+	    DELETE FROM help_document WHERE id =#{value}
+	</delete>
+</mapper>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.ExamQuestionDao">
+	
+	
+	<select id="list" resultType="java.util.Map" parameterType="java.util.Map">
+	    ${nodeSql} 
+	    select eq.id,eq.difficulty,eq.type,eq.content,eq.state,eq.score,eq.knowledge,eq.r_num,eq.w_num,to_char(eq.creatdate,'YYYY-MM-DD') creatdate,eq.node 
+	    from nd,exam_question eq,knowledge_point kp where eq.knowledge=kp.id and kp.node=nd.id and eq.state!='D'
+	    <if test="id != null and id != 0">  
+	        and eq.id = #{id}  
+	    </if>  
+	    <if test="type != null and type != ''">  
+	        and eq.type = #{type}  
+	    </if>  
+	    <if test="difficulty != null">  
+	    	and eq.difficulty in 
+	 		<foreach collection="difficulty" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	</foreach>
+	    </if> 
+	    <if test="knowledges != null">  
+	    	and eq.knowledge in 
+	 		<foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	</foreach>
+	    </if>
+	    <if test="random != null">  
+	       order by random()
+	    </if>
+	    <if test="order != null">  
+	       order by eq.id desc
+	    </if>
+	    <if test="size != null">  
+	       limit  #{size} offset #{start}
+	    </if>
+	</select>
+	
+	<select id="getByIds" resultType="java.util.Map" parameterType="java.util.Map">
+		<![CDATA[
+	    select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node from exam_question 
+	    where state != 'D' and id in 
+	    ]]>
+	    <foreach collection="array" index="index" item="item" open="(" separator="," close=")">   
+       	 	#{item}   
+    	</foreach>
+	    
+	</select>
+	
+	<select id="findNodeName" resultType="java.lang.String" parameterType="java.util.Map">
+	    
+	    ${nodeSql} 
+	     
+	    select array_to_string(array(select name from ndr order by id),'->')
+	</select>
+	
+	<select id="listCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+	    ${nodeSql} 
+	    select count(*)
+	    from nd,exam_question eq,knowledge_point kp where eq.knowledge=kp.id and kp.node=nd.id and eq.state!='D'
+	    <if test="id != null and id != 0">  
+	        and eq.id = #{id}  
+	    </if>  
+	    <if test="type != null and type != ''">  
+	        and eq.type = #{type}  
+	    </if>  
+	    <if test="difficulty != null">  
+	    	and eq.difficulty in 
+	 		<foreach collection="difficulty" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	</foreach>
+	    </if> 
+	    <if test="knowledges != null">  
+	    	and eq.knowledge in 
+	 		<foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	</foreach>
+	    </if>
+	    <if test="random != null">  
+	       order by random()
+	    </if>
+	</select>
+	
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into exam_question(id,difficulty,type,content,state,score,knowledge,r_num,w_num,creatdate,node)
+ 			values(nextval('exam_question_id_seq'),#{difficulty},#{type},#{content,jdbcType=OTHER,typeHandler=JSONOBJECT},#{state},#{score},#{knowledge},#{r_num},#{w_num},now(),#{node})
+	</insert>
+	
+	<select id="selectCurrentId" resultType="java.lang.Integer">
+		SELECT currval('exam_question_id_seq') as id
+	</select>
+	
+	<update id="update" parameterType="java.util.Map">
+		update
+		exam_question
+		set
+		difficulty=#{difficulty},type=#{type},content=#{content,jdbcType=OTHER,typeHandler=JSONOBJECT},state=#{state},score=#{score},knowledge=#{knowledge},r_num=#{r_num},w_num=#{w_num}
+		where
+		id = #{id}
+	</update>
+	
+	<update id="dels" >
+		update exam_question set state='D' where  id in 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">   
+       	 	#{item}   
+    	</foreach>
+	</update>
+	
+	
+	<select id="customQuesttion" resultType="java.util.Map" parameterType="java.util.Map">
+		
+		select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question 
+		    where state != 'D'
+    	    <if test="knowledges != null">
+			    and knowledge  in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="start !=null and size != null">
+		        limit #{size} offset #{start}
+	        </if>
+	</select>
+	
+	<select id="findSQuestions" resultType="java.util.Map" parameterType="java.util.Map">
+		
+		select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question 
+		    where state != 'D' and type='S'
+		    <if test="difficulty != null">
+		    	and difficulty = #{difficulty}
+		    </if> 
+		    <if test="excludeIds != null">
+			    and id not in
+			    <foreach collection="excludeIds" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="knowledges != null">
+			    and knowledge  in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="random != null">  
+		       order by random()
+		    </if>
+    	   	limit #{sNum}
+	</select>
+	<select id="findMQuestions" resultType="java.util.Map" parameterType="java.util.Map">
+		
+		select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question 
+		    where state != 'D' and type='M'
+		    <if test="difficulty != null">
+		    	and difficulty = #{difficulty}
+		    </if> 
+		    <if test="excludeIds != null">
+			    and id not in
+			    <foreach collection="excludeIds" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="knowledges != null">
+			    and knowledge  in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="random != null">  
+		       order by random()
+		    </if>
+    	    limit #{mNum}
+	</select>
+	<select id="findCQuestions" resultType="java.util.Map" parameterType="java.util.Map">
+		
+		select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question 
+		    where state != 'D' and type='C'
+		    <if test="difficulty != null">
+		    	and difficulty = #{difficulty}
+		    </if> 
+		    <if test="excludeIds != null">
+			    and id not in
+			    <foreach collection="excludeIds" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="knowledges != null">
+			    and knowledge  in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="random != null">  
+		       order by random()
+		    </if>
+    	    limit #{cNum}
+	</select>
+	
+	
+	
+	<!-- <select id="customQuesttion" resultType="java.util.Map" parameterType="java.util.Map">
+		
+		(select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question  where 1=2)
+		<if test="mNum != null">  
+		    union all 
+		    (select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question 
+		    where state != 'D' and type = 'M'
+		    <if test="difficulty != null">
+		    	and difficulty = #{difficulty}
+		    </if> 
+		    <if test="excludeIds != null">
+			    and id not in
+			    <foreach collection="excludeIds" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="knowledges != null">
+			    and knowledge not in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+		    order by random() limit #{mNum})
+	    </if>
+	    <if test="sNum != null">  
+		    union all 
+		    (select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question 
+		    where state != 'D' and type = 'S'
+		    <if test="difficulty != null">
+		    	and difficulty = #{difficulty}
+		    </if> 
+		    <if test="excludeIds != null">
+			    and id not in
+			    <foreach collection="excludeIds" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="knowledges != null">
+			    and knowledge not in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+		    order by random() limit #{mNum})
+	    </if>
+	    <if test="cNum != null">  
+		    union all 
+		    (select id,difficulty,type,content,state,score,knowledge,r_num,w_num,to_char(creatdate, 'YYYY-MM-DD') creatdate,node 
+		    from exam_question 
+		    where state != 'D' and type = 'C'
+		    <if test="difficulty != null">
+		    	and difficulty = #{difficulty}
+		    </if> 
+		    <if test="excludeIds != null">
+			    and id not in
+			    <foreach collection="excludeIds" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="knowledges != null">
+			    and knowledge not in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+		    order by random() limit #{mNum})
+	    </if>
+	    
+	</select> -->
+	
+	
+	<select id="count4customQuesttion" resultType="java.lang.Integer" parameterType="java.util.Map">
+		select count(1)
+		    from exam_question 
+		    where state != 'D'
+		    <if test="difficulty != null">
+		    	and difficulty = #{difficulty}
+		    </if> 
+		    <if test="excludeIds != null">
+			    and id not in
+			    <foreach collection="excludeIds" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+    	    <if test="knowledges != null">
+			    and knowledge in
+			    <foreach collection="knowledges" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	    </foreach>
+    	    </if>
+	</select>
+	
+	
+	<select id="list4Id" resultType="java.util.Map" parameterType="com.alibaba.fastjson.JSONArray">
+	select id,type,content,score from exam_question
+	where id = any(
+		ARRAY[
+			<foreach collection="list" item="item" index="index" separator="," >
+				#{item}  
+   			</foreach>
+		] :: integer[]
+	)
+	</select>
+	<select id="findDept" parameterType="java.util.Map" resultType="java.lang.Integer">
+		${sql} 
+		select id from ndr where type !='OFFICE' limit 1;  	
+	</select>
+	
+	
+	
+</mapper>

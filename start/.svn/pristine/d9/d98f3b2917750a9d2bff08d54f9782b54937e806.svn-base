@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.StudentProgressDao">
+	
+	<resultMap type="java.util.Map" id="progressMap">  
+	    <id column="id" property="id"/>
+	    <result column="name" property="name" />
+	    <result column="learn_state" property="learnState" />
+	    <result column="progress" property="progress" />
+	    <result column="student_learn_course" property="studentLearnCourse" />
+	    <result column="train_lesson" property="trainLesson" />
+	    <result column="evaluation" property="evaluation" />
+	    <result column="train_type" property="trainType" />
+	    <result column="train_comment" property="trainComment" />
+	    <result column="train_time" property="trainTime" />
+  	</resultMap>
+  	
+  	<select id="countList4Course" resultType="java.lang.Integer" parameterType="java.util.Map">
+  				select 
+			   		count(a.id)
+				from 
+					train_student_progress as a,
+					train_student_learn_course as b,
+					person as c,
+					train_course as d,
+					train_lesson as e,
+					person_station as f,
+					sys_station as g,
+					node as h
+				where
+					#{trainPlanId} = b.train_plan and
+					#{courseId} = b.train_course_lesson and
+					d.id = b.train_course_lesson and
+					b.student = c.id and
+					b.id = a.student_learn_course and
+					a.train_lesson = e.id and
+					a.train_type = 'E' and
+					c.id = f.person and
+					f.station = g.id and
+					g.node = h.id
+					<if test="personId != NULL">
+					and c.id = #{personId}
+					</if> 
+					<if test="personName != NULL and personName != ''">
+					and c.name like #{personName}
+					</if> 
+					<if test="nodeName != NULL and nodeName != ''">
+					and h.name like #{nodeName}
+					</if> 
+					<if test="lessonName != NULL and lessonName != ''">
+					and e.name like #{lessonName}
+					</if> 
+  	</select>
+  	
+  	<select id="list4Course" resultMap="progressMap" parameterType="java.util.Map">
+		SELECT *
+		FROM (
+			   select 
+			   		a.id,
+					e.name as lesson_name,
+					c.name as person_name,
+					a.train_comment,
+					a.evaluation
+				from 
+					train_student_progress as a,
+					train_student_learn_course as b,
+					person as c,
+					train_course as d,
+					train_lesson as e,
+					person_station as f,
+					sys_station as g,
+					node as h
+				where
+					#{trainPlanId} = b.train_plan and
+					#{courseId} = b.train_course_lesson and
+					d.id = b.train_course_lesson and
+					b.student = c.id and
+					b.id = a.student_learn_course and
+					a.train_lesson = e.id and
+					a.train_type = 'E' and
+					c.id = f.person and
+					f.station = g.id and
+					g.node = h.id
+					<if test="personId != NULL">
+					and c.id = #{personId}
+					</if> 
+					<if test="personName != NULL and personName != ''">
+					and c.name like #{name}
+					</if> 
+					<if test="nodeId != NULL">
+					and h.id = #{nodeId}
+					</if> 
+					<if test="lessonName != NULL and lessonName != ''">
+					and e.name like #{lessonName}
+					</if> 
+		) a
+		WHERE a.id >= (
+			SELECT b.id
+			FROM (
+			   select 
+			   		a.id,
+					e.name as lesson_name,
+					c.name as person_name,
+					a.train_comment,
+					a.evaluation
+				from 
+					train_student_progress as a,
+					train_student_learn_course as b,
+					person as c,
+					train_course as d,
+					train_lesson as e,
+					person_station as f,
+					sys_station as g,
+					node as h
+				where
+					#{trainPlanId} = b.train_plan and
+					#{courseId} = b.train_course_lesson and
+					d.id = b.train_course_lesson and
+					b.student = c.id and
+					b.id = a.student_learn_course and
+					a.train_lesson = e.id and
+					a.train_type = 'E' and
+					c.id = f.person and
+					f.station = g.id and
+					g.node = h.id
+					<if test="personId != NULL">
+					and c.id = #{personId}
+					</if> 
+					<if test="personName != NULL and personName != ''">
+					and c.name like #{name}
+					</if> 
+					<if test="nodeId != NULL">
+					and h.id = #{nodeId}
+					</if> 
+					<if test="lessonName != NULL and lessonName != ''">
+					and e.name like #{lessonName}
+					</if> 
+			) b
+			ORDER BY b.id ASC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.id ASC
+		LIMIT #{size}
+	</select>
+  	
+	<update id="studentProgressUpdate" parameterType="java.util.Map">
+		update train_student_progress set
+			learn_state = #{learnState,jdbcType=INTEGER},
+			<if test="progress != NULL">
+			progress = #{progress,jdbcType=OTHER,typeHandler=JSONOBJECT},
+			</if>
+			student_learn_course = #{studentLearnCourseId,jdbcType=INTEGER},
+			train_lesson = #{trainLesson,jdbcType=INTEGER},
+			train_time = #{trainTime,jdbcType=INTEGER},
+			<if test="evaluation != NULL and evaluation != ''">
+			evaluation = #{evaluation,jdbcType=VARCHAR},
+			</if>
+			<if test="trainComment != NULL and trainComment != ''">
+			train_comment = #{trainComment,jdbcType=VARCHAR},
+			</if>
+			train_type = #{type,jdbcType=VARCHAR}
+		where
+			<if test="id != NULL">
+				#{id} = id
+			</if>
+			<if test="id == NULL">
+				#{studentLearnCourse} = student_learn_course and
+				#{lessonId} = train_lesson
+			</if>
+	</update>
+	
+	<insert id="studentProgressAdd" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into train_student_progress(
+			id,
+			learn_state,
+			<if test="progress != NULL and progress != ''">
+			progress,
+			</if>
+			student_learn_course,
+			train_lesson,
+			train_time,
+			<if test="evaluation != NULL and evaluation != ''">
+			evaluation,
+			</if>
+			<if test="trainComment != NULL and trainComment != ''">
+			train_comment,
+			</if>
+			train_type
+		)values(
+			DEFAULT,
+			#{learnState,jdbcType=INTEGER},
+			<if test="progress != NULL">
+			#{progress,jdbcType=OTHER,typeHandler=JSONOBJECT},
+			</if>
+			#{studentLearnCourseId,jdbcType=INTEGER},
+			#{trainLesson,jdbcType=INTEGER},
+			#{trainTime,jdbcType=INTEGER},
+			<if test="evaluation != NULL and evaluation != ''">
+			#{evaluation,jdbcType=VARCHAR},
+			</if>
+			<if test="trainComment != NULL and trainComment != ''">
+			#{trainComment,jdbcType=VARCHAR},
+			</if>
+			#{type,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<select id="checkStudentProgress" resultType="java.lang.Integer" parameterType="java.util.Map">
+		select
+			count(id)
+		from
+			train_student_progress
+		where
+			#{studentLearnCourse} = student_learn_course and
+			#{lessonId} = train_lesson
+	</select>
+</mapper>

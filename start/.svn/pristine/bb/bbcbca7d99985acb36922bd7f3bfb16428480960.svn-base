@@ -1,0 +1,50 @@
+#contentTwo .mybtnL1{
+    background-color: #37D1C1;
+    border: 1px solid #D4D3D8;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    margin-top:-15px;
+}
+#contentTwo .mybtnL2{
+    background-color: #FFFFFF;
+    border: 1px solid #D4D3D8;
+    margin-left: -5px;
+    margin-bottom: 15px;
+}
+#contentTwo .mybtnL2:nth-of-type(1){
+    border-radius: 0;
+}
+#contentTwo .mybtnL2:nth-of-type(2){
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+#contentTwo .mybtnL2:hover{
+    background-color: #37D1C1;
+}
+/*�ñ���е����ݾ�����ʾ*/
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+     vertical-align: middle;
+}
+#contentTwo .container-fluid #courseList-table #questionBank-tbody td:nth-of-type(5){
+    color: #37D1C1;
+    cursor: pointer;
+}
+#contentTwo2 #myselect1{
+    height: 26px;
+    width: 157px;
+}
+/*��̬��*/
+#contentTwo .container-fluid .modal{
+    top: 20%;
+}
+#contentTwo .container-fluid .modal .form-control{
+    width: auto;
+    height: auto;
+    border-radius: 3px;
+}
+#contentTwo .container-fluid .modal .mycontrol2{
+    margin-left: 24px;
+}
+/* #myclModal .modal-body span{
+	width:60px;
+} */

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.GroupDao">
+
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into "group"(id,name,persons,belong)
+ 			values(DEFAULT,#{name},ARRAY[
+ 			<foreach collection="persons" index="index" item="item" separator=",">   
+       	 		#{item}   
+    		</foreach>
+ 			],#{belong})
+	</insert>
+	
+	<delete id="dels" parameterType="java.util.Map">
+		delete from "group" where id in 
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">   
+       	 	#{item}   
+    	</foreach>
+	</delete>
+	
+	<select id="list" resultType="java.util.Map" parameterType="java.util.Map">
+	    select id,name,array_to_string(persons,',') persons,belong from "group" 
+	    where 1=1  
+	    <if test="belong != null and belong !=0">  
+	        and belong = #{belong}
+	    </if>  
+	    <if test="names != null">
+			and name in 
+		    <foreach collection="names" index="index" item="item" open="(" separator="," close=")">   
+	       	 	#{item}   
+	    	</foreach> 
+	    </if>  
+	</select>
+	
+	<select id="GetPersonByNodes" resultType="java.util.Map" parameterType="java.util.Map">
+	    SELECT p.username,p.id,p.name,array_to_string(array(select name from node where id in(select s.node from person_station ps,sys_station s where ps.station=s.id and ps.person=p.id )),',') as nodeName
+	    FROM person p,person_station A,sys_station b,node C
+	    where p.ID = A .person and A .station = b. ID and b.node = C . ID and position('O' in p.username) != 1 and C.id In 
+		<foreach collection="inNodes" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag}
+    	</foreach>
+    	<if test="cheakusername != NULL and cheakusername != ''">
+				AND p.name like '%'||#{cheakusername}||'%'
+		</if> 
+		<if test="employeeNo != NULL and employeeNo != ''">
+				AND p.username like '%'||#{employeeNo}||'%'
+		</if> 
+		<if test="level != NULL and level != ''">
+				AND p.tag->>'level' like '%'||#{level}||'%'
+		</if>
+		<if test="cabinCrewInspector != NULL and cabinCrewInspector != ''">
+				AND p.tag->>'cabinCrewInspector' like '%'||#{cabinCrewInspector}||'%'
+		</if>
+		<if test="cabinCrew != NULL and cabinCrew != ''">
+				AND p.tag->>'cabinCrew' like '%'||#{cabinCrew}||'%'
+		</if>
+		<if test="bClassTeacher != NULL and bClassTeacher != ''">
+				AND p.tag->>'bClassTeacher' like '%'||#{bClassTeacher}||'%'
+		</if>
+		<if test="longFlightInstructor != NULL and longFlightInstructor != ''">
+				AND p.tag->>'longFlightInstructor' like '%'||#{longFlightInstructor}||'%'
+		</if>
+
+		<if test="internationalQualificationTraining != NULL and internationalQualificationTraining != ''">
+				AND p.tag->>'internationalQualificationTraining' like '%'||#{internationalQualificationTraining}||'%'
+		</if>
+
+		<if test="threeHundredQualification != NULL and threeHundredQualification != ''">
+				AND p.tag->>'threeHundredQualification' like '%'||#{threeHundredQualification}||'%'
+		</if>
+		<if test="boutique != NULL and boutique != ''">
+				AND p.tag->>'boutique' like '%'||#{boutique}||'%'
+		</if>
+		<if test="Announcer != NULL and Announcer != ''">
+				AND p.tag->>'Announcer' like '%'||#{Announcer}||'%'
+		</if>
+
+		<if test="Lhasa != NULL and Lhasa != ''">
+				AND p.tag->>'Lhasa' like '%'||#{Lhasa}||'%'
+		</if>
+		<if test="specialCharter != NULL and specialCharter != ''">
+				AND p.tag->>'specialCharter' like '%'||#{specialCharter}||'%'
+		</if>
+		<if test="cadre != NULL and cadre != ''">
+				AND p.tag->>'cadre' like '%'||#{cadre}||'%'
+		</if>
+
+		<if test="teacher != NULL and teacher != ''">
+				AND p.tag->>'teacher' like '%'||#{teacher}||'%'
+		</if>
+
+		<if test="foreman != NULL and foreman != ''">
+				AND p.tag->>'foreman' like '%'||#{foreman}||'%'
+		</if>
+
+	</select>
+	
+	<select id="listPersonByIds" resultType="java.util.Map" parameterType="java.util.Map">
+	    <!-- select d.id,d.name,c.name nodeName from person d,person_station a,sys_station b,node c where d.id=a.person and a.station=b.id and b.node=c.id and d.id in -->
+	    select id ,name,username,array_to_string(array(select name from node where id in(select s.node from person_station p,sys_station s where p.station=s.id and p.person=b.id )),',') as nodeName 
+		from (
+		SELECT
+			d.id,
+			d.name,
+			d.username
+		FROM
+			person d
+		WHERE
+			d. ID IN 
+		<foreach collection="ids" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag}
+    	</foreach>)b
+    	limit  #{size} offset #{start}
+	</select>
+	
+	<select id="listPersonCountByIds" resultType="java.lang.Integer" parameterType="java.util.Map">
+	    <!-- select count(1) from person d,person_station a,sys_station b,node c where d.id=a.person and a.station=b.id and b.node=c.id and d.id in -->
+	    SELECT
+			COUNT (distinct d.id)
+		FROM
+			person d
+		LEFT JOIN person_station A ON d. ID = A .person
+		LEFT JOIN sys_station b ON A .station = b. ID
+		LEFT JOIN node C ON b.node = C . ID
+		WHERE
+			d. ID IN 
+		<foreach collection="ids" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag}
+    	</foreach>
+	</select>
+</mapper>

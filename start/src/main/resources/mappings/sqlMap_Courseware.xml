@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.CoursewareDao">
+	
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into train_courseware(id,train_course_lesson,filename)
+ 			values(DEFAULT,#{trainCourseLesson,jdbcType=INTEGER},#{filename,jdbcType=VARCHAR})
+	</insert>
+	
+	<delete id="delBylessonId">
+		delete from train_courseware
+			where #{id} = train_course_lesson
+	</delete>
+	
+	<delete id="del" parameterType="java.lang.Integer">
+		delete from train_courseware where id in 
+		<foreach collection="array" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag}
+    	</foreach>
+	</delete>
+	
+	<update id="update" parameterType="java.util.Map">
+		update 
+			train_courseware 
+		set 
+			train_course_lesson = #{trainCourseLesson,jdbcType=INTEGER},
+			filename = #{filename,jdbcType=VARCHAR}
+		where 
+			id = #{id}
+	</update>
+</mapper>

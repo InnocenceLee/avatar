@@ -1,0 +1,166 @@
+d2js.fetch = function(params){
+	this.checkPrivilege("company.query");
+	params.nodeProperty = 'parent_id';
+	
+	if(params.name){
+		sql{.
+			with recursive p as (select id, parent_id from node d 
+				where strpos(d.name, :name) > 0 
+				union
+				select f.id, f.parent_id from node f, p 
+				where f.id = p.parent_id
+			),
+			code{.
+				var nd = this.nodeSql(params, findAncientTypesAnd('COMPANY'));
+				sql += nd.substr(5); 	// bypass WITH
+			.}
+			select node.* from node, nd where node.id = nd.id and nd.id in (select id from p) order by nd.path
+		.}
+	} else {
+		sql{.
+			select node.* from node, nd where node.id = nd.id
+		.}
+		sql = this.nodeSql(params, findAncientTypesAnd('COMPANY')) + sql;
+	}
+	
+	return this.query(sql, params);
+};
+
+
+d2js.exports.listAll = true;
+d2js.listAll = function(){
+	sql{.
+	with recursive a as (
+		select *,name::varchar(2000) path from node where id = 0
+	union 
+		select n.*,(a.path || n.name)::varchar(2000) path from node n, a where n.parent_id = a.id
+	)
+		select * from a order by a.path
+	.}
+	
+	return this.query(sql, null);
+}
+
+
+d2js.create = function(rcd){
+	this.checkPrivilege("company.add");
+	$V(this,rcd, {
+		name : [V.notNull,V.longest(30),V.uniqueInNode('node', 'name')],  
+		parent_id : [V.notNull],
+		'def,address': [V.notNull,V.longest(40)], 
+		'def,contactMan' : [V.notNull,V.longest(20)],
+		'def,tel' : [V.notNull,V.longest(11)],
+		'def,remark':[V.longest(2000)],
+	});
+	rcd.id = this.nextId("node_id_seq");
+	rcd.type ="COMPANY";
+	this.actas('company.add', 'node', rcd.id, rcd);
+	return this.insertRow('node', rcd, ["id","name","parent_id","type","def"]);
+};
+
+
+
+d2js.modify = function(rcd){
+	this.checkPrivilege("company.edit");
+	$V(this,rcd, {
+		name : [V.notNull,V.longest(30),V.uniqueInNode('node', 'name')],  
+		parent_id : [V.notNull],
+		'def,address': [V.notNull,V.longest(40)], 
+		'def,contactMan' : [V.notNull,V.longest(20)],
+		'def,tel' : [V.notNull,V.longest(11)],
+		'def,remark':[V.longest(2000)],
+	});
+	this.actas('company.edit', 'node', rcd.id, rcd);
+	return this.updateRow('node', rcd, ["id","name","parent_id","def"]);
+}
+
+d2js.destroy = function(rcd){
+	this.checkPrivilege("company.delete");
+	this.actas('company.delete', 'node', rcd.id, rcd);
+	return this.deleteRow("node",rcd);
+}
+d2js.exports.fetchById = true;
+d2js.fetchById = function(params){
+	sql{.
+		select * from node where id = :id
+	.}
+	return this.query(sql,params);
+
+}
+
+
+V.uniqueInNode = function(table, tableField, primaryDesc, ignoreCase){	
+	return {
+		name : 'uniqueInNode',	
+		check : function(v, fld, rcd){
+			if(v==null||v=='') return;
+			if(!rcd.parent_id) return;
+			var pk = 'id';
+			if(primaryDesc == null){
+				primaryDesc = {id : rcd.id};
+			} else {
+				for(var k in primaryDesc){
+					if(primaryDesc.hasOwnProperty(k)){
+						pk = k;
+						break;
+					}
+				}
+			}
+			
+			if(this.executor.isOracle()){
+				var sql = 'select 1 from ' + table + ' where ' + (tableField || fld) + ' = ? and rownum=1';
+				if(ignoreCase){
+					sql = 'select 1 from ' + table + ' where upper(' + (tableField || fld) + ') = ? and rownum=1';
+				}
+
+				if(primaryDesc[pk] != null){
+					sql += ' and ' + pk + ' <> ?';
+				}
+			} else if(this.executor.isPostgreSQL()){
+				var sql = 'select 1 from ' + table + ' where ' + (tableField || fld) + ' = ?' + ' and parent_id = '+ rcd.parent_id;
+				if(ignoreCase){
+					sql = 'select 1 from ' + table + ' where upper(' + (tableField || fld) + ') = ?';
+				}
+				if(primaryDesc[pk] != null){
+					sql += ' and ' + pk + ' <> ?';
+				}
+				sql += ' limit 1';
+				
+				var r = (primaryDesc[pk] == null) ? 
+					this.query(sql, [ignoreCase ? (v && v.toUpperCase()) : v]) : 
+					this.query(sql, [v, primaryDesc[pk]]);
+					
+			if(r.rows.length){
+				return '名称为' + v + '的公司已经存在';
+			}
+			
+			var sql = 'select 1 from ' + table + ' where ' + (tableField || fld) + ' = ?' + ' and id = '+ rcd.parent_id;
+				if(ignoreCase){
+					sql = 'select 1 from ' + table + ' where upper(' + (tableField || fld) + ') = ?';
+				}
+				if(primaryDesc[pk] != null){
+					sql += ' and ' + pk + ' <> ?';
+				}
+				sql += ' limit 1';
+				
+				var r = (primaryDesc[pk] == null) ? 
+					this.query(sql, [ignoreCase ? (v && v.toUpperCase()) : v]) : 
+					this.query(sql, [v, primaryDesc[pk]]);
+					
+			if(r.rows.length){
+				return '名称为' + v + '的公司已经存在';
+			}
+		}
+			
+			var r = (primaryDesc[pk] == null) ? 
+					this.query(sql, [ignoreCase ? (v && v.toUpperCase()) : v]) : 
+					this.query(sql, [v, primaryDesc[pk]]);
+					
+			if(r.rows.length){
+				return '名称为' + v + '的公司已经存在';
+			}
+			
+		}
+	};
+};
+

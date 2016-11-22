@@ -1,0 +1,139 @@
+[% 	if(request._la == 'true'){
+		return out.printJson([{name : '查询系统角色代码表', code : 'sys_function.query', status : 'N'},
+		        {name : '增加系统角色代码表', code : 'sys_function.add', status : 'N', dependence : 'sys_function.query'}, 
+		        {name : '编辑系统角色代码表', code : 'sys_function.edit', status : 'N', dependence : 'sys_function.query'},
+		        {name : '删除系统角色代码表', code : 'sys_function.delete', status : 'N', dependence : 'sys_function.query'}]);
+ 	}
+	var anonymous = request.anonymous;
+	if(session.user == null && !anonymous){
+		return response.sendRedirect(website + 'index.jssp');
+	}
+%]<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>系统功能设置</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    [% includeJssp('../common/include_lib.jssp'); %]    
+</head>
+<body>
+	<div molecule-def=SysFunction>
+	    <div molecule="TableList" table="ns_sys_function,sys_function" edit-dialog="ns_sys_function-dialog1">
+	        <h1>系统功能设置</h1>
+	        <div>
+	            <form class="form-inline text-right">
+	            
+	                <button molecule="SearchButton">Search</button>
+	                [% if(session.user.allowed['sys_function.add']){ %]                
+	                <button molecule="AddButton">Add</button>
+	                [% } %]            
+	            </form>
+	        </div>
+	        <div molecule="TableError"></div>
+	
+	        <table id="grdMain" molecule="Tree" checkable="true" select="single" allow-remove="[%= session.user.allowed['sys_function.delete'] %]">
+	            <thead>
+	                <tr>
+						<th molecule="TreeNode" col="name" text="功能名称"></th>
+	                
+						<th molecule="Header" sortable="false" col="code" text="操作代码"></th>
+			 
+						<th molecule="Header" sortable="false" col="status" dict="sys_function_status" renderer="dict|std" text="状态"></th>
+			 
+						<th molecule="Header" sortable="false" col="uri" text="URI"></th>
+						
+						<th molecule="Header" sortable="false" col="open_mode" text="打开方式" dict="sys_function_open_mode" renderer="dict|std"></th>
+					                               
+		                [% if(session.user.allowed['sys_function.edit']){ %]                
+		                	<th data-t="rows,N,id" renderer="editLink"></th>
+		                [% } %]               
+	                </tr>
+	            </thead>
+	        </table>
+	    </div>
+	
+	     <div molecule="Dialog" title="系统功能" id="ns_sys_function-dialog1" table="ns_sys_function,sys_function">
+	        <form class="table-form">
+						
+				<div molecule="FormItem" col="name" text="名称"><input type="text" molecule="Input"></div>
+				
+				<div molecule="FormItem" col="code" text="操作代码"><input type="text" molecule="Input"></div>
+				
+				<div molecule="FormItem" col="uri" text="URI"><input type="text" molecule="Input"></div>					
+						
+				<div molecule="FormItem" col="parent_id" text="上级功能">
+	            	 <div molecule="DropDownTree" table="ns_sys_function,sys_function_without_curr" value-col="id" display-col="name" select="single" 
+	            	 		paging="false" show-header="false" data="#ns_sys_function,sys_function,curr,parent_id" style="min-width:300px;">
+	                   	<tr data="rows,N" bordercolor="red">
+					        <m:th molecule="TreeNode" col="name" text="Name"></m:th>				        
+				        </tr>
+					</div>				
+	            </div>
+									
+				<div molecule="FormItem" col="status" text="状态" dict="sys_function_status">
+	                <select molecule="Select"></select>
+	            </div>
+	            
+	            <div molecule="FormItem" col="open_mode" text="打开方式" dict="sys_function_open_mode">
+	                <select molecule="Select"></select>
+	            </div>
+						
+				<div molecule="FormItem" col="remarks" text="备注"><textarea molecule=TextArea cols=40 rows=5></textarea></div>			
+						
+	        </form>
+	    </div>
+	    <script>
+	    	// MOLECULE-DEF
+	    	function SysFunction(){
+	    		var $el = this.$el;
+	    		
+	    		var dataset = d2js.dataset.create('ns_sys_function');	// 由于subset和DataTable都是 d2js 终结符，尽量不要和表名相同，以免定位混淆，加一个 namespace 前缀
+	    		
+				Dicts.sys_function_status = {"N": "正常", "D": "禁用"}
+				Dicts.sys_function_open_mode = {"N": "无界面", "t": "在Ext TabPanel中开启", 
+				                                "W": "在新窗口开启", "M": "在新模式对话框开启", 
+				                                "w": "以Ext新窗口开启（仍在原页面）", 
+				                                "m": "以Ext新模式对话框开启（仍在原页面）",
+				                                "C": "以molecule标签打开"}
+				var table = dataset.addTable('sys_function', '../sys/sys_function.d2js');
+			    table.on('load', function (error) { d2js.render(); });
+			    table.load('fetch');
+			    
+			    var t2 = dataset.addTable('sys_function_without_curr')		// 不带编辑行的一个镜像表
+			    $(function(){
+			    	$el.on('tablelist.edit', function(){
+			    		t2.fill(table.rows.filter(function(row){
+				    			return row != table.curr && !isBelongTo(row, table.curr)
+				    		}).map(function(row){return row._toJson()}));
+			    		if(t2.rows.length ==0) debugger;
+			    		$el.find('#dialog1').render(t2);
+			    	});
+			    });
+			    
+			    function isBelongTo(fun, maybeParent){
+			    	while(maybeParent){
+			    		if(fun.parent_id == maybeParent.id){
+			        		return true;
+			    		}
+			    		if(maybeParent.parent_id == 0) break;
+			        	maybeParent = table.find('id', maybeParent.parent_id);
+			    	}
+			    }
+			    
+			    this.dispose = function(){
+			    	delete Dicts.sys_function_status
+			    	delete Dicts.sys_function_open_mode;
+			    	//d2js.dataset.release('ns_sys_function');
+			    }
+	    	}
+	    	// MOLECULE-DEF-END
+	    	Molecule.create(SysFunction)
+	    </script>
+	</div>
+    
+    <div molecule=SysFunction></div>
+</body>
+
+</html>
+

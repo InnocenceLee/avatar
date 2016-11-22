@@ -1,0 +1,264 @@
+imports("fetchDataByInterface.js");
+d2js.exports.handleData = 
+d2js.handleData = function(){
+	var pageNum = 1;
+	var currSum = 1;
+//	while(currSum > 0){
+//		var departments = fetchData({"dataType":"DEPARTMENT","lastId":pageNum});
+//		for(var i = 0; i < departments.length; i++){
+//			var curr = departments[i];
+//			if(!this.checkNodeExist(curr)){
+//				this.createNode({"id":"","name":curr.name,"parent_id": this.findParentId(curr.serialNumber),"def":{"serialNumber":curr.serialNumber}});
+//			}else{
+//				this.updateNode({"id":"","name":curr.name,"parent_id": this.findParentId(curr.serialNumber),"def":{"serialNumber":curr.serialNumber}});
+//			}
+//			if((this.getDefaultStationId({"serialNumber":curr.serialNumber}) == -1) && !"四川航空".equals(curr.name)){
+//				var stat = this.createDefaultStation({"id":"","node":this.findNodeId(curr.serialNumber),"status":"N","remarks":"该组织默认岗位","visibility":"V","is_root":"Y","kind":"B","name":"普通员工"})
+//				this.createStationRole({"id":"","sys_station":stat.id,"sys_role":this.getDefaultRoleId(),"bind_node":stat.node})
+//			}
+//		}
+//		currSum = departments.length;
+//		pageNum++;
+//	}
+//	
+//	pageNum = 1;
+//	currSum = 1;
+	
+	while(currSum > 0){
+		var employees = fetchData({"dataType":"EMPLOYEE","lastId":pageNum});
+		for(var i = 0; i<employees.length; i++){
+			var curr = employees[i];
+			if(!this.checkPersonExist(curr)){
+				var nowPerson = this.createPerson({"id":"","name":curr.name,"address":curr.address,"tel":curr.contactWay.telephone,
+					"mobile":curr.contactWay.mobile,"email":curr.contactWay.email,"username":curr.employeeNo,"birth":new Date(this.convertDate(curr.birthday,-8)),
+					"gender":(curr.gender=='男')?'M':'F',"id_card":curr.identityNo,"tag":{"employeeNo":curr.employeeNo,"positions":curr.positions,"familyMembers":curr.familyMembers},"password":"c984aed014aec7623a54f0591da07a85fd4b762d"});
+		 		var nowEm = this.createEmployee({"id":"","employee_no":curr.employeeNo,"person":nowPerson.id,"state":"A","nodes":this.findNodesOfEm(curr.department.serialNumber),"sys_stations":""})
+				
+				if(!this.checkEmployeeStationExist({"employee":nowEm.id,"station":this.getDefaultStationId({"serialNumber":curr.department.serialNumber})}))
+					this.createEmployeeStation({"id":"","employee":nowEm.id,"station":this.getDefaultStationId({"serialNumber":curr.department.serialNumber}),"kind":"B"});
+			}else{
+				var nowPerson = this.updatePerson({"id":"","name":curr.name,"address":curr.address,"tel":curr.contactWay.telephone,
+					"mobile":curr.contactWay.mobile,"email":curr.contactWay.email,"username":curr.employeeNo,"birth":new Date(this.convertDate(curr.birthday,-8)),
+					"gender":(curr.gender=='男')?'M':'F',"id_card":curr.identityNo,"tag":{"employeeNo":curr.employeeNo,"positions":curr.positions,"familyMembers":curr.familyMembers},"password":"c984aed014aec7623a54f0591da07a85fd4b762d"});
+				
+				if(!this.checkEmployeeExist(curr.employeeNo)){
+					var nowEm = this.createEmployee({"id":"","employee_no":curr.employeeNo,"person":nowPerson.id,"state":"A","nodes":this.findNodesOfEm(curr.department.serialNumber),"sys_stations":""})
+					this.createEmployeeStation({"id":"","employee":nowEm.id,"station":this.getDefaultStationId({"serialNumber":curr.department.serialNumber}),"kind":"B"});
+				}else{
+					var e = this.updateEmployee({"id":"","employee_no":curr.employeeNo,"person":nowPerson.id,"state":"A","nodes":this.findNodesOfEm(curr.department.serialNumber),"sys_stations":""});
+					if(!this.checkEmployeeStationExist({"employee":e.id,"station":this.getDefaultStationId({"serialNumber":curr.department.serialNumber})})){
+						this.createEmployeeStation({"id":"","employee":e.id,"station":this.getDefaultStationId({"serialNumber":curr.department.serialNumber}),"kind":"B"});
+					}else{
+						this.updateEmployeeStation({"id":"","employee":e.id,"station":this.getDefaultStationId({"serialNumber":curr.department.serialNumber}),"kind":"B"});
+					}
+				}
+			}
+				
+		}
+		currSum = employees.length;
+		pageNum++;
+	}
+	
+}
+
+d2js.exports.test = 
+d2js.test = function(){
+//	println("得到的所属机构数组为：" + this.findNodesOfEm("000352"));
+//	this.createEmployee({"id":"","employee_no":"test","person":0,"state":"A","nodes":this.findNodesOfEm('000055'),"sys_stations":""})
+	var stat = this.createDefaultStation({"id":"","node":63,"status":"N","remarks":"uuuuuuuu","visibility":"V","is_root":"Y","kind":"B","name":"普通的的的的员工"})
+	println("创建的岗位是：" + JSON.stringify(stat));
+	this.createStationRole({"id":"","sys_station":stat.id,"sys_role":this.getDefaultRoleId(),"bind_node":stat.node})
+}
+
+//通过部门名称检验该记录是否已存在
+d2js.exports.checkNodeExist = 
+d2js.checkNodeExist = function(dept){
+	var isExist = false;
+	var sql = "select * from node where def ->> 'serialNumber' = '" + dept.serialNumber + "' limit 1";
+	var row = this.queryRow(sql);
+	if(row){
+		isExist = true;
+	}
+	return isExist;
+}
+
+//通过截取数据serialNumber字段确定父级
+d2js.exports.findParentId = 
+d2js.findParentId = function(serialNumber){
+	println("该节点的serialNumber为" + serialNumber);
+	if(serialNumber.length > 3){
+		var parentSerialNumber = serialNumber.substring(0,serialNumber.length - 3);
+		println("父节点的serialNumber为" + parentSerialNumber);
+		var sql = "select id from node where def ->>'serialNumber' = '"+parentSerialNumber+"' limit 1";
+		var row = this.query(sql).rows[0];
+		return row.id;
+	}else{
+		return 0;
+	}
+}
+
+//为每个机构创建默认岗位
+d2js.exports.createDefaultStation = 
+d2js.createDefaultStation = function(rcd){
+	rcd.id = this.nextId("sys_station_id_seq");
+	return this.insertRow('sys_station',rcd,["id","node","status","remarks","visibility","is_root","kind","name"]);
+	
+}
+//通过serialNumber确定组织id，添加默认岗位时需要
+d2js.exports.findNodeId = 
+d2js.findNodeId = function(serialNumber){
+	var sql = "select id from node where def ->>'serialNumber' = '"+serialNumber+"' limit 1";
+	var row = this.query(sql).rows[0];
+	return (row) ? row.id : 0;
+}
+//创建组织机构（根据serialNumber确定类型）
+d2js.exports.createNode = 
+d2js.createNode = function(rcd){
+	rcd.id = this.nextId("node_id_seq");
+	if(rcd.def.serialNumber.length == 3)
+		rcd.type = 'COMPANY';
+	else if(rcd.def.serialNumber.length == 6)
+		rcd.type = "DEPT";
+	else 
+		rcd.type = 'OFFICE';
+	
+	return this.insertRow('node', rcd, ["id","name","parent_id","type","def"]);
+}
+
+//修改组织机构
+d2js.exports.updateNode = 
+d2js.updateNode = function(rcd){
+	return this.updateRow('node',rcd,["id","name","parent_id","type","def"]);
+}
+//通过employeeNo检查人员是否存在
+d2js.exports.checkPersonExist = 
+d2js.checkPersonExist = function(p){
+	var isExist = false;
+	var sql = "select * from person where tag ->>'employeeNo' ='"+ p.employeeNo+"' limit 1";
+	var row = this.queryRow(sql);
+	if(row){
+		isExist = true;
+	}
+	return isExist;
+}
+
+//创建person
+d2js.exports.createPerson = 
+d2js.createPerson = function(person){
+	person.id = this.nextId("seq_entity");
+	return this.insertRow("person",person,["id","name","address","tel","mobile","email","username","birth","gender","id_card","tag","password"]);
+}
+//修改person
+d2js.exports.updatePerson = 
+d2js.updatePerson = function(person){
+	this.updateRow("person",person,["id","name","address","tel","mobile","email","username","birth","gender","tag","password"]);
+	var sql = "select id from person where tag ->>'employeeNo' = ?";
+	return this.queryRow(sql,[person.tag.employeeNo]);
+}
+
+d2js.exports.checkEmployeeExist = 
+d2js.checkEmployeeExist = function(employeeNo){
+	var sql = "select * from employee where employee_no = ?";
+	var row = this.queryRow(sql,[employeeNo]);
+	if(row){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+//创建员工
+d2js.exports.createEmployee = 
+d2js.createEmployee = function(employee){
+	employee.id = this.nextId("employee_id_seq1");
+	employee.nodes = $ARRAY("int",employee.nodes);
+	return this.insertRow("employee",employee,["id","employee_no","person","state","nodes","sys_stations"]);
+}
+
+//修改员工
+d2js.exports.updateEmployee = 
+d2js.updateEmployee = function(employee){
+	employee.nodes = $ARRAY("int",employee.nodes);
+	this.updateRow("employee",employee,["id","employee_no","person","state","nodes","sys_stations"]);
+	var sql = "select * from employee where employee_no = ? and person = ?";
+	return this.queryRow(sql,[employee.employee_no, employee.person]);
+}
+
+//查询员工所属的机构id
+d2js.exports.findNodesOfEm = 
+d2js.findNodesOfEm = function(serialNum){
+	var sql = "select id from node where def ->>'serialNumber' = ? limit 1";
+	return [this.queryScalar(sql, [serialNum])];
+}
+
+//检查employee_station中间表记录是否存在
+d2js.exports.checkEmployeeStationExist = 
+d2js.checkEmployeeStationExist = function(params){
+	var sql = "select * from employee_station where employee = '"+params.employee+"' and station = '"+params.station+"' limit 1";
+	var row = this.query(sql).rows[0];	
+	if(row)
+		return true;
+	else
+		return false;
+		
+}
+d2js.exports.createEmployeeStation = 
+d2js.createEmployeeStation = function(rcd){
+	rcd.id = this.nextId("employee_station_id_seq");
+	return this.insertRow("employee_station",rcd,["id","employee","station","kind"]);
+}
+d2js.exports.updateEmployeeStation = 
+d2js.updateEmployeeStation = function(rcd){
+	return this.updateRow("employee_station",rcd,["id","employee","station","kind"]);
+}
+d2js.exports.createPersonStation = 
+d2js.createPersonStation = function(rcd){
+	rcd.id = this.nextId("person_station_id_seq");
+	return this.insertRow("person_station",rcd,["id","person","station"]);
+}
+
+//获取对应默认岗位的id
+d2js.exports.getDefaultStationId = 
+d2js.getDefaultStationId = function(params){
+	var sql = "select ss.id from sys_station ss,node n where ss.node = n.id and ss.name = '普通员工' and n.def ->>'serialNumber' = '"+params.serialNumber+"' limit 1";
+	var row = this.query(sql).rows[0];
+	return (row)?row.id : -1;
+}
+
+d2js.exports.getDefaultRoleId = 
+d2js.getDefaultRoleId = function(){
+	var sql = "select id from sys_role where name = '普通用户'  and code = 'User' limit 1";
+	var row = this.queryRow(sql);
+	return row.id;
+}
+
+
+d2js.exports.createStationRole = 
+d2js.createStationRole = function(rcd){
+	rcd.id = this.nextId("sys_station_role_dispatch_id_seq");
+	return this.insertRow('sys_station_role_dispatch',rcd,["id","sys_station","sys_role","bind_node"]);
+}
+
+
+// 本地时区和UTC时区的转化
+d2js.exports.convertDate = 
+d2js.convertDate = function convertTimezoneTimeToUTC(timeStr, offset) {
+	if(timeStr != '' && timeStr != null){
+		var d=new Date();
+		var localOffset=d.getTimezoneOffset()*60000; //本地时区(PC系统时间)与UTC的偏移时间(毫秒)
+		var gmtValue = -(d.getTimezoneOffset()/60); //本地时区(PC系统时间)的偏移值(如GMT+8即为8)
+		var year = timeStr.substring(0, 4);
+		var month = timeStr.substring(5, 7);
+		var day = timeStr.substring(8, 10);
+		var dateObj = new Date(parseInt(year), parseInt(month)-1, parseInt(day));
+		var timeValue = dateObj.getTime();
+		return timeValue + (localOffset) + (gmtValue - offset)*60*60*1000; //返回所选时区的本地时间所对应的UTC时间(毫秒)
+	}else{
+		return null;
+	}
+} 
+
+
+
+
+

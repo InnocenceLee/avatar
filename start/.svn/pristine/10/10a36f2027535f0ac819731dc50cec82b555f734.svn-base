@@ -1,0 +1,47 @@
+@CHARSET "UTF-8";
+.myqbP1{
+	width:90px;
+	float:left;
+	margin:30px 0 0 -10px;
+}
+.mytxt{
+	/* float:left; */
+	width:550px; 
+	margin: 10px 0 10px 73px;
+}
+.mygroup1{
+	float:right;
+	margin:-100px 0 0 630px;
+}
+#myModifyModal{
+	width:810px !important;
+}
+#myModifyModal.fade.in {
+    top: 60%;
+}
+.Answer .delAnswer{
+	border:none;
+	font-size:20px;
+	cursor:pointer;
+	width:30px !important;
+	position:relative;
+	z-index:200;
+}
+.delAnswer:hover{
+	background-color:#ffffff !important;
+	color:#7a818b !important;
+}
+.Answer .checkbox{
+	margin-right:0px !important;
+}
+.Answer .checkbox:nth-of-type(2){
+	margin-top:-25px !important;
+	padding-left:28px !important;
+}
+.checkbox .radio{
+	/* opacity:0; */
+}
+.checkbox .radio input{
+	opacity:1;
+	margin-left:-54px;
+}

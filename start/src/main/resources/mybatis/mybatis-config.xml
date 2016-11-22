@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE configuration PUBLIC  "-//mybatis.org//DTD Config 3.2//EN"  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    
+    <!-- mybatis插件
+    <plugins>
+        <plugin interceptor="com.ninebowls.ddds.dao.interceptor.***Interceptor"></plugin>
+    </plugins> -->
+    
+    
+    <!-- mapUnderscoreToCamelCase：是否启用下划线与驼峰式命名规则的映射（如first_name => firstName） -->
+   	<settings>  
+    	<setting name="mapUnderscoreToCamelCase" value="true" />  
+    </settings>  
+
+ 	
+ 	<typeAliases>
+    	<typeAlias alias="JSONOBJECT" type="com.rkjh.eschool.configurer.JSONTypeHandler" />
+    </typeAliases>
+   
+ 	 <typeHandlers>
+    	<package name="com.rkjh.eschool.configurer.JSONTypeHandler"/>
+ 	</typeHandlers>
+</configuration>

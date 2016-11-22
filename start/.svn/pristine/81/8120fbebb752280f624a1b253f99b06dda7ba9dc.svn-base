@@ -1,0 +1,1192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.ExamDao">
+
+	<resultMap type="java.util.Map" id="examListMap">
+		<id column="id" property="id"/>
+		<result column="exam_id" property="examId"/>
+		<result column="exam_plan_id" property="examPlanId"/>
+		<result column="name" property="name"/>
+		<result column="exam_start" property="examStart"/>
+		<result column="exam_end" property="examEnd"/>
+		<result column="pass_score" property="passScore"/>
+		<result column="duration" property="duration"/>
+		<result column="students" property="students"/>
+		<result column="paper_mode" property="paperMode"/>
+		<result column="exam_answer_publish" property="examAnswerPublish"/>
+		<result column="exam_notice" property="examNotice"/>
+		<result column="exam_paper" property="examPaper"/>
+		<result column="node" property="node"/>
+		<result column="random_order" property="randomOrder"/>
+		<result column="exam_type" property="examType"/>
+		<result column="exam_classifications" property="examClassifications"/>
+		<result column="exam_num" property="examNum"/>
+		<result column="exam_num_end" property="examNumEnd"/>
+		<result column="exam_score" property="examScore"/>
+		<result column="exam_mode" property="examMode"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="examIdMap">
+		<id column="id" property="id"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="examPlanMap">
+		<result column="exam_paper" property="examPaper"/>
+		<result column="students" property="students"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="examDetailMap">
+		<result column="exam_paper_id" property="examPaperId"/>
+		<result column="exam_paper_name" property="examPaperName"/>
+		<result column="exam_plan_id" property="examPlanId"/>
+		<result column="exam_name" property="examName"/>
+		<result column="duration" property="duration"/>
+		<result column="paper_mode" property="paperMode"/>
+		<result column="exam_answer_publish" property="examAnswerPublish"/>
+		<result column="exam_notice" property="examNotice"/>
+		<result column="students" property="students"/>
+		<result column="exam_start" property="examStart"/>
+		<result column="pass_score" property="passScore"/>
+		<result column="exam_end" property="examEnd"/>
+		<result column="exam_type" property="examType"/>
+		<result column="exam_classifications" property="examClassifications"/>
+		<result column="node_name" property="node_name"/>
+		<result column="exam_num" property="exam_num"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="examDetailStatisticMap">
+		<result column="exam_paper" property="examPaper"/>
+		<result column="students" property="students"/>
+		<result column="maxNum" property="maxNum"/>
+		<result column="minNum" property="minNum"/>
+		<result column="avgNum" property="avgNum"/>
+		<result column="studentsNum" property="studentsNum"/>
+		<result column="endNum" property="endNum"/>
+		<result column="missNum" property="missNum"/>
+		<result column="passNum" property="passNum"/>
+		<result column="unPassNum" property="unPassNum"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="examPersonMap">
+		<result column="node_name" property="nodeName"/>
+		<result column="person_name" property="personName"/>
+		<result column="person_id" property="personId"/>
+		<result column="exam_id" property="examId"/>
+		<result column="state" property="state"/>
+		<result column="exam_score" property="examScore"/>
+		<result column="exam_start" property="examStart"/>
+		<result column="exam_end" property="examEnd"/>
+		<result column="time" property="time"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="listStudentMap">
+		<result column="exam_id" property="examId"/>
+		<result column="exam_score" property="examScore"/>
+		<result column="student" property="student"/>
+		<result column="state" property="state"/>
+		<result column="exam_plan_id" property="examPlanId"/>
+		<result column="name" property="name"/>
+		<result column="duration" property="duration"/>
+		<result column="exam_paper" property="examPaper"/>
+		<result column="exam_start" property="examStart"/>
+		<result column="exam_end" property="examEnd"/>
+		<result column="exam_num_end" property="examNumEnd"/>
+		<result column="exam_num" property="examNum"/>
+		<result column="exam_answer_publish" property="exam_answer_publish"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="examPaperContentMap">
+		<id column="id" property="id"/>
+		<result column="exam_paper_content" property="examPaperContent"/>
+		<result column="exam_start" property="examStart"/>
+		<result column="exam_end" property="examEnd"/>
+		<result column="exam_score" property="examScore"/>
+	</resultMap>
+	
+	
+	
+	
+	<select id="examList" resultMap="examListMap" parameterType="java.util.Map">
+		SELECT 
+		  e.id, 
+		  e.state,
+		  p.name,
+		  n.name node_name
+		FROM 
+		  exam e,person p,person_station ps,sys_station ss,node n
+		where e.student = p.id
+		  and p.id = ps.person
+		  and ps.station = ss.id
+		  and ss.node = n.id
+		<if test="exam_plan != null">
+			and exam_plan = #{exam_plan}
+		</if>
+		 
+	</select>
+	
+	<resultMap type="java.util.Map" id="examList2Map">
+		<id column="id" property="nodeId"/>
+		<result column="exam_id" property="examId"/>
+		<result column="exam_plan_id" property="id"/>
+		<result column="exam_plan_name" property="name"/>
+		<result column="exam_start" property="examStart"/>
+		<result column="exam_end" property="examEnd"/>
+		<result column="pass_score" property="passScore"/>
+		<result column="duration" property="duration"/>
+		<result column="students" property="students"/>
+		<result column="paper_mode" property="paperMode"/>
+		<result column="exam_answer_publish" property="examAnswerPublish"/>
+		<result column="exam_notice" property="examNotice"/>
+		<result column="exam_paper" property="examPaper"/>
+		<result column="node" property="node"/>
+		<result column="random_order" property="randomOrder"/>
+		<result column="exam_type" property="examType"/>
+		<result column="exam_classifications" property="examClassifications"/>
+		<result column="exam_num" property="examNum"/>
+		<result column="exam_num_end" property="examNumEnd"/>
+		<result column="exam_score" property="examScore"/>
+	</resultMap>
+	
+	<select id="list" resultMap="examList2Map">
+		<!-- SELECT * FROM ( 
+		select * from exam_plan a left join 
+		(select exam_plan , count(state) as missNum from exam where state = 'Q' group by exam_plan)b 
+		on a.id = b.exam_plan left join 
+			(select exam_plan,avg(exam_score) as avgNum,max(exam_score) as maxNum ,min(exam_score) as minNum from exam group by exam_plan) c 
+			on a.id = c.exam_plan
+			where 1=1
+			<if test="name != NULL and name != ''">
+				and a.name like '%'||#{name}||'%'
+			</if> 
+			<if test="examClassifications != NULL and examClassifications != ''">
+				AND a.exam_classifications = #{examClassifications}
+			</if>
+			) a
+			
+			WHERE a.id &lt;= 
+			( SELECT b.id FROM 
+			( select * from exam_plan a left join 
+				(select exam_plan , count(state) as missNum from exam where state = 'Q' group by exam_plan)b 
+				on a.id = b.exam_plan left join 
+					(select exam_plan,avg(exam_score) as avgNum,max(exam_score) as maxNum ,min(exam_score) as minNum from exam group by exam_plan) c 
+					on a.id = c.exam_plan  
+					where 1=1
+					<if test="name != NULL and name != ''">
+						and a.name like '%'||#{name}||'%'
+					</if> 
+					<if test="examClassifications != NULL and examClassifications != ''">
+						AND a.exam_classifications = #{examClassifications}
+					</if> -->
+				SELECT a.exam_plan_id,a.exam_plan_name,a.duration,a.paper_mode,a.exam_answer_publish,a.exam_notice,a.exam_paper,a.students,
+					a.exam_start,a.random_order,a.pass_score,a.exam_end,a.exam_type,a.exam_classifications,a.exam_num,a.node, 
+					missnum,
+					(select avg(score) from (select max(exam_score) as score from exam where exam_plan = a.exam_plan_id group by student)x) as avgnum,
+					(select max(score) from (select max(exam_score) as score from exam where exam_plan = a.exam_plan_id group by student)x) as maxnum,
+					(select min(score) from (select max(exam_score) as score from exam where exam_plan = a.exam_plan_id group by student)x) as minnum,
+					(select count(*) from (select max(exam_score) as score from exam where exam_plan = a.exam_plan_id group by student) as ms,exam_plan ep 
+					where ms.score>=ep.pass_score and ep.id = a.exam_plan_id) as passNum
+					FROM ( 
+					${nodeSql}
+					select * from (
+					select 
+						a.id as exam_plan_id,
+						a.name as exam_plan_name,
+						a.duration,
+						a.paper_mode,
+						a.exam_answer_publish,
+						a.exam_notice,
+						a.exam_paper,
+						a.students,
+						a.exam_start,
+						a.random_order,
+						a.pass_score,
+						a.exam_end,
+						a.exam_type,
+						a.exam_classifications,
+						a.exam_num,
+						a.node,
+						b.missnum,
+						b.exam_plan
+					from exam_plan a left join 
+							(select exam_plan , count(state) as missNum from exam where state = 'Q' group by exam_plan) b 
+							on a.id = b.exam_plan 
+								where 1=1
+								<if test="name != NULL and name != ''">
+									and a.name like '%'||#{name}||'%'
+								</if> 
+								<if test="examClassifications != NULL and examClassifications != ''">
+									AND a.exam_classifications = #{examClassifications}
+								</if>
+								<if test="paid != null">
+									AND a.id = #{paid}
+								</if>
+					) as t
+					join nd as d
+					on t.node = d.id
+					) a
+					WHERE a.exam_plan_id &lt;= 
+								(SELECT b.exam_plan_id FROM 
+								(
+					${nodeSql}
+					select * from (
+					select 
+						a.id as exam_plan_id,
+						a.name as exam_plan_name,
+						a.duration,
+						a.paper_mode,
+						a.exam_answer_publish,
+						a.exam_notice,
+						a.exam_paper,
+						a.students,
+						a.exam_start,
+						a.random_order,
+						a.pass_score,
+						a.exam_end,
+						a.exam_type,
+						a.exam_classifications,
+						a.exam_num,
+						a.node,
+						b.exam_plan,
+						b.missnum
+						from exam_plan a left join 
+							(select exam_plan , count(state) as missNum from exam where state = 'Q' group by exam_plan)b 
+							on a.id = b.exam_plan 
+								where 1=1
+								<if test="name != NULL and name != ''">
+									and a.name like '%'||#{name}||'%'
+								</if> 
+								<if test="examClassifications != NULL and examClassifications != ''">
+									AND a.exam_classifications = #{examClassifications}
+								</if>
+								<if test="paid != null">
+									AND a.id = #{paid}
+								</if>
+					) as t
+					join nd as d
+					on t.node = d.id
+					) b ORDER BY b.exam_plan_id DESC LIMIT 1 OFFSET #{page} ) ORDER BY a.exam_plan_id DESC LIMIT #{size}
+	</select>
+	
+	<select id="count4List" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT count(*) FROM ( 
+					${nodeSql}
+					select * from (
+					select 
+						a.id as exam_plan_id,
+						a.name,
+						a.duration,
+						a.paper_mode,
+						a.exam_answer_publish,
+						a.exam_notice,
+						a.exam_paper,
+						a.students,
+						a.exam_start,
+						a.random_order,
+						a.pass_score,
+						a.exam_end,
+						a.exam_type,
+						a.exam_classifications,
+						a.exam_num,
+						a.node,
+						b.exam_plan,
+						b.missnum
+					from exam_plan a left join 
+							(select exam_plan , count(state) as missNum from exam where state = 'Q' group by exam_plan)b 
+							on a.id = b.exam_plan 
+								where 1=1
+								<if test="name != NULL and name != ''">
+									and a.name like '%'||#{name}||'%'
+								</if> 
+								<if test="examClassifications != NULL and examClassifications != ''">
+									AND a.exam_classifications = #{examClassifications}
+								</if>
+								<if test="paid != null">
+									AND a.id = #{paid}
+								</if>
+					) as t
+					join nd as d
+					on t.node = d.id
+					) a
+					WHERE a.exam_plan_id &lt;= 
+								(SELECT b.exam_plan_id FROM 
+								(
+					${nodeSql}
+					select * from (
+					select 
+						a.id as exam_plan_id,
+						a.name,
+						a.duration,
+						a.paper_mode,
+						a.exam_answer_publish,
+						a.exam_notice,
+						a.exam_paper,
+						a.students,
+						a.exam_start,
+						a.random_order,
+						a.pass_score,
+						a.exam_end,
+						a.exam_type,
+						a.exam_classifications,
+						a.exam_num,
+						a.node,
+						b.exam_plan,
+						b.missnum
+						from exam_plan a left join 
+							(select exam_plan , count(state) as missNum from exam where state = 'Q' group by exam_plan)b 
+							on a.id = b.exam_plan 
+								where 1=1
+								<if test="name != NULL and name != ''">
+									and a.name like '%'||#{name}||'%'
+								</if> 
+								<if test="examClassifications != NULL and examClassifications != ''">
+									AND a.exam_classifications = #{examClassifications}
+								</if>
+								<if test="paid != null">
+									AND a.id = #{paid}
+								</if>
+					) as t
+					join nd as d
+					on t.node = d.id
+					) b ORDER BY b.exam_plan_id DESC LIMIT 1 OFFSET #{page} )
+	</select>
+	
+	<select id="list4Student" parameterType="java.lang.Integer" resultMap="listStudentMap">
+		select
+			a.id as exam_id,
+			a.exam_score,
+			a.student,
+			a.state,
+			b.id exam_plan_id,
+			b.name,
+			b.duration,
+			b.exam_paper,
+			to_char(a.exam_start,'yyyy-MM-dd hh24:MI:ss') as exam_start,
+			to_char(a.exam_end,'yyyy-MM-dd hh24:MI:ss') as exam_end,
+			a.exam_num as exam_num_end,
+			b.exam_num,
+			b.exam_answer_publish
+		from
+			exam as a,
+		    exam_plan as b
+		where
+			#{id} = a.student
+			and a.exam_plan = b.id
+			<if test="name != NULL and name != ''">
+				and b.name like '%'||#{name}||'%'
+			</if> 
+	</select>
+	
+	<select id="listExamPlan" resultMap="examPlanMap" parameterType="java.lang.Integer">
+		select
+			exam_paper,
+			students
+		from
+			exam_plan
+		where
+			#{id} = id
+	</select>
+	
+	<select id="examPaperContent" parameterType="java.lang.Integer" resultMap="examPaperContentMap">
+		select
+			id,
+			exam_paper_content,
+			exam_score,
+			exam_start,
+			exam_end
+		from
+			exam
+		where
+			#{id} = id
+	</select>
+	
+	<insert id="addExamPlan" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into exam_plan
+			(
+			id,
+			name,
+			duration,
+			paper_mode,
+			exam_answer_publish,
+			exam_notice,
+			exam_paper,
+			<if test="students!=null">
+				<if test="students.size > 0">
+			students,
+				</if>
+			</if>
+			exam_start,
+			random_order,
+			pass_score,
+			exam_end,
+			exam_type,
+			exam_classifications,
+			exam_num,
+			node
+			) values(
+			DEFAULT,
+			#{name,jdbcType=VARCHAR},
+			#{duration},
+			#{paperMode,jdbcType=VARCHAR},
+			#{examAnswerPublish,jdbcType=OTHER,typeHandler=JSONOBJECT},
+			#{examNotice,jdbcType=INTEGER},
+			#{examPaper,jdbcType=INTEGER},
+			<if test="students!=null">
+				<if test="students.size > 0">
+			ARRAY[
+					<foreach collection="students" item="item" index="index" separator="," >
+						#{item}  
+		    		</foreach>
+				],
+				</if>
+			</if>
+			#{examStart,jdbcType=TIMESTAMP},
+			#{randomOrder,jdbcType=VARCHAR},
+			<if test="passScore != null">
+			#{passScore},
+			</if>
+			<if test="passScore == null">
+			default,
+			</if>
+			#{examEnd,jdbcType=TIMESTAMP},
+			#{examType,jdbcType=VARCHAR},
+			#{examClassifications,jdbcType=VARCHAR},
+			#{examNum,jdbcType=INTEGER},
+			#{node,jdbcType=INTEGER}
+			)
+	</insert>
+	
+	<insert id="addExam" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into exam
+			(
+			id,
+			<if test="examPaperContent != NULL">
+			exam_paper_content,
+			</if>
+			exam_score,
+			exam_plan,
+			student,
+			state,
+			exam_start,
+			exam_end,
+			exam_mode
+			<if test="examNumEnd != NULL">
+			,exam_num
+			</if>
+			) values(
+			DEFAULT,
+			<if test="examPaperContent != NULL">
+			#{examPaperContent,jdbcType=OTHER,typeHandler=JSONOBJECT},
+			</if>
+			<if test="examScore != null">
+			#{examScore},
+			</if>
+			<if test="examScore == null">
+			default,
+			</if>
+			#{examPlan,jdbcType=INTEGER},
+			#{student,jdbcType=INTEGER},
+			#{state,jdbcType=VARCHAR},
+			#{examStart,jdbcType=TIMESTAMP},
+			#{examEnd,jdbcType=TIMESTAMP},
+			#{examMode,jdbcType=VARCHAR}
+			<if test="examNumEnd != NULL">
+			,#{examNumEnd,jdbcType=INTEGER}
+			</if>
+			
+			)
+	</insert>
+	
+	<delete id="delExamPlan" parameterType="com.alibaba.fastjson.JSONArray">
+		delete from exam_plan where id in 
+		<foreach collection="list" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag.id}
+    	</foreach>
+	</delete>
+	
+	<delete id="delExam" parameterType="java.util.Map">
+		delete from exam where student = #{student} and exam_plan = #{examPlan}
+	</delete>
+	
+	<delete id="delExamPlanByPlanIds" parameterType="com.alibaba.fastjson.JSONArray">
+		delete from exam_plan where id in 
+		<foreach collection="list" index="index" item="tag" open="("
+    		separator="," close=")">
+    		#{tag}
+    	</foreach>
+	</delete>
+	
+	<delete id="delExamByPlanId" parameterType="java.lang.Integer">
+		delete from exam where exam_plan = #{id}
+	</delete>
+	
+	<select id="checkExamIsLesson" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		select count(id) from train_lesson
+		where 'X' = type
+		and exam_paper = #{id}
+	</select>
+	
+	<update id="updateExamPlan" parameterType="java.util.Map">
+		update 
+			exam_plan 
+		set 
+			name = #{name,jdbcType=VARCHAR},
+			duration = #{duration,jdbcType=INTEGER},
+			paper_mode = #{paperMode,jdbcType=VARCHAR},
+			exam_answer_publish = #{examAnswerPublish,jdbcType=OTHER,typeHandler=JSONOBJECT},
+			exam_notice = #{examNotice,jdbcType=INTEGER},
+			exam_paper = #{examPaper,jdbcType=INTEGER},
+			students = ARRAY[
+					<foreach collection="students" item="item" index="index" separator="," >
+						#{item}  
+		    		</foreach>
+				],
+			exam_start = #{examStart,jdbcType=TIMESTAMP},
+			random_order = #{randomOrder,jdbcType=VARCHAR},
+			pass_score = #{passScore,jdbcType=INTEGER},
+			exam_end = #{examEnd,jdbcType=TIMESTAMP},
+			exam_type = #{examType,jdbcType=VARCHAR},
+			exam_classifications = #{examClassifications,jdbcType=VARCHAR},
+			exam_num = #{examNum,jdbcType=INTEGER}
+		where 
+			id = #{id}
+	</update>
+	
+	<update id="updateExam" parameterType="java.util.Map">
+		update 
+			exam 
+		set 
+			exam_plan = #{examPlan,jdbcType=INTEGER}
+			<if test="examPaperContent != NULL">
+			 	,exam_paper_content = #{examPaperContent,jdbcType=OTHER,typeHandler=JSONOBJECT}
+			</if>
+			<if test="examScore != NULL">
+				,exam_score = #{examScore}
+			</if>
+			<if test="student != NULL">
+				,student = #{student,jdbcType=INTEGER}
+			</if>
+			<if test="state != NULL">
+				,state = #{state,jdbcType=VARCHAR}
+			</if>
+			<if test="examStart != NULL">
+				,exam_start = #{examStart,jdbcType=TIMESTAMP}
+			</if>
+			<if test="examEnd != NULL">
+				,exam_end = #{examEnd,jdbcType=TIMESTAMP}
+			</if>
+			<if test="mode != NULL and mode != ''">
+				,exam_mode = #{mode,jdbcType=VARCHAR}
+			</if>
+			<if test="examNumEnd != NULL">
+				,exam_num = #{examNumEnd,jdbcType=TIMESTAMP}
+			</if>
+		where 
+			1=1
+			<if test="student != NULL">
+				and student = #{student}
+			</if>
+			 and exam_plan = #{examPlan}
+	</update>
+	
+	<select id="list4ExamId" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select
+			id
+		from
+			exam
+		where
+			student = ANY (
+				ARRAY[
+					<foreach collection="students" item="item" index="index" separator="," >
+						#{item}  
+		    		</foreach>
+				] :: integer[]) and
+			#{examPlanId} = exam_plan and
+			'D' = state
+	</select>
+	
+	<select id="examDetail" parameterType="java.lang.Integer" resultMap="examDetailMap">
+		select
+			b.id as exam_paper_id,
+			b.name as exam_paper_name,
+			a.id as exam_plan_id,
+			a.name as exam_name,
+			a.duration,
+			a.paper_mode,
+			a.exam_answer_publish,
+			a.exam_notice,
+			a.students,
+			a.exam_start,
+			a.pass_score,
+			a.exam_end,
+			a.exam_type,
+			a.exam_classifications,
+			a.exam_num
+		from
+			exam_plan as a,
+			exam_paper as b
+		where
+			#{id} = a.id and
+			a.exam_paper = b.id
+	</select>
+	
+	<select id="examDetailStatistic" resultMap="examDetailStatisticMap" parameterType="java.util.Map">
+						
+		select max(a.exam_score) as maxNum ,min(a.exam_score) as minNum,avg(a.exam_score) as avgNum,
+			count(a.exam_score) as studentsNum,
+			(select count(b.student) from(select student from exam where exam_plan = #{id} and 'Y' = state 
+				group by student) b) as endNum,
+			(select count(c.student) from(select student from exam where exam_plan = #{id} and 'D' = state
+				group by student) c) as missNum,
+			(select count(d.student) from(select student from exam where exam_plan = #{id} and 'Y' = state and
+				exam_score >=#{passScore}  group by student) d) as passNum,
+			(select count(e.student) from(select student from exam where exam_plan = #{id} and 'Y' = state 
+				group by student having max(exam_score) &lt;#{passScore}) e) as unPassNum				
+	   from  (select max(exam_score) as exam_score from exam where exam_plan = #{id} group by student) a
+	</select>
+	
+	<select id="examPerson" resultMap="examPersonMap" parameterType="java.util.Map">
+	
+		select distinct person_name, person_no,person_id,
+		array_to_string(array(select name from node where id in(select s.node from person_station p,sys_station s where p.station=s.id and p.person=re.person_id)),',') as node_name 
+		from(
+			SELECT distinct id, person_name,person_no,person_id, exam_id, state,exam_score,exam_start,exam_end,time
+			FROM (
+				select
+					a.id,
+					b.name as person_name,
+					b.username as person_no,
+					b.id as person_id,
+					a.id as exam_id,
+					a.state,
+					a.exam_score,
+					a.exam_start,
+					a.exam_end,
+					(to_char(age(a.exam_start, a.exam_end),'hh小时MM分钟ss秒')) as time
+				from
+					exam as a
+				left join person as b
+					on a.student = b.id
+				left join person_station as c
+					on b.id = c.person
+				left join sys_station as d
+					on c.station = d.id
+				left join node as e
+					on d.node = e.id
+				where
+					#{planId} = a.exam_plan and
+					a.student = ANY ( ARRAY[
+								<foreach collection="students" item="item" index="index" separator="," >
+									#{item}  
+				    			</foreach>
+							] :: integer[])
+					<if test="state != NULL and state != ''">
+						and a.state = #{state}
+					</if>
+					<if test="personId != NULL">
+						and b.username = #{personId} 
+					</if>
+					<if test="personName != NULL and personName != ''">
+						and b.name like '%'||#{personName}||'%'
+					</if>
+					<if test="nodeName != NULL and nodeName != ''">
+						and e.name like '%'||#{nodeName}||'%'
+					</if>
+					<!-- 添加排序会有问题，需要添加group by -->
+				<!-- order by a.exam_score desc -->
+			) a
+			) re 
+		ORDER BY person_id DESC
+		LIMIT #{size} offset #{page}
+	</select>
+	
+	<select id="count4ExamPerson" resultType="java.lang.Integer" parameterType="java.util.Map">
+		select count(*)
+		from(
+			SELECT distinct person_id
+			FROM (
+				select
+					
+					b.name as person_name,
+					b.username as person_no,
+					b.id as person_id
+				
+				from
+					exam as a
+				left join person as b
+					on a.student = b.id
+				left join person_station as c
+					on b.id = c.person
+				left join sys_station as d
+					on c.station = d.id
+				left join node as e
+					on d.node = e.id
+				where
+					#{planId} = a.exam_plan and
+					a.student = ANY ( ARRAY[
+								<foreach collection="students" item="item" index="index" separator="," >
+									#{item}  
+				    			</foreach>
+							] :: integer[])
+					<if test="state != NULL and state != ''">
+						and a.state = #{state}
+					</if>
+					<if test="personId != NULL">
+						and b.username = #{personId} 
+					</if>
+					<if test="personName != NULL and personName != ''">
+						and b.name like '%'||#{personName}||'%'
+					</if>
+					<if test="nodeName != NULL and nodeName != ''">
+						and e.name like '%'||#{nodeName}||'%'
+					</if>
+			) a ) re
+	</select>
+	
+	<select id="examNum" resultMap="examListMap" parameterType="java.lang.Integer">
+		select
+			a.id exam_id,
+			b.id exam_plan_id,
+			a.exam_num as exam_num_end,
+			b.exam_num,
+			a.exam_score,
+			a.exam_mode
+		from
+			exam as a,
+			exam_plan as b
+		where
+			a.exam_plan = b.id and 
+			#{studentId} = a.student and
+			#{examPlanId} = b.id 
+		order by a.id desc limit 1
+	</select>
+	<resultMap type="java.util.Map" id="scoreMap">
+		<result column="single_score" property="singleScore"/>
+		<result column="judge_score" property="judgeScore"/>
+		<result column="multiple_score" property="multipleScore"/>
+	</resultMap>
+		
+	<select id="findScore" resultMap="scoreMap" parameterType="java.lang.Integer">
+		select
+			a.content->>'single_score' as single_score,a.content->>'judge_score' as judge_score,a.content->>'multiple_score' as multiple_score
+		from
+			exam_paper as a,
+			exam_plan as b
+		where
+			a.id=b.exam_paper and
+			#{examPlanId} = b.id
+	</select>
+	
+	<select id="findPassScore" resultType="java.lang.Integer" parameterType="java.util.Map">
+		select
+			pass_score
+		from
+			exam_plan
+		where
+			#{id} = id
+	</select>
+	
+	<select id="examNum4Lesson" resultMap="examListMap" parameterType="java.lang.Integer">
+		select
+			b.id exam_plan_id,
+			b.exam_num
+		from
+			exam_plan as b
+		where
+			#{examPlanId} = b.id
+	</select>
+	
+	<select id="check4Del" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		select count(a.id)
+		from exam_plan as a
+		,exam as b
+		where a.id = #{id}
+		and a.id = b.exam_plan
+		and (b.state = 'Y' or b.state = 'K')
+	</select>
+	
+	<select id="listQuestion" resultType="java.util.Map" parameterType="java.lang.Integer">
+		select a.exam_paper_content from exam as a,
+		exam_plan as b
+		where a.exam_plan = b.id
+		and #{examPlan} = b.id
+	</select>
+	
+	<select id="statisticQuestion" resultType="java.util.Map" parameterType="java.util.Map">
+		select
+		(
+			select count(id) from exam_question
+			where id = any(array[
+				<foreach collection="questionId" item="item" index="index" separator="," >
+					#{item}  
+    			</foreach>
+			] :: integer[])
+			and type = 'S'
+		) as s,
+		(
+			select count(id) from exam_question
+			where id = any(array[
+				<foreach collection="questionId" item="item" index="index" separator="," >
+					#{item}  
+    			</foreach>
+    			] :: integer[])
+			and type = 'M'
+		) as m,
+		(
+			select count(id) from exam_question
+			where id = any(array[
+				<foreach collection="questionId" item="item" index="index" separator="," >
+					#{item}  
+    			</foreach>
+    			] :: integer[])
+			and type = 'C'
+		) as c	
+	</select>
+	
+	<!-- 统计返回类型 -->
+	<resultMap type="java.util.Map" id="examStatisticMap">
+		<result column="students" property="students"/>
+		<result column="personId" property="personId"/>
+		<result column="personName" property="personName"/>
+		<result column="nodeId" property="nodeId"/>
+		<result column="nodeName" property="nodeName"/>
+		<result column="quesions_num" property="quesionsNum"/>
+		<result column="lessThirty" property="lessThirty"/>
+		<result column="lessForty" property="lessForty"/>
+		<result column="lessFifty" property="lessFifty"/>
+		<result column="lessSixty" property="lessSixty"/>
+		<result column="lessSeventy" property="lessSeventy"/>
+		<result column="lessEighty" property="lessEighty"/>
+		<result column="lessNinety" property="lessNinety"/>
+		<result column="lessHundred" property="lessHundred"/>
+		<result column="lessHundredTwenty" property="lessHundredTwenty"/>
+		<result column="personNum" property="personNum"/>
+	</resultMap>
+	
+	<!-- 考试统计	机构统计图1 -->
+	<select id="examStudents2NodeStatistic" parameterType="java.lang.Integer" resultMap="examStatisticMap">
+		SELECT
+			students
+		FROM
+			exam_plan
+		WHERE
+			ID = #{planId};
+	</select>
+	
+	<!-- 考试统计	机构统计图2 -->
+	<select id="examNode2NodeStatistic" parameterType="java.util.Map" resultMap="examStatisticMap">
+		SELECT
+			a.id as personId,
+			a.name as personName,
+			d.id as nodeId,
+			d.name as nodeName
+		FROM
+			person as a
+		LEFT JOIN
+			person_solo_station(a.id) as b
+		ON a.id = b.person
+		
+		LEFT JOIN
+			sys_station as c
+		on b.station = c.id
+		
+		LEFT JOIN
+			node as d
+		on c.node = d.id
+		
+		WHERE a.id = any( array[#{students}] :: integer[])
+	</select>
+	
+	<!-- 根据考试计划id查询统计 各个分数段统计 -->
+	<select id="exam2ScoreStatistic" parameterType="java.lang.Integer" resultMap="examStatisticMap">
+		SELECT
+			<!-- 30分以下的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &lt; 30 and
+					#{planId} = a.id
+			) as lessThirty,
+			<!-- 30到39分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 30 and
+					exam_score &lt; 39 and
+					#{planId} = a.id
+			) as lessForty,
+			<!-- 40到49分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 40 and
+					exam_score &lt; 49 and
+					#{planId} = a.id
+			) as lessFifty,
+			<!-- 50到59分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 50 and
+					exam_score &lt; 59 and
+					#{planId} = a.id
+			) as lessSixty,
+			<!-- 60到69分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 60 and
+					exam_score &lt; 69 and
+					#{planId} = a.id
+			) as lessSeventy,
+			<!-- 70到79分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 70 and
+					exam_score &lt; 79 and
+					#{planId} = a.id
+			) as lessEighty,
+			<!-- 80到89分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 80 and
+					exam_score &lt; 89 and
+					#{planId} = a.id
+			) as lessNinety,
+			<!-- 90到99分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 90 and
+					exam_score &lt; 99 and
+					#{planId} = a.id
+			) as lessHundred,
+			<!-- 100到120分的人 -->
+			(
+				SELECT
+					count(a.id)
+				FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+					exam_score &gt;= 100 and
+					exam_score &lt;= 120 and
+					#{planId} = a.id
+			) as lessHundredTwenty,
+			<!-- 总人数 -->
+			count(b.id) as personNum
+			FROM
+					exam_plan as a
+				LEFT JOIN
+					exam as b
+				on a.id = b.exam_plan
+			
+				WHERE
+				#{planId} = a.id
+		
+	</select>
+	
+	<select id="exam2TypeStatistic" parameterType="java.lang.Integer" resultMap="examStatisticMap">
+		SELECT
+			b.quesions_num
+		FROM
+			exam_plan as a
+		LEFT JOIN
+			exam_paper as b
+		on a.exam_paper = b.id
+		
+		WHERE
+			#{planId} = a.id
+	</select>
+	
+	<select id="count4Exam" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT
+			count(id)
+		FROM
+			exam
+		WHERE
+			#{studentId} = student
+		AND #{examPlanId} = exam_plan
+	</select>
+	
+	<insert id="add4LessonExam" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into exam
+				(
+				id,
+				exam_paper_content,
+				exam_score,
+				exam_plan,
+				student,
+				state,
+				exam_start,
+				exam_end,
+				exam_mode,
+				exam_num
+				) values(
+				DEFAULT,
+				#{examPaperContent,jdbcType=OTHER,typeHandler=JSONOBJECT},
+				#{examScore,jdbcType=INTEGER},
+				#{examPlan,jdbcType=INTEGER},
+				#{student,jdbcType=INTEGER},
+				#{state,jdbcType=VARCHAR},
+				#{examStart,jdbcType=TIMESTAMP},
+				#{examEnd,jdbcType=TIMESTAMP},
+				#{examMode,jdbcType=VARCHAR},
+				#{examNumEnd,jdbcType=INTEGER}
+				)
+	</insert>
+	
+	<resultMap type="java.util.Map" id="lessonExamMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="duration" property="duration"/>
+		<result column="paper_mode" property="paperMode"/>
+		<result column="exam_answer_publish" property="examAnswerPublish"/>
+		<result column="exam_notice" property="examNotice"/>
+		<result column="exam_paper" property="examPaper"/>
+		<result column="students" property="students"/>
+		<result column="exam_start" property="examStart"/>
+		<result column="random_order" property="randomOrder"/>
+		<result column="pass_score" property="passScore"/>
+		<result column="exam_end" property="examEnd"/>
+		<result column="exam_type" property="examType"/>
+		<result column="exam_classifications" property="examClassifications"/>
+		<result column="exam_num" property="examNum"/>
+	</resultMap>
+	
+	<select id="detail4LessonExam" resultMap="lessonExamMap" parameterType="java.lang.Integer">
+		SELECT
+			id,
+			name,
+			duration,
+			paper_mode,
+			exam_answer_publish,
+			exam_notice,
+			exam_paper,
+			students,
+			to_char(exam_start, 'yyyy-MM-dd') as exam_start,
+			random_order,
+			pass_score,
+			to_char(exam_end, 'yyyy-MM-dd') as exam_end,
+			exam_type,
+			exam_classifications,
+			exam_num
+		FROM
+			exam_plan
+		WHERE
+			#{id} = ID
+	</select>
+	
+	<resultMap type="java.util.Map" id="reExamAbleMap">
+		<id column="eid" property="eid"/>
+		<result column="pid" property="pid"/>
+		<result column="paid" property="paid"/>
+		<result column="duration" property="duration"/>
+	</resultMap>
+	
+	<select id="reExamAble" resultMap="reExamAbleMap" parameterType="java.lang.Integer">
+	
+	select 
+		p.exam_paper pid,
+		p.id paid,
+		duration,
+		e.id eid 
+	from 
+	(select * from exam where exam_plan =(select exam_plan from exam where id =#{eid}) 
+		and student =(select student from exam where id =#{eid}) order by id desc limit 1) e,
+	exam_plan p
+	where e.exam_plan = p.id
+	and e.exam_num <![CDATA[ < ]]>p.exam_num
+
+	</select>
+	
+	<select id="excellist" parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT
+	    
+		person.username AS usernumber,
+		person.name AS person_name,
+		string_agg((select node."name" from node WHERE sys_station.node = node.id),'|') AS depat_name,
+		exam.exam_start AS exam_start,
+		exam.exam_end AS exam_end,
+		exam.exam_score
+		FROM exam 
+		LEFT JOIN exam_plan ON exam.exam_plan= exam_plan.id
+		LEFT JOIN person ON  exam.student = person.id
+		LEFT JOIN person_station ON person.id = person_station.person
+		LEFT JOIN sys_station   ON person_station.station = sys_station.id
+		LEFT JOIN node ON sys_station.node = node.id
+		WHERE exam_plan.id = #{id,jdbcType=INTEGER}
+		<if test="type == 'pass'">
+         AND exam.exam_score > exam_plan.pass_score
+		</if>
+		<if test="type == 'top'">
+         AND not exists(select 1 from exam  e WHERE e.exam_plan = #{id,jdbcType=INTEGER} and e.exam_score > exam.exam_score AND person.id = e.student)
+		 AND not exists(select 1 from exam  e WHERE e.exam_plan = #{id,jdbcType=INTEGER} and e.exam_end > exam.exam_end AND e.exam_score = exam.exam_score AND person.id = e.student)
+		 
+		</if>
+		GROUP BY person."id",exam."id"
+		ORDER BY exam.exam_score
+	</select>
+	
+</mapper>

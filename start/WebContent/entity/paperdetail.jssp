@@ -1,0 +1,304 @@
+[% 	if(request._la == 'true'){
+		return out.printJson([{name : '查询系统角色', code : 'sys_role.query', status : 'N'},
+		        {name : '增加系统角色', code : 'sys_role.add', status : 'N', dependence : 'sys_role.query'}, 
+		        {name : '编辑系统角色', code : 'sys_role.edit', status : 'N', dependence : 'sys_role.query'},
+		        {name : '删除系统角色', code : 'sys_role.delete', status : 'N', dependence : 'sys_role.query'}]);
+ 	}
+	var anonymous = request.anonymous;
+	if(session.user == null && !anonymous){
+		return response.sendRedirect(website + 'index.jssp');
+	}
+	
+%]
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>学习记录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    [% this.includeJssp('../common/include_lib.jssp'); %]  
+</head>
+<body>
+      <div class="container" molecule-def="paperdetail" class="question-manage-page">
+ 			<style>
+ 			
+ 			.portlet {
+ 			
+ 			 		 margin-top: 0px;
+  					 margin-bottom: 25px;
+  					 padding: 0px;
+ 					 margin-left:20px;
+ 					 margin-right:20px;
+ 			 }
+ 			 .portlet.box.yellow {  
+                  border: 1px solid #E7E6EB;
+                  border-top: 0;
+             }
+             .portlet.box.yellow .portlet-title {
+  				background-color: #37d1c1;
+		     }   
+           .portlet-title {  
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            }
+                  
+ 		   li, span{
+ 		    color: #7a818b;
+ 		    }
+ 	        ol{-webkit-padding-start: 20px; }
+ 		    .control-group {
+    		    argin-bottom: 10px;
+    		    margin-left: 20px;
+    		 }
+    		 .subject {
+    		   margin-top: 25px;
+   			   text-indent: 2em;
+   			 }
+
+			.portlet.box .portlet-title {  
+  				padding:8px 10px 2px 10px;
+   				border-bottom: 1px solid #eee;
+   				color: #fff !important;
+			 }
+			.portlet-body p:nth-of-type(2){
+				margin-left:20px;
+				margin-top:-20px;
+			}
+			.subject{
+					margin-top:25px;
+					text-indent: 2em;
+			}
+			.controls > .radio.line,
+			.controls > .checkbox.line {
+  				display: block;
+  				padding: 0 !important;
+  				margin: 0 !important;
+  				margin-top: 5px !important;
+			}
+			.controls > .radio,
+			.controls > .checkbox {
+  				display: inline-block;
+  				padding: 0 !important;
+  				margin: 0 !important;
+  				margin-top: 8px !important;
+  				margin-right: 15px !important;
+  				}
+
+ 			</style>
+    	<div class="page-title">试卷详情</div>
+        <div class="info-show">
+			<span id="info"></span>
+		</div>
+        <div class="tool-bar">
+            
+        </div>
+		
+		<div data="paper_detail,paperdetail,rows,0,question,questions"  renderer="repeater" id="table">
+		    
+		  		<div class="portlet box yellow question" repeater="true" when="type=='S'">
+		        
+		                <div class="portlet-title" >
+		             		<div class="caption" >
+		                       <input type="checkbox" value="">单选题
+		             		</div>
+		                </div>
+		                <div class="portlet-body">
+		      			    <p class="subject"></p>
+		      			    <p data="title" renderer="std"></p>
+		      			    <p></p>
+		      		        <div class="control-group">
+		      			        <div class="controls" data="options" renderer="stringToObj|repeater">
+		      			         <ol type="A">
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				             
+		      				              <li><span class=""><p data="content" renderer="std" ></p></span></li>
+		      				              
+		      				             </div>
+		      				         </label>
+		      				     </ol>
+		      			        </div>
+		      		        </div>
+		      		        
+		      		   <div class="control-group">
+		      		          正确答案：
+		      			       <div class="controls" data="answer" renderer="stringToObj|repeater">
+		      			         
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				              <span class=""><p data="content" renderer="std" ></p></span>
+		      				             </div>
+		      				         </label>
+		      				    
+		      			       </div>
+		      		  </div>
+              
+                      
+               
+
+		      		 <div class="control-group">
+		      		                 您的答案：
+		      			        <div class="controls" data="userAnswer" renderer="stringToObj|repeater">
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				              <span class=""><p data="content" renderer="std" ></p></span>
+		      				           </div>
+		      				         </label>
+		      			        </div>
+		      		 </div>
+
+                      </div>
+               </div>  
+               
+               
+		  		<div class="portlet box yellow question" repeater="true" when="type=='M'">
+		        
+		                <div class="portlet-title" >
+		             		<div class="caption" >
+		                       <input type="checkbox" value="">多选题
+		             		</div>
+		                </div>
+		                <div class="portlet-body">
+		      			    <p class="subject"></p>
+		      			    <p data="title" renderer="std"></p>
+		      			    <p></p>
+		      		        <div class="control-group">
+		      			        <div class="controls" data="options" renderer="stringToObj|repeater">
+		      			         <ol type="A">
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				             
+		      				              <li><span class=""><p data="content" renderer="std" ></p></span></li>
+		      				              
+		      				             </div>
+		      				         </label>
+		      				     </ol>
+		      			        </div>
+		      		        </div>
+		      		        
+		      		   <div class="control-group">
+		      		          正确答案：
+		      			       <div class="controls" data="answer" renderer="stringToObj|repeater">
+		      			         
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				              <span class=""><p data="content" renderer="std" ></p></span>
+		      				             </div>
+		      				         </label>
+		      				    
+		      			       </div>
+		      		  </div>
+              
+                      
+               
+
+		      		 <div class="control-group">
+		      		                 您的答案：
+		      			        <div class="controls" data="userAnswer" renderer="stringToObj|repeater">
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				              <span class=""><p data="content" renderer="std" ></p></span>
+		      				           </div>
+		      				         </label>
+		      			        </div>
+		      		 </div>
+
+                      </div>
+               </div>  
+               
+               <div class="portlet box yellow question" repeater="true" when="type=='C'">
+		        
+		                <div class="portlet-title" >
+		             		<div class="caption" >
+		                       <input type="checkbox" value="">判断题
+		             		</div>
+		                </div>
+		                <div class="portlet-body">
+		      			    <p class="subject"></p>
+		      			    <p data="title" renderer="std"></p>
+		      			    <p></p>
+		      		        <div class="control-group">
+		      			        <div class="controls" data="options" renderer="stringToObj|repeater">
+		      			         <ol type="A">
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				             
+		      				              <li><span class=""><p data="content" renderer="std" ></p></span></li>
+		      				              
+		      				             </div>
+		      				         </label>
+		      				     </ol>
+		      			        </div>
+		      		        </div>
+		      		        
+		      		   <div class="control-group">
+		      		          正确答案：
+		      			       <div class="controls" data="answer" renderer="stringToObj|repeater">
+		      			         
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				              <span class=""><p data="content" renderer="std" ></p></span>
+		      				             </div>
+		      				         </label>
+		      				    
+		      			       </div>
+		      		  </div>
+              
+                      
+               
+
+		      		 <div class="control-group">
+		      		                 您的答案：
+		      			        <div class="controls" data="userAnswer" renderer="stringToObj|repeater">
+		      				        <label class="radio line" repeater="true">
+		      				           <div class="radio">
+		      				              <span class=""><p data="content" renderer="std" ></p></span>
+		      				           </div>
+		      				         </label>
+		      			        </div>
+		      		 </div>
+
+                      </div>
+               </div>  
+		</div>
+
+
+
+		<div class="info-show">
+			<span id="errorInfo" class="errorInfo"></span>
+		</div>
+
+	    	<script>
+			 	// MOLECULE-DEF
+				function paperdetail(){ 
+				
+					 d2js.Renderers.stringToObj = function(el, arr){
+		    		 return arr.map(function(item){return {content:item};});
+	    	     	}
+			  			function getQuery(){
+             				 var reg=new RegExp("(^|&)"+"person"+"=([^&]*)(&|$)");
+              				 var r=window.location.search.substr(1).match(reg);
+           			         if(r!=null){
+                             return unescape(r[2]);
+                            }else{
+                             return null;
+                            }
+                          }
+		            	var examid = getQuery();
+		            	var $el = this.$el;
+		            	var paperdetaildataset = d2js.dataset.create('paper_detail');
+		            	var table = paperdetaildataset.addTable('paperdetail', '../entity/paperdetail.d2js',{pageSize:10});	
+		            	table.on('load', function (error) { 
+			    	        if(!error){$el.render(paperdetaildataset);
+			    	        $("#table").render();}
+			            });
+			            table.load('fetch',{examid : examid});
+
+			  }
+	    	   // MOLECULE-DEF-END
+	    	Molecule.create(paperdetail)
+		</script>
+ </div>
+ <div molecule=paperdetail></div>
+</body>
+</html>

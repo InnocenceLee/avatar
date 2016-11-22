@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rkjh.eschool.dao.LearnPlanDao">
+	
+	<resultMap type="java.util.Map" id="planMap">  
+	    <id column="id" property="id"/>
+	    <result column="plan_id" property="planId"/>
+	    <result column="plan_name" property="planName"/>
+	    <result column="train_batch_start" property="trainBatchStart"/>
+	    <result column="train_batch_end" property="trainBatchEnd"/>
+	    <result column="create_date" property="createDate"/>
+	    <result column="courses" property="courses"/>
+	    <result column="person_name" property="personName"/>
+	    <result column="person_id" property="personId"/>
+	    <result column="students" property="students"/>
+	    <result column="describe" property="describe"/>
+	    <result column="notify_mode" property="notify_mode"/>
+	    <result column="course_name" property="courseName"/>
+	    <result column="course_id" property="courseId"/>
+	    <result column="person_num" property="personNum"/>
+	    <result column="node_name" property="nodeName"/>
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="countMap">  
+	    <id column="end" property="end"/>
+	    <result column="started" property="started"/>
+	    <result column="unstart" property="unstart"/>
+  	</resultMap>
+  	
+	<resultMap type="java.util.Map" id="studentMap">  
+	    <id column="id" property="id"/>
+	    <result column="person_name" property="person_name"/>
+	    <result column="node_name" property="node_name"/>
+  	</resultMap>
+	
+	<select id="list" resultMap="planMap">
+		SELECT *
+		FROM (
+				<!-- select 
+					a.id as plan_id,
+					a.name as plan_name,
+					a.train_batch_start,
+					a.train_batch_end,
+					to_char(a.create_date, 'yyyy-MM-dd') as create_date,
+					a.courses,
+					b.name as person_name,
+					b.id as person_id
+				from 
+					train_plan as a,
+					person as b
+				where 
+					a.planner = b.id  -->
+				${nodeSql}
+				select 
+					a.id as plan_id,
+					a.name as plan_name,
+				    to_char(a.train_batch_start, 'YYYY-MM-DD') as train_batch_start,
+				    to_char(a.train_batch_end, 'YYYY-MM-DD') as train_batch_end,
+					to_char(a.create_date, 'yyyy-MM-dd') as create_date,
+					a.courses,
+					b.name as person_name,
+					b.id as person_id
+				from 
+					train_plan as a
+				join	person as b
+				on a.planner = b.id
+				join nd as d
+				on a.node = d.id
+				where 
+					1=1
+					<if test="name != NULL ">
+						<if test="name != '' ">
+							and a.name like '%'||#{name}||'%'
+						</if> 
+					</if> 
+		) a
+		WHERE a.plan_id &lt;= (
+			SELECT b.plan_id
+			FROM (
+				<!-- select 
+					a.id as plan_id,
+					a.name as plan_name,
+					a.train_batch_start,
+					a.train_batch_end,
+					to_char(a.create_date, 'yyyy-MM-dd') as create_date,
+					a.courses,
+					b.name as person_name,
+					b.id as person_id
+				from 
+					train_plan as a,
+					person as b
+				where 
+					a.planner = b.id  -->
+				${nodeSql}
+				select 
+					a.id as plan_id,
+					a.name as plan_name,
+					to_char(a.train_batch_start, 'YYYY-MM-DD') as train_batch_start,
+					to_char(a.train_batch_end, 'YYYY-MM-DD') as train_batch_end,
+					to_char(a.create_date, 'yyyy-MM-dd') as create_date,
+					a.courses,
+					b.name as person_name,
+					b.id as person_id
+				from 
+					train_plan as a
+				join	person as b
+				on a.planner = b.id
+				join nd as d
+				on a.node = d.id
+				where 
+					1=1
+					<if test="name != NULL ">
+						<if test="name != '' ">
+							and a.name like '%'||#{name}||'%'
+						</if> 
+					</if>  
+			) b
+			ORDER BY b.plan_id DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.plan_id DESC
+		LIMIT #{size}
+	</select>
+	
+	<select id="count4List" resultType="java.lang.Integer" parameterType="java.util.Map">
+	  	<!-- select 
+			count(a.id)
+		from 
+			train_plan as a,
+			person as b
+		where 
+			a.planner = b.id -->
+				${nodeSql}
+				select 
+					count(a.id)
+				from 
+					train_plan as a
+				join	person as b
+				on a.planner = b.id
+				join nd as d
+				on a.node = d.id
+				where 
+					1=1 
+			<if test="name != NULL and name != ''">
+				and a.name like '%'||#{name}||'%'
+			</if> 
+  	</select>
+	
+	<select id="detail" resultMap="planMap" parameterType="java.lang.Integer">
+		select
+			id,
+			name,
+			to_char(train_batch_start,'yyyy-MM-dd') as train_batch_start,
+			to_char(train_batch_end,'yyyy-MM-dd') as train_batch_end,
+			describe,
+			(SELECT count(id) FROM train_student_learn_course where train_plan = #{id} and state !='R') AS notstart
+		from
+			train_plan
+		where
+			#{id} = id
+	</select>
+	
+	<select id="courseContent" resultMap="countMap" parameterType="java.util.Map">
+		select 
+			count(id) as end,
+			(
+				select 
+					count(id)
+				from 
+					train_student_learn_course
+				where
+					#{planId} = train_plan and
+					state = 'L' and
+					#{courseId} = train_course_lesson 
+			) as started
+			,(
+				select 
+					count(id)
+				from 
+					train_student_learn_course
+				where
+					#{planId} = train_plan and
+					state = 'R' and
+					#{courseId} = train_course_lesson 
+			) as unstart
+		from 
+			train_student_learn_course
+		where
+			#{planId} = train_plan and
+			#{courseId} = train_course_lesson and
+			(state = 'O' or
+			state = 'N' or
+			state = 'A')
+	</select>
+	
+	<select id="getPlan" resultMap="planMap" parameterType="java.util.Map">
+		SELECT *
+		FROM (
+				select
+					a.id as plan_id,
+					to_char(a.train_batch_start,'yyyy-MM-dd') as train_batch_start,
+					to_char(a.train_batch_end,'yyyy-MM-dd') as train_batch_end,
+					a.notify_mode,
+					c.name as course_name,
+					c.id as course_id,
+					cardinality(a.students) as person_num
+				from
+					train_plan as a
+					left join train_course as c
+					on c.id = ANY (a.courses :: integer[])
+				where
+					#{id} = a.id
+				ORDER BY position(c.id||'' in array_to_string(a.courses, ' '))
+		) a
+		WHERE a.plan_id &lt;= (
+			SELECT b.plan_id
+			FROM (
+				select
+					a.id as plan_id,
+					to_char(a.train_batch_start,'yyyy-MM-dd') as train_batch_start,
+					to_char(a.train_batch_end,'yyyy-MM-dd') as train_batch_end,
+					a.notify_mode,
+					c.name as course_name,
+					c.id as course_id,
+					cardinality(a.students) as person_num
+				from
+					train_plan as a
+					left join train_course as c
+					on c.id = ANY (a.courses :: integer[])
+				where
+					#{id} = a.id
+			) b
+			ORDER BY b.plan_id DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.plan_id DESC
+		LIMIT #{size}  OFFSET #{page}
+	</select>
+	
+	<select id="count4GetPlan" resultType="java.lang.Integer" parameterType="java.util.Map">
+		select
+			count(a.id)
+		from
+			train_plan as a
+			left join train_course as c
+			on c.id = ANY (a.courses :: integer[])
+		where
+			#{id} = a.id
+	</select>
+	
+	<select id="getPerson" resultMap="planMap" parameterType="java.util.Map">
+		SELECT *
+		FROM (
+			select 
+				a.id as plan_id,
+				b.id as person_id,
+				b.name as person_name,
+				e.name as node_name,
+				i.name as lesson_name,
+				a.train_batch_start,
+				a.train_batch_end,
+				h.train_time
+			from train_plan as a
+			left join person as b
+				on  <if test="personId != NULL">
+					b.id = #{personId} and
+				</if> 
+				<if test="personName != NULL and personName != ''">
+					b.name like '%'||#{personName}||'%' and
+				</if> 
+				b.id = any(a.students :: integer[])
+			left join person_station as c
+				on b.id = c.person
+			left join sys_station as d
+				on c.station = d.id
+			left join node as e
+				on <if test="nodeName != NULL">
+					e.name like '%'||#{nodeName}||'%' and
+				</if>
+				d.node = e.id
+			left join train_student_learn_course as f
+			on f.train_plan = a.id and
+				f.train_course_lesson = any(a.courses :: integer[]) and
+				f.student = any(a.students :: integer[])
+				<if test="state != NULL and state != ''">
+				and f.state = #{state}
+				</if>
+			left join train_student_progress as h
+			on f.id = h.student_learn_course and
+				h.train_type = 'E'
+			left join train_lesson as i
+			on h.train_lesson = i.id
+			where
+				#{id} = a.id
+		) a
+		WHERE a.person_id &lt;= (
+			SELECT b.person_id
+			FROM (
+				select 
+					a.id as plan_id,
+					b.id as person_id,
+					b.name as person_name,
+					e.name as node_name,
+					i.name as lesson_name,
+					a.train_batch_start,
+					a.train_batch_end,
+					h.train_time
+				from train_plan as a
+				left join person as b
+					on  <if test="personId != NULL">
+						b.id = #{personId} and
+					</if> 
+					<if test="personName != NULL and personName != ''">
+						b.name like '%'||#{personName}||'%' and
+					</if> 
+					b.id = any(a.students :: integer[])
+				left join person_station as c
+					on b.id = c.person
+				left join sys_station as d
+					on c.station = d.id
+				left join node as e
+					on <if test="nodeName != NULL">
+						e.name like '%'||#{nodeName}||'%' and
+					</if>
+					d.node = e.id
+				left join train_student_learn_course as f
+				on f.train_plan = a.id and
+					f.train_course_lesson = any(a.courses :: integer[]) and
+					f.student = any(a.students :: integer[])
+					<if test="state != NULL and state != ''">
+					and f.state = #{state}
+					</if>
+				left join train_student_progress as h
+				on f.id = h.student_learn_course and
+					h.train_type = 'E'
+				left join train_lesson as i
+				on h.train_lesson = i.id
+				where
+					#{id} = a.id
+			) b
+			ORDER BY b.person_id DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.person_id DESC
+		LIMIT #{size}
+	</select>
+	
+	<select id="count4GetPerson" resultType="java.lang.Integer" parameterType="java.util.Map">
+		select 
+			count(b.id)
+		from train_plan as a
+		left join person as b
+			<if test="personId != NULL">
+				b.id = #{personId} and
+			</if> 
+			<if test="personName != NULL and personName != ''">
+				b.name like '%'||#{personName}||'%' and
+			</if> 
+			on b.id = any(a.students :: integer[])
+		left join person_station as c
+			on b.id = c.person
+		left join sys_station as d
+			on c.station = d.id
+		left join node as e 
+		     on d.node = e.id
+			<if test="nodeName != NULL">
+				and e.name like '%'||#{nodeName}||'%'
+			</if> 
+		where
+			#{id} = a.id
+	</select>
+	
+	<select id="notifyPersonList" resultMap="planMap" parameterType="java.util.Map">
+		
+		SELECT *
+		FROM (
+			select 
+				a.id as plan_id,
+				b.id as person_id,
+				b.username as person_no,
+				b.name as person_name,
+				e.name as node_name
+			from train_plan as a
+			
+			left join person as b
+			on 
+			b.id = any(array[a.students] :: integer[])
+			
+			left join person_solo_station(b.id) as c
+			on c.person = b.id
+			
+			left join sys_station as d
+			on c.station = d.id
+			
+			left join node as e
+			on d.node = e.id
+			
+			where #{id} = a.id
+			<if test="personId != NULL">
+				 and b.username = #{personId}
+			</if> 
+			<if test="personName != NULL and personName != ''">
+				 and b.name like '%'||#{personName}||'%'
+			</if> 
+			<if test="nodeName != NULL and nodeName != ''">
+				 and e.name like '%'||#{nodeName}||'%'
+			</if>
+		) a
+		WHERE a.plan_id &lt;= (
+			SELECT b.plan_id
+			FROM (
+				select 
+					a.id as plan_id,
+					b.id as person_id,
+					b.username as person_no,
+					b.name as person_name,
+					e.name as node_name
+				from train_plan as a
+				
+				left join person as b
+				on 
+				b.id = any(array[a.students] :: integer[])
+				
+				left join person_solo_station(b.id) as c
+				on c.person = b.id
+				
+				left join sys_station as d
+				on c.station = d.id
+				
+				left join node as e
+				on 
+				d.node = e.id
+				
+				where #{id} = a.id
+				<if test="personId != NULL">
+					 and b.username = #{personId}
+				</if> 
+				<if test="personName != NULL and personName != ''">
+					 and b.name like '%'||#{personName}||'%'
+				</if> 
+				<if test="nodeName != NULL and nodeName != ''">
+					 and e.name like '%'||#{nodeName}||'%'
+				</if>
+			) b
+			ORDER BY b.plan_id DESC
+			LIMIT 1
+			OFFSET #{page}
+			)
+		ORDER BY a.plan_id DESC
+		LIMIT #{size} 	OFFSET #{page}
+	</select>
+	
+	<select id="countNotifyPersonList" resultType="java.lang.Integer" parameterType="java.util.Map">
+		
+			select 
+				count(a.id)
+			from train_plan as a
+			
+			left join person as b
+			on 
+			b.id = any(array[a.students] :: integer[])
+			
+			left join person_solo_station(b.id) as c
+			on c.person = b.id
+			
+			left join sys_station as d
+			on c.station = d.id
+			
+			left join node as e
+			on 
+			d.node = e.id
+			
+			where #{id} = a.id
+			<if test="personId != NULL">
+				 and b.username = #{personId}
+			</if> 
+			<if test="personName != NULL and personName != ''">
+				 and b.name like '%'||#{personName}||'%'
+			</if> 
+			<if test="nodeName != NULL and personName != ''">
+				 and e.name like '%'||#{nodeName}||'%'
+			</if>
+	</select>
+	
+	<select id="getStudentCourse" resultMap="planMap" parameterType="java.lang.Integer">
+		select
+			students,
+			courses
+		from
+			train_plan
+		where
+			#{id} = id
+	</select>
+	
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into train_plan
+			(
+				id,
+				name,
+				students,
+				courses,
+				planner,
+				<if test="notifyMode != NULL">
+				notify_mode,
+				</if> 
+				describe,
+				train_batch_start,
+				train_batch_end,
+				create_date,
+				node
+			) values (
+				DEFAULT,
+				#{name,jdbcType=VARCHAR},
+				ARRAY[
+				<foreach collection="students" item="item" index="index" separator="," >
+					#{item}
+	    		</foreach>
+				],
+				ARRAY[
+				<foreach collection="courses" item="item" index="index" separator="," >
+					#{item}
+	    		</foreach>
+				],
+				#{planner,jdbcType=INTEGER},
+				<if test="notifyMode != NULL">
+					ARRAY[
+					<foreach collection="notifyMode" item="item" index="index" separator="," >
+						#{item}
+		    		</foreach>
+					],
+				</if> 
+				#{describe,jdbcType=VARCHAR},
+				#{trainBatchStart,jdbcType=TIMESTAMP},
+				#{trainBatchEnd,jdbcType=TIMESTAMP},
+				current_timestamp,
+				#{node,jdbcType=INTEGER}
+			)
+	</insert>
+	
+	<insert id="addLearnLog" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		insert into train_student_learn_course
+			(
+				train_course_lesson,
+				student,
+				plan_start,
+				plan_end,
+				state,
+				planner,
+				apply_date,
+				notify_message,
+				train_plan
+			) values (
+				#{trainCourseLesson,jdbcType=INTEGER},
+				#{student,jdbcType=INTEGER},
+				#{planStart,jdbcType=TIMESTAMP},
+				#{planEnd,jdbcType=TIMESTAMP},
+				#{state,jdbcType=VARCHAR},
+				#{planner,jdbcType=INTEGER},
+				current_timestamp,
+				#{notifyMessage,jdbcType=VARCHAR},
+				#{trainPlan,jdbcType=INTEGER}
+			)
+	</insert>
+	
+	<delete id="delLog" parameterType="java.util.Map">
+		delete from train_student_learn_course
+			where 
+				#{trainPlan} = train_plan
+	</delete>
+	
+	<update id="update" parameterType="java.util.Map">
+		update train_plan set
+			students = 
+				ARRAY[
+				<foreach collection="students" item="item" index="index" separator="," >
+					#{item}
+	    		</foreach>
+				],
+			courses = 
+				ARRAY[
+				<foreach collection="courses" item="item" index="index" separator="," >
+					#{item}
+	    		</foreach>
+				],
+			planner = #{planner,jdbcType=INTEGER},
+			<if test="notifyMode != NULL">
+				notify_mode = 
+					ARRAY[
+					<foreach collection="notifyMode" item="item" index="index" separator="," >
+						#{item}
+		    		</foreach>
+					],
+			</if>
+			describe = #{describe,jdbcType=VARCHAR},
+			train_batch_start = #{trainBatchStart,jdbcType=TIMESTAMP},
+			train_batch_end = #{trainBatchEnd,jdbcType=TIMESTAMP},
+			name = #{name,jdbcType=VARCHAR}
+			where
+				#{id} = id
+	</update>
+	
+	<select id="count4Del" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		select count(c.id)
+		from
+			train_plan as a,
+			train_student_learn_course as b,
+			train_student_progress as c
+		where
+			#{id} = a.id and
+			a.id = b.train_plan and
+			b.id = c.student_learn_course
+	</select>
+	
+	<delete id="delPlan" parameterType="java.lang.Integer">
+		delete from
+			train_plan
+			where
+			#{id} = id
+	</delete>
+	
+	<delete id="delPlanLog" parameterType="java.lang.Integer">
+		delete from
+			train_student_learn_course
+			where
+			#{id} = train_plan
+	</delete>
+</mapper>
