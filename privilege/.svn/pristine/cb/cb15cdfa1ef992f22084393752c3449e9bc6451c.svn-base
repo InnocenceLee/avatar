@@ -1,0 +1,83 @@
+d2js.fetch = function(params){
+   checkPrivilege("sys_station.query");
+   sql{.
+		select t.*, nd.name node_name from sys_station t, nd 
+			where t.node = nd.id 
+	
+		sql{.?(params.name)
+		 	and strpos(t.name, :name) > 0 
+		.}
+		 
+		sql{.?(params.status)
+			and strpos(t.status, :status) > 0 
+		.} 
+		   
+		sql{.?(params.visibility)
+			and strpos(t.visibility, :visibility) > 0 
+		.} 
+		
+		sql{.?(params.kind)
+			and strpos(t.kind, :kind) > 0 
+		.} 
+		
+	.}
+		
+	return this.query(nodeSql(params,findAncientTypes("SYS_STATION")) + sql, params, params._page);
+	
+}
+
+d2js.create = function(rcd){
+	checkPrivilege("sys_station.add");
+	$V(rcd, {
+		'name' : [V.notNull,V.longest(10)],  
+		'node' : [V.notNull],
+		'status': [V.inside(['N','D'],'请选择状态')], 
+		'visibility' : [V.inside(['V','H'],'请选择可见性')],
+		'is_root' : [V.inside(['Y','N'],'请选择是否为档案性岗位')],
+		'kind':[V.inside(['B','T','L','G'],'请选择岗位性质')],
+		'remarks':[V.longest(4000)],
+	});
+	rcd.id = this.nextId("sys_station_id_seq");
+	
+	session.sys_station_id = rcd.id;
+	
+	actas('sys_station.add', 'sys_station', rcd.id, rcd);
+	 
+	return this.insertRow('sys_station', rcd, ["id","name","node","status","visibility","is_root","kind","remarks"]);
+};
+
+d2js.modify = function(rcd){
+	checkPrivilege("sys_station.edit");
+	$V(rcd, {
+		'name' : [V.notNull,V.longest(30)],  
+		'node' : [V.notNull],
+		'status': [V.inside(['N','D'],'请选择状态')], 
+		'visibility' : [V.inside(['V','H'],'请选择可见性')],
+		'is_root' : [V.inside(['Y','N'],'请选择是否为档案性岗位')],
+		'kind':[V.inside(['B','T','L','G'],'请选择岗位性质')],
+		'remarks':[V.longest(4000)],
+	});
+	actas('sys_station.edit', 'sys_station', rcd.id, rcd);
+	return this.updateRow('sys_station', rcd, ["id","name","node","status","visibility","is_root","kind","remarks"]);
+}
+
+d2js.destroy = function(rcd){
+	checkPrivilege("sys_station.delete");
+	actas('sys_station.delete', 'sys_station', rcd.id, rcd);
+	this.deleteRows('sys_station_role_dispatch',{'sys_station':rcd.id});
+	return this.deleteRow('sys_station',rcd);
+	
+}
+
+
+d2js.fetchAllRole = function(params){
+	var sql = 'select * from sys_role';
+	return this.query(sql);
+}
+
+d2js.fetchStationByNode = function(params){
+    
+	var sql = 'select * from sys_station where node = :node'; 
+	return this.query(sql, params);
+};
+

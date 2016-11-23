@@ -1,0 +1,562 @@
+imports("../common/jsFunctionExtends.js");
+
+//execute()返回的int，代表影响的行数，不代表执行是否成功
+//return this.insertRow()返回的是插入的对象（带ID）
+
+//评论相关
+//访问接口：http://localhost:8082/fk/comment/commentService.d2js?_m=getItemCommentsByID&params={"id":"1"}
+
+/**
+ *根据物品ID获取评论
+**/
+d2js.exports.getItemCommentsByID = d2js.getItemCommentsByID=function(params){
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = params.id;
+	
+	sql{.
+		SELECT 
+		p.name,
+		p.photo,
+		gc.content,
+		gc.origin_comment,
+		gc.support_count,
+  		gc.postd
+		from person p,member m, gf_item gi, comment_log cl, gf_comment gc
+		where 1=1
+		sql{.?(condition.id) and gi.id= :id  .}
+		and m.id=cl.member and gi.id=cl.item and cl.comment=gc.id
+		and p.id=m.person and gc.state='A'
+	.}
+	sql = this.orderBy(sql, condition._sorts, {'gc.postd' : 'desc'});
+	return this.query(sql, condition, condition._page);
+	
+}
+
+/**
+ *收藏物品
+**/
+d2js.exports.addFav = d2js.addFav=function(params){
+
+ 
+	$V(params, {//校验参数
+		itemId : [V.notNull]
+	});
+	var fav = new Object();
+	fav.member = getCurrentMemberId();
+	fav.item = params.itemId;
+	fav.favd = new Date();
+	
+	//先判断是否存在收藏记录，存在则不增加记录，不存在则添加
+	sql{.
+		SELECT count(*) FROM member_fav WHERE 1=1
+		code{.
+			sql{.?(fav.member) and member = ?  .}
+			sql{.?(fav.item) and item = ?  .}
+		.}
+	.}
+	var count = this.query(sql,[fav.member,fav.item]);
+	var insertFav=null;
+	if(count.rows[0]['count']==0){//不存在则添加
+		insertFav=this.insertRow('member_fav', fav, ['member',  'item', 'favd']);
+	}
+	if(insertFav==null){//返回插入失败
+		throw new Error('收藏物品失败');
+	}else{
+		//更新member表的收藏字段（追加）
+		var appendMemberFav=null;
+		sql{.
+			SELECT count(*) FROM member WHERE 1=1
+			code{.
+				sql{.?(fav.member) and id = ?  .}
+				sql{.?(fav.item) and ? = any(member.fav)  .}
+			.}
+		.}
+		var count = this.query(sql,[fav.member,fav.item]);
+		if(count.rows[0]['count']==0){//存在不追加
+			appendMemberFav=this.execute("update member set fav = array_append(fav,?) where id=?", [fav.item,fav.member]);
+		}
+	}
+	return;
+}
+
+/**
+ *取消收藏物品
+**/
+d2js.exports.removeFav = d2js.removeFav=function(params){
+
+	$V(params, {//校验参数
+		itemId : [V.notNull]
+	});
+	var fav = new Object();
+	fav.member = getCurrentMemberId();
+	fav.item = params.itemId;
+	fav.favd = new Date();
+	
+	var delFav=this.execute("delete from member_fav where item=? and member=? ", [fav.item,fav.member]);
+	if(delFav == null){//返回删除失败
+		throw new Error('取消收藏失败');
+	}else{
+		//更新member表的收藏字段（移除）
+		var removeMemberFav=this.execute("update member set fav = array_remove(fav,?) where id=?", [fav.item,fav.member]);
+	}
+	return;
+}
+
+/**
+ *发表评论
+**/
+d2js.exports.comment = d2js.comment=function(params){
+
+	$V(params, {//校验参数
+		itemId : [V.notNull],
+		content : [V.notNull]
+	});
+	if(getCurrentMemberId()==null)
+	{
+		throw new Error('未登录');
+	}
+	var result = new Object();
+	var comment = new Object();
+	comment.item = params.itemId;
+	comment.author = getCurrentMemberId();
+	if(params.related_members[0]!=0)
+	comment.related_members = $ARRAY('int', params.related_members);//数组
+	if(params.origin_comment!=0)
+	comment.origin_comment = params.origin_comment;
+	comment.postd = new Date();
+	
+	comment.state = 'A'; //待审核改为“审批通过”
+	comment.support_count = 0;
+	comment.content = params.content;
+	
+	// 如何插入数组参数？
+	var insertComment=this.insertRow('gf_comment', comment, ['item', 'author', 'related_members', 'origin_comment', 'postd', 'state','content', 'support_count']);
+	logger.info('insertComment result: ' + JSON.stringify(insertComment)); //{"item":1,"favd":"2016-09-06T07:02:16.288Z","member":1,"id":9,"tag":null}
+	
+	// var insertComment={"id":1};
+	if(insertComment==null){//返回添加失败
+
+		result.success=false;
+		result.msg='评论失败';
+		throw new Error('评论失败');
+	}else{
+		//插入comment_log表
+		var commentLog = new Object();
+		commentLog.item = params.itemId;
+		commentLog.member = getCurrentMemberId();
+		commentLog.comment = insertComment.id; //插入gf_comment返回的ID
+		commentLog.state='A';
+		commentLog.postd=new Date();
+		if(params.origin_comment!=0)
+			commentLog.action = 'F'; //动作：跟评	
+		else
+			commentLog.action = 'P'; //动作：发表
+		var insertCommentLog=this.insertRow('comment_log', commentLog, ['member', 'item', 'comment', 'action','state','postd']);
+		logger.info(insertCommentLog);
+		sql{.
+			SELECT p.* FROM person p LEFT JOIN member m ON m.person=p.id WHERE 1=1 and m.id=?
+		.}
+		var tmp_person = this.queryRow(sql,[getCurrentMemberId()]);
+		return;
+	}
+
+	return;
+}
+
+/**
+ *点赞评论
+**/
+d2js.exports.support = d2js.support=function(params){
+
+	$V(params, {//校验参数
+		origin_comment: [V.notNull]
+	});
+	sql{.
+		SELECT * FROM comment_log WHERE member = ? and comment = ? and action = ?
+	.}
+	var member = getCurrentMemberId();
+
+    var iscomment=this.queryRow(sql,[member,params.origin_comment,'S']);
+    logger.info(iscomment);
+    if(iscomment==null)
+    {
+	  var commentLog = new Object();
+		commentLog.comment = params.origin_comment;
+		commentLog.member = getCurrentMemberId();
+		commentLog.item = params.itemId;
+		commentLog.action = 'S'; //动作：赞
+		commentLog.state='A';
+		commentLog.postd=new Date();
+		var r1=this.insertRow('comment_log', commentLog, ['member', 'comment', 'action','item','state','postd']);
+		this.execute("UPDATE gf_comment SET support_count = support_count+1 where id = ?", [params.origin_comment]);
+		logger.info(JSON.stringify(r1));
+		sql{.
+			select support_count from gf_comment where id=?
+		.}
+		var num = this.queryRow(sql,[params.origin_comment]);
+		logger.info(JSON.stringify(num));
+		return num.support_count;
+    }else
+    {
+    	//插入comment_log表
+		var commentLog = new Object();
+		commentLog.id=iscomment.id;
+    	this.deleteRow('comment_log', commentLog, ['id']);
+    	this.execute("UPDATE gf_comment SET support_count = support_count-1 where id = ?", [params.origin_comment]);
+    	sql{.
+			select support_count from gf_comment where id=?
+		.}
+		var num = this.queryRow(sql,[params.origin_comment]);
+		logger.info("-");
+		logger.info(JSON.stringify(num));
+		return -(num.support_count);
+    }
+}
+/**
+ *物品详情
+**/
+d2js.exports.item_detail = d2js.item_detail=function(params){
+	sql{.
+		SELECT * FROM gf_item WHERE id = ?
+	.}
+	logger.info('sql'+sql);
+	return this.queryRow(sql,[params.id]);
+}
+/**
+ *点赞文章
+**/
+d2js.exports.article_support = d2js.article_support=function(params){
+
+	$V(params, {//校验参数
+		itemId: [V.notNull],
+		good_count: [V.notNull],
+		low_count: [V.notNull]
+	});
+	sql{.
+		SELECT * FROM comment_log WHERE member = ? and item = ? and action = ? and comment is NULL
+	.}
+	var member = getCurrentMemberId();
+	if(member==null)
+	{
+		return 0;
+	}
+    var iscomment;
+    if(params.type=='S')
+    {
+    	iscomment=this.queryRow(sql,[member,params.itemId,'S']);
+    }else
+    {
+    	iscomment=this.queryRow(sql,[member,params.itemId,'F']);
+    }
+    
+    logger.info(iscomment);
+    if(iscomment==null)
+    {
+//    	sql{.
+//			SELECT * FROM gf_item WHERE id = ?
+//		.}
+//		var tmp_item = this.queryRow(sql,[params.itemId]);
+	    var tag = {good_count: params.good_count, low_count: params.low_count}
+		logger.info('data:'+JSON.stringify(tag));
+		this.execute("UPDATE gf_item SET tag = tag || ? where id = ?", [tag, params.itemId]);
+		//插入comment_log表
+		var commentLog = new Object();
+		commentLog.item = params.itemId;
+		commentLog.member = getCurrentMemberId();
+		if(params.type=='S')
+		{
+			commentLog.action = 'S'; //动作：赞
+		}else{
+			commentLog.action = 'F'; //动作：low
+		}
+		this.insertRow('comment_log', commentLog, ['member', 'item', 'action']);
+		if(params.type=='S')
+    	{
+		return 1;
+		}else{
+		return -1;
+		}
+    }else
+    {
+    	if(params.type=='S')
+		{
+			params.good_count=params.good_count- 2; //动作：赞
+		}else{
+			params.low_count=params.low_count-2; //动作：low
+		}
+    	var tag = {good_count: params.good_count, low_count: params.low_count}
+		logger.info('data:'+JSON.stringify(tag));
+		this.execute("UPDATE gf_item SET tag = tag || ? where id = ?", [tag, params.itemId]);
+		//插入comment_log表
+		var commentLog = new Object();
+		commentLog.id=iscomment.id;
+    	this.deleteRow('comment_log', commentLog, ['id']);
+    	if(params.type=='S')
+    	{
+		return 2;
+		}else{
+		return -2;
+		}
+    }
+	//var tag = {good_count: params.good_count, low_count: params.low_count}
+	//logger.info('data:'+JSON.stringify(tag));
+	//this.execute("UPDATE gf_item SET tag = tag || ? where id = ?", [tag, params.itemId]);
+	
+	return;
+}
+/**
+ *获取订单列表
+**/
+d2js.exports.getMyOrderList = d2js.getMyOrderList=function(params){
+	
+
+	var condition = new Object();
+	condition.order_member = getCurrentMemberId();
+	condition.state = params.state;
+	condition._page=params._page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	if(params.state=='p')
+	{
+		sql{.
+			SELECT
+				DISTINCT
+				go.id,
+				go.order_no,
+				go.orderd,
+				go.state,
+				go.urging,
+				go.receive_info,
+				go.order_detail // jsonb，里面包含的信息丰富
+			from gf_item gi, gf_order go
+			WHERE gi.id = any(go.items)
+			and gi.sub_type='G'
+			and go.state != 'C'
+			sql{.?(condition.state) and (go.state= :state or go.state='W')  .}
+			sql{.?(condition.order_member) and go.order_member= :order_member  .}
+		.}
+		sql = this.orderBy(sql, condition._sorts, {'go.orderd' : 'desc'});
+		logger.info('sql：'+sql);
+		return this.query(sql, condition, condition._page);
+	}else{
+		sql{.
+			SELECT
+				DISTINCT
+				go.id,
+				go.order_no,
+				go.orderd,
+				go.state,
+				go.urging,
+				go.receive_info,
+				go.order_detail // jsonb，里面包含的信息丰富
+			from gf_item gi, gf_order go
+			WHERE gi.id = any(go.items)
+			and gi.sub_type='G'
+			and go.state != 'C'
+			sql{.?(condition.state) and go.state= :state  .}
+			sql{.?(condition.order_member) and go.order_member= :order_member  .}
+		.}
+		sql = this.orderBy(sql, condition._sorts, {'go.orderd' : 'desc'});
+		logger.info('sql：'+sql);
+		return this.query(sql, condition, condition._page);
+	}
+	
+}
+
+/**
+ *催单或取消催单
+**/
+d2js.exports.urge = d2js.urge=function(params){
+
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+	
+	var urge = new Object();
+	urge.id = params.id;
+	urge.urging = params.urging;
+	this.execute("update gf_order set urging = ? where id=?", [urge.urging,urge.id]);
+	return;
+}
+
+/**
+ *取消订单
+**/
+d2js.exports.cancelOrder = d2js.cancelOrder=function(params){
+  
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+
+	//1、设置订单状态为“取消”	
+	var cancle = new Object();
+	cancle.id = params.id;
+	cancle.state = 'C'; //状态：取消
+	this.execute("update gf_order set state = ? where id=?", [cancle.state,cancle.id]);
+	//2、设置item的数量+N
+	sql{.
+		select 
+			gi.id,gi.name,gi.store_count,
+			gi.buy_count,gi.real_buy_count,god.order_detail->>'items' AS items
+		from gf_item gi,gf_order god 
+		where gi.id = any(god.items)
+		sql{.?(cancle.id) and god.id= ?  .}
+	.}
+	var data = this.query(sql,[cancle.id]);
+	logger.info('data:'+JSON.stringify(data));
+	data.rows.forEach(function(row){
+	     logger.info('data-row:'+JSON.stringify(row));
+	     var items = JSON.parse(row.items);
+	     for(var i = 0; i < items.length;i++){  
+	    	
+	    	  logger.info('items-id:'+JSON.stringify(items[i].id));
+	          if(row.id  == items[i].id){
+	          sql{.
+			       update gf_item set id=id
+				   sql{.?(items[i].count) , store_count =store_count+ ?  .}
+				   sql{.?(items[i].count) , buy_count =buy_count - ?  .}
+				   sql{.?(items[i].count) , real_buy_count =real_buy_count - ?  .}
+			       where 1=1
+				   sql{.?(row.id) and id = ?  .}
+		       .}
+				logger.info('sql:'+sql);
+				logger.info('row:'+items[i].count+" "+row.id);
+				result = this.execute(sql,[items[i].count,items[i].count,items[i].count,row.id]);   
+				break;
+	         }
+	     
+	     }
+
+	},this);
+	return;
+}
+
+/**
+ *确认收货
+**/
+d2js.exports.confirmReceipt = d2js.confirmReceipt=function(params){
+
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+	
+	var confirm = new Object();
+	confirm.id = params.id;
+	confirm.state = 'O';
+	confirm.received=new Date();
+	this.execute("update gf_order set state = ?, received=? where id=?", [confirm.state,confirm.received,confirm.id]);
+	return;
+}
+
+/**
+ *获取订单详情
+**/
+d2js.exports.getOrderDetail = d2js.getOrderDetail=function(params){
+ 
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+
+	var condition = new Object();
+	condition.id = params.id;
+	
+	sql{.
+		SELECT
+			go.order_no,
+			go.orderd,
+			gi.name,
+			go.state,
+			go.order_detail, // jsonb，里面包含的信息丰富
+			go.receive_info
+		from gf_item gi, gf_order go
+		WHERE gi.id = any(go.items)
+		sql{.?(condition.id) and go.id= :id  .}
+	.}
+	sql = this.orderBy(sql, condition._sorts, {'go.orderd' : 'desc'});
+	return this.query(sql, condition, condition._page);
+}
+
+/**
+ *获取个人信息 （包括个人信息、代付款、待发货、带收货数量）【根据用户获取】
+**/
+d2js.exports.getMyInfo = d2js.getMyInfo=function(params){
+
+ 
+	var condition = new Object();
+	if(getCurrentMemberId()==null)
+	{
+		throw new Error('未登录');
+	}
+	condition.id = getCurrentMemberId();
+	logger.info('用户ID为：'+condition.id);
+	sql{.
+		SELECT
+			p.id,
+			p.name,
+			p.photo,
+			p.gender,
+			p.mobile,
+			sum(case when gfo.STATE = 'p' then 1 else 0 end) AS pay_num,
+			sum(case when gfo.STATE = 's' then 1 else 0 end) AS send_num,
+			sum(case when gfo.STATE = 'L' then 1 else 0 end) AS logistic_num
+		from person p
+		left join member m
+		on p.id=m.person
+		left join (
+		    SELECT order_no,state as STATE,order_member FROM gf_order WHERE order_no IN (SELECT distinct order_no FROM (SELECT unnest(items) AS productid,order_no,state FROM gf_order)X,gf_item item WHERE X.productid = item.id AND type = 'G')
+		) gfo
+		on m.id=gfo.order_member
+		where 1=1 
+		sql{.?(condition.id) and m.id= :id  .}
+		GROUP BY gfo.order_member, p.name, p.photo,p.gender,p.id,p.mobile
+	.}
+	sql = this.orderBy(sql, condition._sorts, null);
+	logger.info('SQL为：'+sql);
+	return this.query(sql, condition, condition._page);
+}
+
+/**
+ *查看物流
+**/
+d2js.exports.getLogistical = d2js.getLogistical=function(params){
+
+ 
+	var condition = new Object();
+	condition.order_no = params.order_no;
+	sql{.
+		SELECT * FROM gf_order WHERE order_no = ?
+	.}
+	var data = this.queryRow(sql,[params.order_no]);
+	if(data==null)
+	{
+		throw new Error('无此订单');
+	}
+	var logistics_info;
+	//var imports = new JavaImporter(org.json,java.util,java.io);
+	//with(imports){
+	//	var Test = Java.type("privilege.Test");
+	//	//new Test()...
+	//	logistics_info=Test.getJson(condition.order_no);//模拟获取物流信息
+	//}
+	var result='';
+	var imports = new JavaImporter(java.util,java.io);
+	with(imports){
+		var KdniaoTrackQueryAPI = Java.type("privilege.KdniaoTrackQueryAPI");
+		logistics_info=KdniaoTrackQueryAPI.Express(data.logistics_no);
+	}
+	
+	this.execute("update gf_order set logistics_info = ? where order_no=?", [JSON.parse(logistics_info),condition.order_no]);
+	
+	sql{.
+		SELECT
+			gfo.order_no,
+			gfo.logistics_info
+		from gf_order gfo
+		where 1=1
+		sql{.?(condition.order_no) and gfo.order_no= :order_no  .}
+	.}
+	sql = this.orderBy(sql, condition._sorts, null);
+	return this.query(sql, condition, condition._page);
+}
+

@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<!--
+BeyondAdmin - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.2.0
+Version: 1.0.0
+Purchase: http://wrapbootstrap.com
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- Head -->
+<head>
+    <meta charset="utf-8" />
+    <title>后台管理</title>
+
+    <meta name="description" content="Dashboard" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" href="/privilege/pcadmin//static/beyond/img/favicon.png" type="image/x-icon">
+
+
+    <!--Basic Styles-->
+    <link href="/privilege/pcadmin//static/beyond/css/bootstrap.min.css" rel="stylesheet" />
+    <link id="bootstrap-rtl-link" rel="stylesheet" />
+    <link href="/privilege/pcadmin//static/beyond/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/privilege/pcadmin//static/beyond/css/weather-icons.min.css" rel="stylesheet" />
+
+    <!--Fonts-->
+    <!--<link href="http://fonts.useso.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300" rel="stylesheet" type="text/css">-->
+
+    <!--Beyond styles-->
+    <link id="beyond-link" href="/privilege/pcadmin//static/beyond/css/beyond.min.css" rel="stylesheet" type="text/css" />
+    <link id="datepicker-link" href="/privilege/pcadmin//static/beyond/css/datepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="/privilege/pcadmin//static/beyond/css/demo.min.css" rel="stylesheet" />
+    <link href="/privilege/pcadmin//static/beyond/css/typicons.min.css" rel="stylesheet" />
+    <link href="/privilege/pcadmin//static/beyond/css/animate.min.css" rel="stylesheet" />
+    <link href="/privilege/pcadmin//static/lightbox/lightbox.css" rel="stylesheet" />
+    <link id="skin-link" href="/privilege/pcadmin//static/beyond/css/skins/deepblue.min.css" rel="stylesheet" type="text/css" />
+
+    <!--Skin Script: Place this script in head to load scripts for skins and rtl support-->
+    <script src="/privilege/pcadmin//static/beyond/js/skins.min.js"></script>
+
+    <!--Custom styles-->
+    <style>
+        .ms-controller,.ms-important,[ms-controller],[ms-important]{
+            visibility: hidden;
+        }
+         *{font-family:"微软雅黑"}
+
+        ms:dialog > * {
+            display: none;
+        }
+    </style>
+    <script src="/privilege/pcadmin//static/mod.js"></script>
+    <script>
+        if (document.namespaces) {
+            document.namespaces.add('ms', 'http://www.w3.org/1999/xhtml');
+        }
+    </script><!--ignore-->
+</head>
+<!-- /Head -->
+<!-- Body -->
+<body ms-controller="root">
+    <!-- Loading Container -->
+    <div class="loading-container">
+        <div class="loading-progress">
+            <div class="rotator">
+                <div class="rotator">
+                    <div class="rotator colored">
+                        <div class="rotator">
+                            <div class="rotator colored">
+                                <div class="rotator colored"></div>
+                                <div class="rotator"></div>
+                            </div>
+                            <div class="rotator colored"></div>
+                        </div>
+                        <div class="rotator"></div>
+                    </div>
+                    <div class="rotator"></div>
+                </div>
+                <div class="rotator"></div>
+            </div>
+            <div class="rotator"></div>
+        </div>
+    </div>
+    <!--  /Loading Container -->
+    <!-- Navbar -->
+    <div class="navbar" id="header" ms-view="header">
+    </div>
+    <!-- /Navbar -->
+    <!-- Main Container -->
+    <div class="main-container container-fluid">
+        <!-- Page Container -->
+        <div class="page-container">
+        	<img id="loadImg" style="position: fixed;z-index: 1000;top: 50%;left: 80px;" src="/privilege/pcadmin//static/project/image/2013112931.gif" alt="" />
+             	
+            <!-- Page Sidebar -->
+            <div class="page-sidebar" id="sidebar" ms-view="sidebar" ms-controller="sidebar">
+            	
+            
+            </div>
+            <!-- /Page Sidebar -->
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Page Breadcrumb -->
+                <div class="page-breadcrumbs">
+                    <ul class="breadcrumb">
+                        <li ms-class="active:$index+1===breadCrumb.size()" ms-repeat-bread="breadCrumb">
+                            <i class="glyphicon" ms-class="{{bread.icon}}" style="font-size:14px;"></i>
+                            <a ms-if="$index+1!==breadCrumb.size()" ms-attr-href="bread.href">{{bread.title}}</a>
+                            <span ms-if="$index+1===breadCrumb.size()">{{bread.title}}</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /Page Breadcrumb -->
+                <!-- Page Header -->
+                <!-- /Page Header -->
+                <!-- Page Body -->
+                <div class="page-body">
+                    <div id="content" ms-view="content"></div>
+                </div>
+                <!-- /Page Body -->
+            </div>
+            <!-- /Page Content -->
+        </div>
+        <!-- /Page Container -->
+        <!-- Main Container -->
+
+    </div>
+    <div id="dialog_layer"></div>
+
+    <script src="/privilege/pcadmin//static/jquery/jquery.js"></script>
+    <script src="/privilege/pcadmin//static/jquery/ajaxfileupload.js"></script>
+    <script src="/privilege/pcadmin//static/jquery/bootstrap-datepicker.js"></script>
+    <script src="/privilege/pcadmin//static/bootstrap/bootstrap.min.js"></script>
+	<script src="/privilege/pcadmin//static/lightbox/lightbox.js"></script>
+	
+    <script>
+        require.resourceMap({
+    "res": {
+        "components/dashboard/dashboard.js": {
+            "uri": "/privilege/pcadmin/static//components/dashboard/dashboard.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/dashboard/dashboard"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "services/configService.js"
+            ]
+        },
+        "components/demo/demo.js": {
+            "uri": "/privilege/pcadmin/static//components/demo/demo.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/demo/demo"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/demo/form.js": {
+            "uri": "/privilege/pcadmin/static//components/demo/form.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/demo/form"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/configService.js",
+                "services/ajaxService.js"
+            ]
+        },
+        "components/directive-form-validate/directive-form-validate.js": {
+            "uri": "/privilege/pcadmin/static//components/directive-form-validate/directive-form-validate.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/directive-form-validate/directive-form-validate"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/gf-adviertisement/gf-adviertisement.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-adviertisement/gf-adviertisement.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-adviertisement/gf-adviertisement"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-image/gf-select-image.js",
+                "components/gf-select-item/gf-select-item.js",
+                "components/gf-select-content/gf-select-content.js"
+            ]
+        },
+        "components/gf-category/gf-category.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-category/gf-category.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-category/gf-category"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-channel-detail/gf-channel-detail.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-channel-detail/gf-channel-detail.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-channel-detail/gf-channel-detail"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-item/gf-select-item.js"
+            ]
+        },
+        "components/gf-channel/gf-channel.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-channel/gf-channel.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-channel/gf-channel"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-item/gf-select-item.js"
+            ]
+        },
+        "components/gf-comment/gf-comment.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-comment/gf-comment.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-comment/gf-comment"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-content-detail/gf-content-detail.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-content-detail/gf-content-detail.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-content-detail/gf-content-detail"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-item/gf-select-item.js"
+            ]
+        },
+        "components/gf-content/gf-content.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-content/gf-content.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-content/gf-content"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-item/gf-select-item.js"
+            ]
+        },
+        "components/gf-hotword/gf-hotword.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-hotword/gf-hotword.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-hotword/gf-hotword"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-item/gf-item.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-item/gf-item.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-item/gf-item"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-image/gf-select-image.js"
+            ]
+        },
+        "components/gf-member/gf-member.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-member/gf-member.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-member/gf-member"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-order-detail/gf-order-detail.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-order-detail/gf-order-detail.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-order-detail/gf-order-detail"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-order-finished/gf-order-finished.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-order-finished/gf-order-finished.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-order-finished/gf-order-finished"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-order-unget/gf-order-unget.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-order-unget/gf-order-unget.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-order-unget/gf-order-unget"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-order-unpay/gf-order-unpay.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-order-unpay/gf-order-unpay.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-order-unpay/gf-order-unpay"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-order-unsend/gf-order-unsend.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-order-unsend/gf-order-unsend.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-order-unsend/gf-order-unsend"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-push/gf-push.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-push/gf-push.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-push/gf-push"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-item/gf-select-item.js",
+                "components/gf-select-content/gf-select-content.js"
+            ]
+        },
+        "components/gf-select-content/gf-select-content.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-select-content/gf-select-content.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-select-content/gf-select-content"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-select-image/gf-select-image.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-select-image/gf-select-image.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-select-image/gf-select-image"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-select-item/gf-select-item.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-select-item/gf-select-item.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-select-item/gf-select-item"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-send-message/gf-send-message.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-send-message/gf-send-message.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-send-message/gf-send-message"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js",
+                "components/gf-select-item/gf-select-item.js",
+                "components/gf-select-content/gf-select-content.js"
+            ]
+        },
+        "components/gf-subscribe-order/gf-subscribe-order.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-subscribe-order/gf-subscribe-order.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-subscribe-order/gf-subscribe-order"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-suggest/gf-suggest.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-suggest/gf-suggest.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-suggest/gf-suggest"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "services/storeService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-supplier/gf-supplier.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-supplier/gf-supplier.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-supplier/gf-supplier"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/gf-tag/gf-tag.js": {
+            "uri": "/privilege/pcadmin/static//components/gf-tag/gf-tag.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/gf-tag/gf-tag"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/ajaxService.js",
+                "vendor/avx-component/avx-component.js"
+            ]
+        },
+        "components/header/header.js": {
+            "uri": "/privilege/pcadmin/static//components/header/header.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/header/header"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "services/ajaxService.js",
+                "services/configService.js"
+            ]
+        },
+        "components/index/index.js": {
+            "uri": "/privilege/pcadmin/static//components/index/index.js",
+            "type": "js",
+            "extras": {
+                "async": [
+                    "components/demo/demo.js",
+                    "components/gf-suggest/gf-suggest.js",
+                    "components/gf-category/gf-category.js",
+                    "components/gf-item/gf-item.js",
+                    "components/gf-channel/gf-channel.js",
+                    "components/gf-channel-detail/gf-channel-detail.js",
+                    "components/gf-supplier/gf-supplier.js",
+                    "components/gf-comment/gf-comment.js",
+                    "components/gf-member/gf-member.js",
+                    "components/gf-order-unpay/gf-order-unpay.js",
+                    "components/gf-order-unsend/gf-order-unsend.js",
+                    "components/gf-order-unget/gf-order-unget.js",
+                    "components/gf-order-finished/gf-order-finished.js",
+                    "components/gf-order-detail/gf-order-detail.js",
+                    "components/gf-subscribe-order/gf-subscribe-order.js",
+                    "components/gf-content/gf-content.js",
+                    "components/gf-content-detail/gf-content-detail.js",
+                    "components/gf-tag/gf-tag.js",
+                    "components/gf-push/gf-push.js",
+                    "components/gf-send-message/gf-send-message.js",
+                    "components/gf-adviertisement/gf-adviertisement.js",
+                    "components/gf-hotword/gf-hotword.js"
+                ],
+                "moduleId": "components/index/index"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/mmState/mmState.js",
+                "services/filterService.js",
+                "vendor/beyond/beyond.js",
+                "services/ajaxService.js",
+                "services/menuService.js",
+                "services/configService.js",
+                "vendor/bootstrapValidator/bootstrapValidator.js",
+                "vendor/bootstrapValidator/zh_CN.js",
+                "vendor/avx-component/avx-component.js",
+                "components/header/header.js",
+                "components/sidebar/sidebar.js",
+                "components/dashboard/dashboard.js"
+            ]
+        },
+        "components/ms-action-header/ms-action-header.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-action-header/ms-action-header.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-action-header/ms-action-header"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-check-header/ms-check-header.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-check-header/ms-check-header.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-check-header/ms-check-header"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-control-datetimepicker/ms-control-datetimepicker.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-control-datetimepicker/ms-control-datetimepicker.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-control-datetimepicker/ms-control-datetimepicker"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/moment/moment.js",
+                "vendor/moment/zh-cn.js",
+                "vendor/bootstrapDatetimepicker/bootstrap-datetimepicker.min.js"
+            ]
+        },
+        "components/ms-control-file/ms-control-file.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-control-file/ms-control-file.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-control-file/ms-control-file"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "services/storeService.js"
+            ]
+        },
+        "components/ms-control-select/ms-control-select.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-control-select/ms-control-select.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-control-select/ms-control-select"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "services/storeService.js"
+            ]
+        },
+        "components/ms-control-text/ms-control-text.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-control-text/ms-control-text.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-control-text/ms-control-text"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-control-textarea/ms-control-textarea.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-control-textarea/ms-control-textarea.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-control-textarea/ms-control-textarea"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-control-ueditor/ms-control-ueditor.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-control-ueditor/ms-control-ueditor.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-control-ueditor/ms-control-ueditor"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/ueditor/ueditor.js"
+            ]
+        },
+        "components/ms-data-box/ms-data-box.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-data-box/ms-data-box.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-data-box/ms-data-box"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "services/storeService.js"
+            ]
+        },
+        "components/ms-dialog/ms-dialog.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-dialog/ms-dialog.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-dialog/ms-dialog"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "node_modules/bootbox.js/bootbox.js"
+            ]
+        },
+        "components/ms-pagination/ms-pagination.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-pagination/ms-pagination.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-pagination/ms-pagination"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-search-button/ms-search-button.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-search-button/ms-search-button.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-search-button/ms-search-button"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-search-item-datepicker/ms-search-item-datepicker.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-search-item-datepicker/ms-search-item-datepicker.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-search-item-datepicker/ms-search-item-datepicker"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/moment/moment.js",
+                "vendor/bootstrapDatetimepicker/bootstrap-datetimepicker.min.js"
+            ]
+        },
+        "components/ms-search-item-select/ms-search-item-select.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-search-item-select/ms-search-item-select.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-search-item-select/ms-search-item-select"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "services/storeService.js"
+            ]
+        },
+        "components/ms-search-item/ms-search-item.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-search-item/ms-search-item.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-search-item/ms-search-item"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-table-header/ms-table-header.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-table-header/ms-table-header.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-table-header/ms-table-header"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-table/ms-table.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-table/ms-table.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-table/ms-table"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/ms-text-header/ms-text-header.js": {
+            "uri": "/privilege/pcadmin/static//components/ms-text-header/ms-text-header.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/ms-text-header/ms-text-header"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "components/sidebar/sidebar.js": {
+            "uri": "/privilege/pcadmin/static//components/sidebar/sidebar.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/sidebar/sidebar"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/beyond/beyond.js",
+                "services/menuService.js"
+            ]
+        },
+        "components/welcome/welcome.js": {
+            "uri": "/privilege/pcadmin/static//components/welcome/welcome.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "components/welcome/welcome"
+            },
+            "deps": [
+                "node_modules/avalonjs/avalon.js"
+            ]
+        },
+        "services/ajaxService.js": {
+            "uri": "/privilege/pcadmin/static//services/ajaxService.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "services/ajaxService"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/jquery/jquery.js",
+                "node_modules/bootbox.js/bootbox.js",
+                "vendor/beyond/beyond.js"
+            ]
+        },
+        "services/configService.js": {
+            "uri": "/privilege/pcadmin/static//services/configService.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "services/configService"
+            }
+        },
+        "services/filterService.js": {
+            "uri": "/privilege/pcadmin/static//services/filterService.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "services/filterService"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "services/storeService.js"
+            ]
+        },
+        "services/menuService.js": {
+            "uri": "/privilege/pcadmin/static//services/menuService.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "services/menuService"
+            },
+            "deps": [
+                "services/ajaxService.js",
+                "services/configService.js"
+            ]
+        },
+        "services/storeService.js": {
+            "uri": "/privilege/pcadmin/static//services/storeService.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "services/storeService"
+            },
+            "deps": [
+                "services/ajaxService.js",
+                "services/configService.js"
+            ]
+        },
+        "static/beyond/css/4095-rtl.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/4095-rtl.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/animate.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/animate.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/beyond-rtl.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/beyond-rtl.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/beyond.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/beyond.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/bootstrap-rtl.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/bootstrap-rtl.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/bootstrap.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/bootstrap.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/dataTables.bootstrap.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/dataTables.bootstrap.css",
+            "type": "css"
+        },
+        "static/beyond/css/datepicker.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/datepicker.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/demo.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/demo.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/font-awesome.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/font-awesome.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/azure.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/azure.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/beyond.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/beyond.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/black.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/black.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/blue.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/blue.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/darkblue.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/darkblue.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/darkred.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/darkred.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/deepblue.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/deepblue.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/gray.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/gray.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/green.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/green.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/orange.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/orange.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/pink.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/pink.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/purple.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/purple.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/skins/teal.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/skins/teal.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/toastr.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/toastr.css",
+            "type": "css"
+        },
+        "static/beyond/css/typicons.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/typicons.min.css",
+            "type": "css"
+        },
+        "static/beyond/css/weather-icons.min.css": {
+            "uri": "/privilege/pcadmin//static/beyond/css/weather-icons.min.css",
+            "type": "css"
+        },
+        "static/beyond/js/skins.min.js": {
+            "uri": "/privilege/pcadmin//static/beyond/js/skins.min.js",
+            "type": "js"
+        },
+        "static/bootstrap/bootstrap.min.js": {
+            "uri": "/privilege/pcadmin//static/bootstrap/bootstrap.min.js",
+            "type": "js"
+        },
+        "static/jquery/ajaxfileupload.js": {
+            "uri": "/privilege/pcadmin//static/jquery/ajaxfileupload.js",
+            "type": "js"
+        },
+        "static/jquery/bootstrap-datepicker.js": {
+            "uri": "/privilege/pcadmin//static/jquery/bootstrap-datepicker.js",
+            "type": "js"
+        },
+        "static/jquery/jquery.js": {
+            "uri": "/privilege/pcadmin//static/jquery/jquery.js",
+            "type": "js"
+        },
+        "static/lightbox/lightbox.css": {
+            "uri": "/privilege/pcadmin//static/lightbox/lightbox.css",
+            "type": "css"
+        },
+        "static/lightbox/lightbox.js": {
+            "uri": "/privilege/pcadmin//static/lightbox/lightbox.js",
+            "type": "js"
+        },
+        "static/mod.js": {
+            "uri": "/privilege/pcadmin//static/mod.js",
+            "type": "js"
+        },
+        "static/project/css/custom.css": {
+            "uri": "/privilege/pcadmin//static/project/css/custom.css",
+            "type": "css"
+        },
+        "static/project/css/form.css": {
+            "uri": "/privilege/pcadmin//static/project/css/form.css",
+            "type": "css"
+        },
+        "static/project/css/login.css": {
+            "uri": "/privilege/pcadmin//static/project/css/login.css",
+            "type": "css"
+        },
+        "vendor/avx-component/avx-component.js": {
+            "uri": "/privilege/pcadmin/static//vendor/avx-component/avx-component.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/avx-component/avx-component"
+            },
+            "deps": [
+                "components/ms-data-box/ms-data-box.js",
+                "components/ms-search-item/ms-search-item.js",
+                "components/ms-search-item-select/ms-search-item-select.js",
+                "components/ms-search-item-datepicker/ms-search-item-datepicker.js",
+                "components/ms-search-button/ms-search-button.js",
+                "components/ms-table/ms-table.js",
+                "components/ms-table-header/ms-table-header.js",
+                "components/ms-check-header/ms-check-header.js",
+                "components/ms-text-header/ms-text-header.js",
+                "components/ms-action-header/ms-action-header.js",
+                "components/ms-pagination/ms-pagination.js",
+                "components/ms-dialog/ms-dialog.js",
+                "components/ms-control-text/ms-control-text.js",
+                "components/ms-control-textarea/ms-control-textarea.js",
+                "components/ms-control-select/ms-control-select.js",
+                "components/ms-control-file/ms-control-file.js",
+                "components/ms-control-ueditor/ms-control-ueditor.js",
+                "components/ms-control-datetimepicker/ms-control-datetimepicker.js",
+                "components/directive-form-validate/directive-form-validate.js"
+            ]
+        },
+        "vendor/beyond/beyond.js": {
+            "uri": "/privilege/pcadmin/static//vendor/beyond/beyond.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/beyond/beyond"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/mmState/mmState.js",
+                "vendor/toastr/toastr.js",
+                "node_modules/bootbox.js/bootbox.js"
+            ]
+        },
+        "vendor/bootstrapDatetimepicker/bootstrap-datetimepicker.css": {
+            "uri": "/privilege/pcadmin/static//vendor/bootstrapDatetimepicker/bootstrap-datetimepicker.css",
+            "type": "css"
+        },
+        "vendor/bootstrapDatetimepicker/bootstrap-datetimepicker.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/bootstrapDatetimepicker/bootstrap-datetimepicker.min.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/bootstrapDatetimepicker/bootstrap-datetimepicker.min"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js",
+                "vendor/moment/moment.js"
+            ]
+        },
+        "vendor/bootstrapValidator/bootstrapValidator.js": {
+            "uri": "/privilege/pcadmin/static//vendor/bootstrapValidator/bootstrapValidator.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/bootstrapValidator/bootstrapValidator"
+            }
+        },
+        "vendor/bootstrapValidator/zh_CN.js": {
+            "uri": "/privilege/pcadmin/static//vendor/bootstrapValidator/zh_CN.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/bootstrapValidator/zh_CN"
+            }
+        },
+        "vendor/jquery/jquery.js": {
+            "uri": "/privilege/pcadmin/static//vendor/jquery/jquery.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/jquery/jquery"
+            }
+        },
+        "vendor/jquery/jquery.minicolors.js": {
+            "uri": "/privilege/pcadmin/static//vendor/jquery/jquery.minicolors.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/jquery/jquery.minicolors"
+            }
+        },
+        "vendor/mmState/mmHistory.js": {
+            "uri": "/privilege/pcadmin/static//vendor/mmState/mmHistory.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/mmState/mmHistory"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "vendor/mmState/mmPromise.js": {
+            "uri": "/privilege/pcadmin/static//vendor/mmState/mmPromise.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/mmState/mmPromise"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js"
+            ]
+        },
+        "vendor/mmState/mmRouter.js": {
+            "uri": "/privilege/pcadmin/static//vendor/mmState/mmRouter.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/mmState/mmRouter"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/mmState/mmHistory.js"
+            ]
+        },
+        "vendor/mmState/mmState.js": {
+            "uri": "/privilege/pcadmin/static//vendor/mmState/mmState.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/mmState/mmState"
+            },
+            "deps": [
+                "node_modules/avalonjs/dist/avalon.shim.js",
+                "vendor/mmState/mmPromise.js",
+                "vendor/mmState/mmRouter.js"
+            ]
+        },
+        "vendor/moment/moment.js": {
+            "uri": "/privilege/pcadmin/static//vendor/moment/moment.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/moment/moment"
+            }
+        },
+        "vendor/moment/moment.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/moment/moment.min.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/moment/moment.min"
+            },
+            "deps": [
+                "./locale"
+            ]
+        },
+        "vendor/moment/zh-cn.js": {
+            "uri": "/privilege/pcadmin/static//vendor/moment/zh-cn.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/moment/zh-cn"
+            },
+            "deps": [
+                "vendor/moment/moment.js"
+            ]
+        },
+        "vendor/toastr/toastr.js": {
+            "uri": "/privilege/pcadmin/static//vendor/toastr/toastr.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/toastr/toastr"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js"
+            ]
+        },
+        "vendor/ueditor/custom/addItemButton.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/custom/addItemButton.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/custom/addItemButton"
+            },
+            "deps": [
+                "vendor/ueditor/ueditor.all.js"
+            ]
+        },
+        "vendor/ueditor/dialogs/attachment/attachment.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/attachment/attachment.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/attachment/attachment.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/attachment/attachment.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/background/background.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/background/background.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/background/background.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/background/background.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/charts/chart.config.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/charts/chart.config.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/charts/charts.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/charts/charts.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/charts/charts.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/charts/charts.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/emotion/emotion.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/emotion/emotion.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/emotion/emotion.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/emotion/emotion.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/help/help.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/help/help.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/help/help.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/help/help.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/image/image.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/image/image.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/image/image.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/image/image.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/internal.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/internal.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/music/music.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/music/music.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/music/music.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/music/music.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/scrawl/scrawl.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/scrawl/scrawl.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/scrawl/scrawl.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/scrawl/scrawl.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/searchreplace/searchreplace.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/searchreplace/searchreplace.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/spechars/spechars.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/spechars/spechars.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/table/edittable.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/table/edittable.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/table/edittable.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/table/edittable.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/template/config.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/template/config.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/template/template.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/template/template.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/template/template.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/template/template.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/video/video.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/video/video.css",
+            "type": "css"
+        },
+        "vendor/ueditor/dialogs/video/video.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/video/video.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/wordimage/tangram.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/wordimage/tangram.js",
+            "type": "js"
+        },
+        "vendor/ueditor/dialogs/wordimage/wordimage.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/dialogs/wordimage/wordimage.js",
+            "type": "js"
+        },
+        "vendor/ueditor/lang/en/en.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/en.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/lang/en/en"
+            }
+        },
+        "vendor/ueditor/lang/en/images/addimage.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/addimage.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/alldeletebtnhoverskin.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/alldeletebtnhoverskin.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/alldeletebtnupskin.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/alldeletebtnupskin.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/background.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/background.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/button.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/button.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/copy.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/copy.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/deletedisable.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/deletedisable.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/deleteenable.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/deleteenable.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/listbackground.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/listbackground.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/localimage.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/localimage.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/music.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/music.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/rotateleftdisable.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/rotateleftdisable.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/rotateleftenable.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/rotateleftenable.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/rotaterightdisable.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/rotaterightdisable.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/rotaterightenable.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/rotaterightenable.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/en/images/upload.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/en/images/upload.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/zh-cn/images/copy.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/zh-cn/images/copy.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/zh-cn/images/localimage.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/zh-cn/images/localimage.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/zh-cn/images/music.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/zh-cn/images/music.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/zh-cn/images/upload.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/zh-cn/images/upload.png",
+            "type": "png"
+        },
+        "vendor/ueditor/lang/zh-cn/zh-cn.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/lang/zh-cn/zh-cn.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/lang/zh-cn/zh-cn"
+            },
+            "deps": [
+                "vendor/ueditor/ueditor.proxy.js"
+            ]
+        },
+        "vendor/ueditor/themes/default/css/ueditor.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/css/ueditor.css",
+            "type": "css"
+        },
+        "vendor/ueditor/themes/default/css/ueditor.min.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/css/ueditor.min.css",
+            "type": "css"
+        },
+        "vendor/ueditor/themes/default/dialogbase.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/dialogbase.css",
+            "type": "css"
+        },
+        "vendor/ueditor/themes/default/images/anchor.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/anchor.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/arrow_down.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/arrow_down.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/arrow_up.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/arrow_up.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/arrow.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/arrow.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/button-bg.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/button-bg.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/cancelbutton.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/cancelbutton.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/charts.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/charts.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/cursor_h.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/cursor_h.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/cursor_h.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/cursor_h.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/cursor_v.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/cursor_v.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/cursor_v.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/cursor_v.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/dialog-title-bg.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/dialog-title-bg.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/filescan.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/filescan.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/highlighted.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/highlighted.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/icons-all.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/icons-all.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/icons.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/icons.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/icons.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/icons.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/loaderror.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/loaderror.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/loading.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/loading.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/lock.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/lock.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/neweditor-tab-bg.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/neweditor-tab-bg.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/pagebreak.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/pagebreak.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/scale.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/scale.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/sortable.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/sortable.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/spacer.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/spacer.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/sparator_v.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/sparator_v.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/table-cell-align.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/table-cell-align.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/tangram-colorpicker.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/tangram-colorpicker.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/toolbar_bg.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/toolbar_bg.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/unhighlighted.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/unhighlighted.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/upload.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/upload.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/default/images/videologo.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/videologo.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/word.gif": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/word.gif",
+            "type": "gif"
+        },
+        "vendor/ueditor/themes/default/images/wordpaste.png": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/default/images/wordpaste.png",
+            "type": "png"
+        },
+        "vendor/ueditor/themes/iframe.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/themes/iframe.css",
+            "type": "css"
+        },
+        "vendor/ueditor/third-party/codemirror/codemirror.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/codemirror/codemirror.css",
+            "type": "css"
+        },
+        "vendor/ueditor/third-party/codemirror/codemirror.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/codemirror/codemirror.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/adapters/mootools-adapter.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/adapters/mootools-adapter.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/adapters/mootools-adapter.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/adapters/mootools-adapter.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/adapters/prototype-adapter.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/adapters/prototype-adapter.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/adapters/prototype-adapter.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/adapters/prototype-adapter.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/adapters/standalone-framework.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/adapters/standalone-framework.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/adapters/standalone-framework.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/adapters/standalone-framework.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/highcharts-more.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/highcharts-more.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/highcharts-more.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/highcharts-more.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/highcharts.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/highcharts.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/highcharts.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/highcharts.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/annotations.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/annotations.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/annotations.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/annotations.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/canvas-tools.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/canvas-tools.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/canvas-tools.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/canvas-tools.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/data.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/data.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/data.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/data.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/drilldown.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/drilldown.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/drilldown.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/drilldown.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/exporting.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/exporting.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/exporting.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/exporting.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/funnel.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/funnel.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/funnel.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/funnel.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/heatmap.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/heatmap.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/heatmap.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/heatmap.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/map.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/map.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/map.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/map.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/no-data-to-display.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/no-data-to-display.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/modules/no-data-to-display.src.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/modules/no-data-to-display.src.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/themes/dark-blue.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/themes/dark-blue.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/themes/dark-green.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/themes/dark-green.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/themes/gray.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/themes/gray.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/themes/grid.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/themes/grid.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/highcharts/themes/skies.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/highcharts/themes/skies.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/jquery-1.10.2.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/jquery-1.10.2.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/jquery-1.10.2.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/jquery-1.10.2.min.js",
+            "type": "js",
+            "extras": {}
+        },
+        "vendor/ueditor/third-party/SyntaxHighlighter/shCore.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/SyntaxHighlighter/shCore.js",
+            "type": "js",
+            "deps": [
+                "XRegExp"
+            ]
+        },
+        "vendor/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css",
+            "type": "css"
+        },
+        "vendor/ueditor/third-party/video-js/video-js.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/video-js/video-js.css",
+            "type": "css"
+        },
+        "vendor/ueditor/third-party/video-js/video-js.min.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/video-js/video-js.min.css",
+            "type": "css"
+        },
+        "vendor/ueditor/third-party/video-js/video.dev.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/video-js/video.dev.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/video-js/video.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/video-js/video.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.css": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.css",
+            "type": "css"
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.custom.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.custom.js",
+            "type": "js",
+            "deps": [
+                "vendor/ueditor/third-party/webuploader/webuploader.js"
+            ]
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.custom.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.custom.min.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.flashonly.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.flashonly.js",
+            "type": "js",
+            "deps": [
+                "vendor/ueditor/third-party/webuploader/webuploader.js"
+            ]
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.flashonly.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.flashonly.min.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.html5only.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.html5only.js",
+            "type": "js",
+            "deps": [
+                "vendor/ueditor/third-party/webuploader/webuploader.js"
+            ]
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.html5only.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.html5only.min.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.min.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.withoutimage.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.withoutimage.js",
+            "type": "js",
+            "deps": [
+                "vendor/ueditor/third-party/webuploader/webuploader.js"
+            ]
+        },
+        "vendor/ueditor/third-party/webuploader/webuploader.withoutimage.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/webuploader/webuploader.withoutimage.min.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/xss.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/xss.min.js",
+            "type": "js",
+            "deps": [
+                "cssfilter",
+                "./util"
+            ]
+        },
+        "vendor/ueditor/third-party/zeroclipboard/ZeroClipboard.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/zeroclipboard/ZeroClipboard.js",
+            "type": "js"
+        },
+        "vendor/ueditor/third-party/zeroclipboard/ZeroClipboard.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/third-party/zeroclipboard/ZeroClipboard.min.js",
+            "type": "js"
+        },
+        "vendor/ueditor/ueditor.all.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/ueditor.all.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/ueditor.all"
+            },
+            "deps": [
+                "vendor/ueditor/ueditor.config.js"
+            ]
+        },
+        "vendor/ueditor/ueditor.all.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/ueditor.all.min.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/ueditor.all.min"
+            }
+        },
+        "vendor/ueditor/ueditor.config.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/ueditor.config.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/ueditor.config"
+            }
+        },
+        "vendor/ueditor/ueditor.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/ueditor.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/ueditor"
+            },
+            "deps": [
+                "vendor/ueditor/lang/zh-cn/zh-cn.js"
+            ]
+        },
+        "vendor/ueditor/ueditor.parse.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/ueditor.parse.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/ueditor.parse"
+            }
+        },
+        "vendor/ueditor/ueditor.parse.min.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/ueditor.parse.min.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/ueditor.parse.min"
+            }
+        },
+        "vendor/ueditor/ueditor.proxy.js": {
+            "uri": "/privilege/pcadmin/static//vendor/ueditor/ueditor.proxy.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "vendor/ueditor/ueditor.proxy"
+            },
+            "deps": [
+                "vendor/ueditor/ueditor.all.js",
+                "services/configService.js"
+            ]
+        },
+        "node_modules/avalonjs/dist/avalon.shim.js": {
+            "uri": "/privilege/pcadmin/static//node_modules/avalonjs/dist/avalon.shim.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "node_modules/avalonjs/dist/avalon.shim"
+            }
+        },
+        "node_modules/bootbox.js/bootbox.js": {
+            "uri": "/privilege/pcadmin/static//node_modules/bootbox.js/bootbox.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "node_modules/bootbox.js/bootbox"
+            },
+            "deps": [
+                "vendor/jquery/jquery.js"
+            ]
+        },
+        "node_modules/avalonjs/avalon.js": {
+            "uri": "/privilege/pcadmin/static//node_modules/avalonjs/avalon.js",
+            "type": "js",
+            "extras": {
+                "moduleId": "node_modules/avalonjs/avalon"
+            }
+        }
+    },
+    "pkg": {}
+});
+        require(['components/index/index']);
+    </script>
+
+
+</body>
+<!--  /Body -->
+</html>

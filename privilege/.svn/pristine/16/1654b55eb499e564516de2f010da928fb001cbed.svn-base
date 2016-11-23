@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>d2js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <link href="css/buttons.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+     <script src="../jslib/popcorn.min.js"></script>
+    <style>
+    #detail img{
+    width:100%
+    }
+    
+ .bg{  position: absolute;  top: 50px;    width: 100px;  height: 50px;   z-index:1001;  }
+    </style>
+</head>
+<body id="body" style="background:#fff">
+<input type="hidden" id="itemId" value="7"/>
+	<div style="padding-top:100px;padding-bottom:25px;background:#fff">
+		<div style="padding:0px 50px;text-align:center;font-size:24px">深度：从傅园慧到孙杨，这届粉丝我很满意</div>
+		<div style="margin-top:19px;text-align:center">
+		<!--  <img src="images/lb2.jpg" style="width:25px;height:25px;border-radius:25px;vertical-align: middle;"/>-->
+		<span style="vertical-align: middle;font-size:12px;color:#888">琢磨先生</span>
+		<span style="vertical-align: middle;font-size:12px;color:#888">08/09</span>
+		</div>
+	</div>
+	<div style="width:100%;">
+	<video id="video" style="display:none" class="flowplayer" controls="controls" width="100%" height="260" preload="metadata">
+        <source src="images/test.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></source>
+    </video>
+    <div id="output" style="text-align:center"><img src="images/play.png" class="bg"><img id="imgplay" style="heigth:260px;width:100%" src="http://182.92.99.123:8080/privilege/uploadedFile/1476087504675-test.png"></div>
+	</div>
+	<div id="detail" style="visibility: visible; height: auto;padding:25px 25px;color:#666;font-size:15px;line-height:30px">	
+		<p>　　宁愿做劫匪，也不愿被人说自己是个不诚信的人，<a href="http://news.hexun.com/liaoning/index.html" target="_blank">辽宁</a>营口的李某某真是应该被评为感动中国十大劫匪了。</p>
+		<p>　　这年头脑子要是不够用，连离婚这种致富的方法都想不到，两口子总想着这么折腾，还有正常的夫妻生活没？</p>
+		<p>　　只要有利益的地方，我们勤劳聪明的中国人民就会见缝插针；只要能见缝插针的地方，我们就能找到方法把自己变成一根针。</p>
+		<p>　　最近辽宁营口发生了一起抢劫运钞车的案件，犯罪嫌疑人李某某是运钞车司机，持自制手枪抢走押运的人民币600万元，运钞车上的押运员没有追击李某某，因为大家对他的智商相当了解。果然李某某抢劫完后把500万藏在自己家附近，估计他认为“最危险的地方，就是最安全的地方”，然后背着另外的100万去还债。因为他做生意欠下了不少债，所以去抢银行。这是个什么逻辑？宁愿做劫匪，也不愿意被人说自己是个不诚信的人，这真是应该被评为感动中国十大劫匪了。但君子守信，也应该取之有道，在嫌疑人再次回家取钱时被警方当场抓获，等待他的将是<a href="http://law.hexun.com/" target="_blank">法律</a>的严惩。</p>
+		<p>　　有人抢劫为还债，有国企欠债却违约。<a href="http://gongsi.hexun.com/fc_168.shtml" target="_blank">东北特钢</a>再曝3亿元的债券违约，本期债券发行规模3亿元，利率8.3%，本期应偿还2490万元。这已经是东北特钢的第八次债券违约了，共计违约50.7亿元。像东北特钢这种政企不分、产能落后、不尊重规则的国企应该破产清算，任由其违约的后果将导致当地政府和企业的信用丧失，融资将更加困难。</p>
+		<p>
+		</p><table align="center">
+		<tbody>
+		<tr>
+		<td>
+		<div align="center"><img alt="东北特钢希望通过债转股解决债务问题，债权人可以通过东北特钢整体上市或者资产注入上市公司抚顺特钢后，在资本市场退出。我的问题是，这样的垃圾公司上市干啥？难不成就为了把垃圾股票卖给散户？这跟前面那个李某某劫匪有什么不同？抢劫韭菜散户为了还债，只是抢劫的对象不同罢了。" src="http://i5.hexunimg.cn/2016-09-10/185973952.jpg" style="height: auto; display: block;"></div></td></tr></tbody></table>　　东北特钢希望通过债转股解决债务问题，债权人可以通过东北特钢整体上市或者资产注入上市公司抚顺特钢后，在资本市场退出。我的问题是，这样的垃圾公司上市干啥？难不成就为了把垃圾股票卖给散户？这跟前面那个李某某劫匪有什么不同？抢劫韭菜散户为了还债，只是抢劫的对象不同罢了。<p></p>
+		<p>　　不过现在很多上市公司也不是什么好鸟，年中业绩报告刚落幕，不少上市公司的重要股东就迫不及待地掀起了减持的高潮，在9月初的5个交易日，67家上市公司就被高管们减持规模超过80亿。很多上市公司各种虚张声势各种重组利好，都是为了高管们顺利地出逃，不对，是减持。股民各种投机取巧各种上蹿下跳，都是为了打一炮就跑，可是终归还是被套牢。</p>
+		<p>　　家住东莞的蔡先生，把自己的证券账户交给老婆的大学同学操作，自己老婆的大学同学在<a href="http://gongsi.hexun.com/fc_678.shtml" target="_blank">华林证券</a>某营业部做负责人。结果去年11月底蔡先生打开证券账户一看，里面的2800万元，经过老婆同学的用心操作，只剩下1300万。经纪人都不能相信的年代，竟然相信自己老婆的同学，也真是财多人胆大。随后华林证券矢口否认，说就亏了160万而已，不管到底亏了多少，手续费反正没少赚。我就想提醒一下这位蔡先生，拿着自己的钱给别人<a href="http://c.hexun.com" target="_blank">炒股</a>，还要给手续费，还做了接盘侠，还得罪了老婆同学，真是侠之大者。</p>
+		<p>
+		</p><table align="center">
+		<tbody>
+		<tr>
+		<td>
+		<div align="center"><img  alt="琢磨先生：脑子是个好东西，但不是每个人都有" src="http://i9.hexunimg.cn/2016-09-10/185973953.jpg" style="height: auto; display: block;"></div></td></tr></tbody></table>　　真正会玩的还得算是<a href="http://news.hexun.com/2013/shanghai1/index.html" target="_blank">上海</a>的一对80后夫妻。网上传言上海一对夫妻假离婚，然后妻子将名下房子卖掉后，将卖房所得的300万用作首付买丈夫名下的房子，为了多贷款把房屋总价从市价700万做到900万，向银行贷款600万用作首付，买下一套价值1300万的期房。再将父母名下的房卖掉获得600万元作为首付，买下同一小区市价1000万的期房，最后总计向银行贷款600万加700万加400万，一共是1700万，然后月供10万多，他们打算留下300万现金用作未来3年的月供，等房价上涨25%就抛售。这年头脑子要是不够用，连离婚这种致富的方法都想不到，两口子总想着这么折腾，还有正常的夫妻生活没？<p></p>
+		<p>　　不过银行的有关人士表示，这样操作不是没有可能，根据银监会的《商业银行<a href="http://jingzhi.funds.hexun.com/160628.shtml" target="_blank">房地产</a>贷款风险管理指引》规定，贷款人必须向银行证明月收入是申请月供金额的一倍以上。房屋中介人士表示，这一点都不难，银行流水和收入证明都是可以包装的。这真是魔高一尺，道高一丈啊。银行人士又说这对夫妻是假离婚，那就存在关联交易和套现的嫌疑。这哪里是嫌疑，这本来就是啊，但人家真办了离婚手续你又能怎样。</p>
+		<p>　　只要有利益的地方，我们勤劳聪明的中国人民就会见缝插针；只要能见缝插针的地方，我们就能找到方法把自己变成一根针。被雷劈都没关系，为了利益需要，我们甚至都可以把自己伪装成一根避雷针。</p>
+	</div>
+	<div style="padding:0px 25px;">
+	  <div id="commentmark" style="width:100%;text-align:center;font-size:18px;color:#333">评论</div>
+	  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+		
+		<div data-value="11" data-id="1" class="commentlist" style="margin-bottom:60px">
+			<div style="border-bottom:#DCDCDC solid 1px;margin-top:20px">
+			  	<img src="images/lb2.jpg" style="width:25px;height:25px;border-radius:25px;vertical-align: middle;"/>
+				<span class="commentname" style="vertical-align: middle;font-size:12px;color:#888">琢磨先生</span>
+				<span style="vertical-align: middle;float:right;font-size:12px;color:#666;margin-left:6px">123</span>
+				<img  style=" vertical-align: middle;float:right;height:16px" src="images/good.png"/>
+				<div style="padding-left:25px;font-size:15px;color:#333">
+				<div>在这个惨淡的时代能听到您的声音是多么安心在这个惨淡的时代能听到您的声音是多么安心在这个惨淡的时代能听到您的声音是多么安心</div>
+				</div>
+				<div style="padding-left:25px;margin-top:20px;font-size:12px;color:#666;margin-bottom:10px;">
+					<span>08/07</span>
+					<span>13:09</span>
+				</div>
+			</div>
+		</div>
+		<div data-value="22" data-id="2" class="commentlist" style="margin-bottom:60px">
+			<div style="border-bottom:#DCDCDC solid 1px;margin-top:20px">
+			  	<img src="images/lb2.jpg" style="width:25px;height:25px;border-radius:25px;vertical-align: middle;"/>
+				<span class="commentname" style="vertical-align: middle;font-size:12px;color:#888">琢磨先生</span>
+				<span style="vertical-align: middle;float:right;font-size:12px;color:#666;margin-left:6px">123</span>
+				<img  style=" vertical-align: middle;float:right;height:16px" src="images/good.png"/>
+				<img  style=" vertical-align: middle;float:right;height:16px" src="images/comment.png"/>
+				<div style="padding-left:25px;font-size:15px;color:#333">
+				<div>在这个惨淡的时代能听到您的声音是多么安心在这个惨淡的时代能听到您的声音是多么安心在这个惨淡的时代能听到您的声音是多么安心</div>
+				</div>
+				<div style="padding-left:25px;margin-top:20px;font-size:12px;color:#666;margin-bottom:10px;">
+					<span>08/07</span>
+					<span>13:09</span>
+				</div>
+			</div>
+		</div>
+		<div data-value="33" data-id="3" class="commentlist" style="margin-bottom:60px">
+			<div style="border-bottom:#DCDCDC solid 1px;margin-top:20px">
+			  	<img src="images/lb2.jpg" style="width:25px;height:25px;border-radius:25px;vertical-align: middle;"/>
+				<span class="commentname" style="vertical-align: middle;font-size:12px;color:#888">琢磨先生</span>
+				<span style="vertical-align: middle;float:right;font-size:12px;color:#666;margin-left:6px">123</span>
+				<img  style=" vertical-align: middle;float:right;height:16px" src="images/good.png"/>
+				<div style="padding-left:25px;font-size:15px;color:#333">
+				<div>在这个惨淡的时代能听到您的声音是多么安心在这个惨淡的时代能听到您的声音是多么安心在这个惨淡的时代能听到您的声音是多么安心</div>
+				</div>
+				<div style="padding-left:25px;margin-top:20px;font-size:12px;color:#666;margin-bottom:10px;">
+					<span>08/07</span>
+					<span>13:09</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="inputdiv" class="suspend" style="display:none;">
+		<span   style="line-height: 36px;float:left;vertical-align: middle;color:#888;padding-left:15px;width:50%;height:36px;border:0px;border-radius:20px;background:#000;opacity:0.5;" >发表评论</span>
+		<div style="width:40%;float:left;height:36px;line-height: 36px;">
+		<span style="height: 30px;display: inline-block;"><img  style="vertical-align:middle;height:16px;margin-left:15px" src="images/good.png"/>
+		<span style="vertical-align:middle;color:#fff">12387</span></span>
+		<span style="height: 30px;display: inline-block;"><img  style="vertical-align:middle;height:16px;margin-left:8px" src="images/low.png"/>
+		<span style="vertical-align:middle;color:#fff">12387</span></span>
+		</div>
+	</div>
+	<div id="inputtext" ><div class="mask"></div><div class="suspend"><input id="commentinput" type="text" style="width:70%;height:36px;border:0px;"/><input id="sumbitbtn" type="button" style="border:0px;margin-left:5px;width:20%;height:36px;background:#38AFF8;color:#fff" value="发表"/></div></div>
+<!-- <div id="confirm_self">
+	<div class="mask"></div>
+	<div class="dialog">
+		<div style="font-size:20px;">是否继续播放</div>
+		<span style="font-size:15px;">检测到您当前网络状态为移动流量</span>
+		<div style="width:100%;margin-top:10px;height:80px">
+			<a id="confirm_ok" href="javascript:;"  class="button  button-caution button-rounded button-jumbo" style="width:100px;padding:0px 0px;">确认</a>
+			<a id="confirm_cancel" href="javascript:;" class="button button-primary button-rounded button-jumbo" style="width:100px;padding:0px 0px;">取消</a>
+		</div>
+	</div>
+</div> -->
+<script type="text/javascript">
+
+
+var sender=0;
+var origin_comment=0;
+var state=true;
+var p_key=true;
+function setstate(state){
+	state=state;
+}
+$('#test').click(function(){
+	setstate(false);
+})
+$(function(){
+	var video, output;
+	var scale = 0.8;
+	var initialize = function() {
+	output = document.getElementById("output");
+	video = document.getElementById("video");
+	document.getElementById("video").play();
+	video.addEventListener('loadeddata',captureImage);
+	};
+	 
+	var captureImage = function() {
+	            var canvas = document.createElement("canvas");
+	            console.log(window.innerWidth);
+	            canvas.width = window.innerWidth;
+	            canvas.height = '200';
+	            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+	 
+	            var img = "<img id='imgplay' src='"+canvas.toDataURL("image/png")+"'/>";
+	            
+	            $('#output').append(canvas);
+				$('#output').click(function(){
+					$('#output').css('display','none');
+					$('#video').css('display','');
+					document.getElementById("video").play();
+				})
+				$('.bg').css('left',(window.innerWidth/2-50)+'px');
+				var x=$("#output").offset();
+				console.log(x.top);
+				$('.bg').css('top',(x.top+75)+'px');
+	};
+	 
+	initialize();
+var myvideo=document.getElementById('video');
+	myvideo.addEventListener('play',function(){
+	if(p_key&&!state)
+	{
+		document.getElementById('video').pause();
+			if(confirm("当前网络为移动流量，确认播放？")) {
+				p_key=false;
+				document.getElementById('video').play();
+	            }else {
+	            	return false;
+	            }
+	}	
+		return false;
+	});
+	//js绑定你需要监控滚动事件的dom，也可以绑定document.body监控整个网页滚动
+	  // 也可以监控具体的dom滚动，像下面的container Id对象
+	  window.onscroll = function(){
+		  var Y =$("#commentmark").offset().top;  //jquery的方法，取得对应组件的坐标
+		  var scrollTop=document.body.scrollTop;
+		  console.log("Y:"+Y+"--"+"scrollTop:"+scrollTop);
+		  if(scrollTop>(Y-650)){
+			  $('#inputdiv').css('display','');
+		  }else{
+			  $('#inputdiv').css('display','none');
+			  $('#inputtext').css('display','none');
+			  sender=0;
+			  origin_comment=0;
+		  }
+	  };
+	  $('#inputdiv').click(function(){
+		  input();
+		  $("#commentinput")[0].focus();
+	  })
+
+	  $('.commentlist').click(function(){
+		  var that = $(this);
+		  sender=that.attr("data-id");
+		  origin_comment=that.attr("data-value");
+		  $('#commentinput').val('#'+that.find('.commentname').html()+'#');
+		  input();
+		  $("#commentinput")[0].focus();
+	  })
+	  $('.mask').click(function(){
+		  disinput();
+	  })
+	  $('#sumbitbtn').click(function(){
+	  var data={
+	  "itemId":0,
+	  "related_members":[],
+	  "origin_comment":0,
+	  "support_count":0,
+	  "coment_content":"开始评论"
+	  };
+	  data.itemId=$('#itemId').val();
+	  data.related_members.push(sender);
+	  data.origin_comment=origin_comment;
+	  data.coment_content=$('#commentinput').val();
+	  console.log(data);
+		  /*$.post("./comment/commentService.d2js?_m=comment&params=",function(info){
+    				imgObj.src = info;
+    	  })*/
+	  })
+})
+function input(){
+	$('#inputdiv').css('display','none');
+	$('#inputtext').css('display','');
+	console.log(sender);
+}
+function disinput(){
+  	$('#inputdiv').css('display','');
+  	$('#inputtext').css('display','none');
+  	sender=0;
+  	origin_comment=0;
+}
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+d2js.updateInfo = function(rcd){
+	logger.info('update person ' + JSON.stringify(rcd));
+	this.updateRow('person', rcd, ['id', 'name',  'gender'])
+}

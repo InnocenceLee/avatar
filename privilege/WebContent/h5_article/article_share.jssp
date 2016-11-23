@@ -1,0 +1,593 @@
+[% include('../common/jsFunctionExtends.js'); %]
+[%
+
+	var m_id=0;
+	logger.info(request.id);
+	if(request.id!=undefined&&request.id!=null&&request.id!=""&&request.id!=0)
+	{
+		m_id=parseInt(request.id);
+	}else{
+	m_id=params.id;
+	}
+
+    sql{.
+		SELECT * FROM gf_item WHERE id = ?
+	.}
+	var r = this.queryRow(sql,[m_id]);
+
+	sql{.
+		SELECT 
+		    DISTINCT
+		    member.id,
+			p.name,
+			p.photo,
+			comment.id AS commentid,
+			comment.content AS commentcontent,
+			comment.postd AS commentpostd ,
+			comment.support_count AS support_count,
+			origin_comment.id AS origincommentId,
+			origin_comment.content AS origincommentcontent,
+			origin_comment.postd AS origincommentpostd,
+			log.action AS action,
+			item.name AS itemname,
+			item.id AS itemid
+		 FROM gf_comment comment LEFT JOIN gf_comment origin_comment ON comment.origin_comment = origin_comment.id, member member,person p,comment_log log,gf_item item 
+		 WHERE member.id = comment.author and comment.state != 'W' and comment.state != 'D' and p.id = member.person and 1=1 and log.comment=comment.id and item.id=log.item and comment.item=?
+	.}
+	var r2 = this.query(sql,[m_id]);
+	logger.info('r2'+r2);
+	if(getCurrentMemberId()!=null)
+	{
+		var read_log=new Object();
+		read_log.member=getCurrentMemberId();
+		read_log.item=params.id;
+		read_log.readd=new Date();
+		//插入read_log表 
+		this.insertRow('read_log', read_log, ['member','item','readd']);
+	}
+				sql{.
+					update gf_item set id=id
+						 , view_count =view_count+ ?
+						 , real_view_count =real_view_count+ ?
+					where 1=1 and id = ?
+				.}
+				logger.info('sql:'+sql);
+
+			this.execute(sql,[1,1,m_id]);
+	
+%]
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>[%= r.name %]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">
+    var m_state=false;
+    function setstate(state){
+	//alert(state);
+	m_state=state;
+	}
+    </script>
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <link href="css/buttons.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="js/Iva.js"></script>
+    <script type="text/javascript" src="js/mui.min.js"></script>
+    <style>
+      #detail img{
+    width:100%
+    }
+  img[class=embedItem]{
+    width:auto !important;
+    }
+    .bg{  position: absolute;  top: 50px;    width: 96px;  height: 96px;   z-index:1001;  }
+    </style>
+    
+</head>
+<body id="body" style="background:#fff">
+
+<input type="hidden" id="itemId" value="[%= r.id %]"/>
+<input type="hidden" id="articletype" value="[%= r.sub_type %]">
+<input type="hidden" id="articlesrc" value="[%= r.tag.banner %]">
+<input type="hidden" id="articlescreenshots" value="[%= r.tag.screenshots %]">
+<input type="hidden" id="getCurrentMemberId" value="[%= getCurrentMemberId()==null?'':getCurrentMemberId() %]"/>
+	<div id="topdiv" style="padding-top:100px;padding-bottom:25px;background:#fff">
+		<div style="padding:0px 50px;text-align:center;font-size:24px">[%= r.name %]</div>
+		<div style="margin-top:19px;text-align:center">
+		<img src="[%= r.tag.author_pic==null?'images/author_pic.png':r.tag.author_pic %]" style="width:25px;height:25px;border-radius:25px;vertical-align: middle;"/>
+		<span style="vertical-align: middle;font-size:12px;color:#888">[%= r.tag.author_name %]</span>
+		<span style="vertical-align: middle;font-size:12px;color:#888">[%= r.created.format("yyyy-MM-dd HH:mm:ss") %]</span>
+		</div>
+	</div>
+	<div style="width:100%;">
+	<div id="video" style="display:none" style="width:100%;height:260px"></div>
+	<!--<video id="video" style="display:none" class="flowplayer" controls="controls" width="100%" height="260" preload="none">
+        <source src="[%= r.tag.banner %]" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></source>
+    </video>-->
+     <div id="output" style="display:none"><img src="images/play.png" class="bg"></div>
+    <img id="outimg" src="images/unload.png" style="display:[%= r.sub_type=='A'?'':'none' %];width:100%;height:260px"/>
+	</div>
+	<div id="detail" style="visibility: visible; height: auto;padding:25px 25px;color:#666;font-size:15px;line-height:30px">	
+	[%= r.tag.content %]
+	</div>
+	<div id="commentarea" style="padding:0px 25px 122px 25px;">
+	  <div id="commentmark" style="width:100%;text-align:center;font-size:18px;color:#333">评论</div>
+	  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+		 [%  r2.rows.forEach(function(col){ %]
+		<div data-value="[%= col.commentid %]" data-id="[%= col.id %]" >
+			<div style="border-bottom:#DCDCDC solid 1px;margin-top:20px">
+			  	<img src="[%= col.photo!=null?col.photo:'images/default.png' %]" style="width:25px;height:25px;border-radius:25px;vertical-align: middle;"/>
+				<span  class="commentname" style="vertical-align: middle;font-size:12px;color:#888">[%= col.name %]</span>
+				
+				<div style="padding-left:25px;font-size:15px;color:#333">
+				<div class="commentlist">[%= col.commentcontent %]</div>
+				</div>
+				<div style="padding-left:25px;margin-top:20px;font-size:12px;color:#666;margin-bottom:10px;">
+					<span>[%= col.commentpostd.format("yyyy-MM-dd HH:mm:ss") %]</span>
+					
+				</div>
+			</div>
+		</div>
+		[%  }); %]
+	</div>
+
+	<div id="inputtext" style="display:none;"><div class="mask"></div><div class="suspend"><input id="commentinput" type="text" style="width:75%;height:36px;border:0px;float: left;"/><span id="sumbitbtn" type="button" style="border:0px;margin-left:5px;width:20%;height:36px;background:#38AFF8;color:#fff;display: inline-block;position: relative;float: left;line-height: 1.9;text-align: center;font-size: 18px;">发表</span></div></div>
+<div id="confirm_self" style="display:none">
+	<div class="mask mask_confirm"></div>
+	<div class="dialog">
+		<div style="font-size:20px;">是否继续播放</div>
+		<span style="font-size:15px;">检测到您当前网络状态为移动流量</span>
+		<div style="width:100%;margin-top:10px;height:80px">
+			<a id="confirm_ok" href="javascript:;"  class="button  button-caution button-rounded button-jumbo" style="width:100px;padding:0px 0px;">确认</a>
+			<a id="confirm_cancel" href="javascript:;" class="button button-primary button-rounded button-jumbo" style="width:100px;padding:0px 0px;">取消</a>
+		</div>
+	</div>
+</div>
+<div style="border: 1px solid #000;position:fixed;bottom:0;background:#fff;width:100%;height:100px;z-index:100;padding:10px 10px;vertical-align: middle;">
+		<img src="images/kongfu.png" style="width:100px;height:100px;float:left;vertical-align: middle;">
+		<div style="float:left;margin-left:10px;top: 50%;position: relative;margin-top: -25px;">
+		<div style="width:100%;font-weight:700;font-size:20px;vertical-align: middle;">功夫财经</div>
+		<span style="vertical-align: middle;">口号口号口号口号口号口号</span>
+		</div>
+		<div style="width:80px;height:20px;background:red;color:#fff;float:right;margin-right:20px;text-align:center;top: 50%;position: relative;margin-top: -10px;"><a href="http://kofuf.kofuf.com:8080/app/app-1114.apk">立即下载</a></div>
+	</div>
+<script type="text/javascript">
+function play_video(path)
+{
+new Iva(
+ 'video',//新建一个div作为视频播放的窗口，建议div的宽高在640px*480px以上；
+ {
+   appkey: 'EkmK2EFAb',//必填，请在控制台查看应用标识
+   video: path,//必填，播放地址（例如：http://v.youku.com/v_show/id_XMTY5NDg2MzY5Ng==.html）
+   title: '小视频',//选填，建议填写方便后台数据统计
+   autoplay: true,//选填，是否自动播放，默认为false
+   editorEnable: true, // 选填，当用户登录之后，是否允许加载编辑器，默认为true
+   vorEnable: true, // 选填，是否允许加载灵悟，默认为true
+   vorStartGuideEnable: false //选填， 是否启用灵悟新人引导，默认为true
+   
+ }
+
+
+);
+}
+var sender=0;
+var origin_comment=0;
+var support_count=0;
+var good_count=0;
+var low_count=0;
+
+var p_key=true;
+ var m_that;
+$(function(){
+
+ //mui初始化
+mui.init({});
+		
+	var scale = 0.8;
+	var img_height=400*(window.innerWidth/750);
+	$('#outimg').css("height",img_height+"px");
+	console.log(img_height);
+	var initialize = function() {
+	output = document.getElementById("output");
+	video = document.getElementById("video");
+	$('#output').css('display','');
+	
+
+	var img = "<img id='imgplay' style='heigth:260px;width:100%' src='"+$('#articlescreenshots').val()+"'/>";
+	$('#output').append(img);
+				$('#output').click(function(){
+					if(m_state)
+					{
+						mui_comfirm_video('是否继续播放','检测到您当前网络状态为移动流量');
+							//$('#confirm_self').css('display','');
+							//$('.mask_confirm').click(function(){
+							//	$('#confirm_self').css('display','none');
+							//});
+							//$('#confirm_ok').click(function(){
+							//	p_key=false;
+							//	$('#confirm_self').css('display','none');
+							//	$('#output').css('display','none');
+							//	$('#video').css('display','');
+							//	$('#video').css('height','260px');
+							//	play_video($('#articlesrc').val());
+							//	//document.getElementById('video').play();
+							//});
+							//$('#confirm_cancel').click(function(){
+							//	$('#confirm_self').css('display','none');
+							//	return false;
+							//});
+							
+							//if(confirm("当前网络为移动流量，确认播放？")) {
+							//	p_key=false;
+							//	document.getElementById('video').play();
+					        //    }else {
+					        //    	return false;
+					        //    }
+					}else{
+							$('#output').css('display','none');
+							$('#video').css('display','');
+							play_video($('#articlesrc').val());
+							//document.getElementById("video").play();
+					}
+						
+					
+				})
+				$('.bg').css('left',(window.innerWidth/2-50)+'px');
+				var x=$("#output").offset();
+				console.log(x.top);
+				$('.bg').css('top',(x.top+45)+'px');
+	//video.addEventListener('loadeddata',captureImage);
+	};
+	 
+	var captureImage = function() {
+	            var canvas = document.createElement("canvas");
+	            console.log(window.innerWidth);
+	            canvas.width = window.innerWidth;
+	            canvas.height = '200';
+	            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+	 
+	            var img = "<img id='imgplay' src='"+canvas.toDataURL("image/png")+"'/>";
+	            
+	            $('#output').append(canvas);
+				$('#output').on("tap",function(){
+					if(m_state)
+					{
+							if(confirm("当前网络为移动流量，确认播放？")) {
+								p_key=false;
+								document.getElementById('video').play();
+					            }else {
+					            	return false;
+					            }
+					}else{
+							document.getElementById("video").play();
+					}
+					$('#output').css('display','none');
+					$('#video').css('display','');
+						
+					
+				})
+				$('.bg').css('left',(window.innerWidth/2-50)+'px');
+				var x=$("#output").offset();
+				console.log(x.top);
+				$('.bg').css('top',(x.top+75)+'px');
+	};
+	if($('#articletype').val()=='V')
+	{
+		initialize();
+	}else{
+		$('#outimg').attr('src',$('#articlesrc').val());
+	}
+	
+//var myvideo=document.getElementById('video');
+	//myvideo.addEventListener('play',function(){
+	//if(p_key&&m_state)
+	//{
+		//document.getElementById('video').pause();
+		//	if(confirm("当前网络为移动流量，确认播放？")) {
+		//		p_key=false;
+		//		document.getElementById('video').play();
+	    //        }else {
+	    //        	return false;
+	    //        }
+	//}	
+		//return false;
+	//});
+	//js绑定你需要监控滚动事件的dom，也可以绑定document.body监控整个网页滚动
+	  // 也可以监控具体的dom滚动，像下面的container Id对象
+	  /*window.onscroll = function(){
+		  var Y =$("#commentmark").offset().top;  //jquery的方法，取得对应组件的坐标
+		  var scrollTop=document.body.scrollTop;
+		  console.log("Y:"+Y+"--"+"scrollTop:"+scrollTop);
+		  if(scrollTop>(Y-650)){
+			  $('#inputdiv').css('display','');
+		  }else{
+			  $('#inputdiv').css('display','none');
+			  $('#inputtext').css('display','none');
+			  sender=0;
+			  origin_comment=0;
+			  support_count=0;
+		  }
+	  };*/
+	  
+	  $('#input_div').on("tap",function(){
+	      if($.trim($('#getCurrentMemberId').val())=='')
+	      {
+	    	  mui_comfirm("提示","您尚未登录，是否前往登录？");
+	         //location.href="login";
+	         //return;
+	      }else{
+	    	  input();
+			  $("#commentinput")[0].focus();
+			  eventCheck(true);
+	      }
+		  
+	  })
+	  //-----------------------------------------点击软键盘收起键盘时，关闭输入-----------------------------
+		var timer, windowInnerHeight;
+		    function eventCheck(e) {
+		        if (e) { //blur,focus事件触发的
+						 setTimeout(function () {//由于键盘弹出是有动画效果的，要获取完全弹出的窗口高度，使用了计时器
+		                    windowInnerHeight = window.innerHeight;//获取弹出android软键盘后的窗口高度
+		                    timer = setInterval(function () { eventCheck() }, 100);
+		                }, 500);
+		           
+		        }
+		        else { //计时器执行的，需要判断窗口可视高度，如果改变说明android键盘隐藏了
+		            if (window.innerHeight > windowInnerHeight) {
+		                clearInterval(timer);
+		                 disinput();
+		            }
+		        }
+		    }
+	  //------------------------------------------------------------------------------------------
+	  $('.commentlist').on("tap",function(){
+		  //var that = $(this).parent('div').parent('div');
+		  //sender=that.attr("data-id");
+		  //origin_comment=that.attr("data-value");
+		  //$('#commentinput').val('#'+that.find('.commentname').html()+'#');
+		  //input();
+		  //$("#commentinput")[0].focus();
+	  })
+	  $('.mask').on("tap",function(){
+		  disinput();
+		  var obj = document.getElementById('commentinput');
+		  obj.blur();
+	  })
+	 
+	 
+	  $('#sumbitbtn').on("tap",function(){
+		sendcomment();
+	})
+})
+function mui_comfirm_video(title,content) {
+				var btnArray = ['确认', '取消'];
+				mui.confirm(content, title, btnArray, function(e) {
+					if (e.index == 0) {
+						p_key=false;
+						$('#output').css('display','none');
+						$('#video').css('display','');
+						$('#video').css('height','260px');
+						play_video($('#articlesrc').val());
+					} else {
+						
+					}
+				})
+			};
+function mui_comfirm(title,content) {
+	var btnArray = ['确认', '取消'];
+	mui.confirm(content, title, btnArray, function(e) {
+		if (e.index == 0) {
+			location.href="login";
+	         return false;
+		} else {
+			
+		}
+	})
+};
+function mui_alert(title,content) {
+	mui.alert(content, title, function() {
+	});
+};
+function send(event){
+	 var data={
+			  "itemId":0,
+			  "related_members":[],
+			  "origin_comment":0,
+			  "support_count":0,
+			  "content":"开始评论"
+		  };
+		  data.itemId=parseInt($('#itemId').val());
+		  if(sender!=0)
+		  {
+		  data.related_members.push(parseInt(sender));
+		  }
+		  data.origin_comment=parseInt(origin_comment)==0?null:parseInt(origin_comment);
+		  if($('#commentinput').val()==''&&event=='comment')
+		  {
+		  	mui_alert("警告","内容不能为空");
+		  	return false;
+		  }
+		  data.content=$('#commentinput').val();
+		  data.support_count=support_count;
+		  console.log(data);
+		  var data_=JSON.stringify(data);
+		  console.log(data_);
+		  $.ajax({
+	        type: "POST",
+	        url: "/privilege/comment/commentService.d2js",
+	        dataType: "json",
+	        data: {
+	        _m:event,
+	        params:data_
+	        },
+	        success: function (r) {
+	          /*if(r.success)
+	          {
+	          	disinput();
+	          }else{
+		          if(support_count==0)
+		          {
+		          	mui_alert("警告","点赞失败");
+		          }else{
+		          	mui_alert("警告","评论失败");
+		          }	
+	          }*/
+	          if(r==0)
+	          {
+	          	if(support_count==0)
+		          {
+		          	mui_alert("警告","点赞失败");
+		          }else{
+		          	mui_alert("警告","失败");
+		          }	
+	          }else if(r==1)
+	          {
+	          	m_that.parent('div').find('.support_count').html(parseInt(m_that.parent('div').find('.support_count').html())+1);
+	          	mui_alert('提示','点赞成功');
+	          }else if(r==2)
+	          {
+	          m_that.parent('div').find('.support_count').html(parseInt(m_that.parent('div').find('.support_count').html())-1);
+	          	mui_alert("警告","取消赞成功");
+	          }
+	        }
+	    })
+}
+function sendcomment(){
+	 var data={
+			  "itemId":0,
+			  "related_members":[],
+			  "origin_comment":0,
+			  "support_count":0,
+			  "content":"开始评论"
+		  };
+		  data.itemId=parseInt($('#itemId').val());
+		  if(sender!=0)
+		  {
+		  data.related_members.push(parseInt(sender));
+		  }
+		  data.origin_comment=parseInt(origin_comment)==0?null:parseInt(origin_comment);
+		  if($('#commentinput').val()=='')
+		  {
+		  	mui_alert("警告","内容不能为空");
+		  	return false;
+		  }
+		  data.content=$('#commentinput').val();
+		  data.support_count=support_count;
+		  console.log(data);
+		  var data_=JSON.stringify(data);
+		  console.log(data_);
+		  $.ajax({
+	        type: "POST",
+	        url: "/privilege/comment/commentService.d2js",
+	        dataType: "json",
+	        data: {
+	        _m:"comment",
+	        params:data_
+	        },
+	        success: function (r) {
+	          if(r.success)
+	          {
+	          	 mui_alert('提示','评论成功！');
+	          	 var tmphtml='<div data-value="'+r.commentid+'" data-id="'+r.memberid+'" >'+
+								'<div style="border-bottom:#DCDCDC solid 1px;margin-top:20px">'+
+								  	'<img src="'+r.photo+'" style="width:25px;height:25px;border-radius:25px;vertical-align: middle;"/>'+
+									'<span  class="commentname" style="vertical-align: middle;font-size:12px;color:#888">'+r.name+'</span>'+
+									'<span class="support_count" style="vertical-align: middle;float:right;font-size:12px;color:#666;margin-left:6px">'+r.support_count+'</span>'+
+									'<img class="good_comment'+r.memberid+'"  style=" vertical-align: middle;float:right;height:16px" src="images/good.png"/>'+
+									'<div style="padding-left:25px;font-size:15px;color:#333">'+
+									'<div class="commentlist">'+r.content+'</div>'+
+									'</div>'+
+									'<div style="padding-left:25px;margin-top:20px;font-size:12px;color:#666;margin-bottom:10px;">'+
+										'<span>'+r.commentpostd+'</span>'+
+									'</div>'+
+								'</div>'+
+							'</div>';
+				$('#commentarea').append(tmphtml);
+	          	disinput();
+	          	$('html,body').animate({scrollTop: $(document).height()}, 'fast'); 
+	          }else{
+		          if(support_count==0)
+		          {
+		          	mui_alert("警告","点赞失败");
+		          }else{
+		          	mui_alert("警告","评论失败");
+		          }	
+	          }
+	         
+	        }
+	    })
+}
+function sendarticle(type){
+var data={id:0,good_ount:0,low_count:0,type:'S'};
+data.itemId=parseInt($('#itemId').val());
+data.good_count=good_count;
+data.low_count=low_count;
+data.type=type;
+var data_=JSON.stringify(data);
+	$.ajax({
+	        type: "POST",
+	        url: "/privilege/comment/commentService.d2js",
+	        dataType: "json",
+	        data: {
+	        _m:"article_support",
+	        params:data_
+	        },
+	        success: function (r) {
+	          /*if(r.success)
+	          {
+	          	
+	          }else{
+		          	alert("点赞失败");
+	          }*/
+	          if(r==0)
+	          {
+	          	if(support_count==0)
+		          {
+		          	mui_alert("警告","点赞失败");
+		          }else{
+		          	mui_alert("警告","评论失败");
+		          }	
+	          }else if(r==1)
+	          {
+		 	 	good_count=parseInt($('#good_count').html())+1;
+		  	 	$('#good_count').html(good_count);
+	          	mui_alert("提示","点赞成功");
+	          }else if(r==-1)
+	          {
+	          low_count=parseInt($('#low_count').html())+1;
+		  		$('#low_count').html(low_count);
+	          	mui_alert("提示","踩成功");
+	          	
+	          }
+	          else if(r==2)
+	          {
+	          	good_count=parseInt($('#good_count').html())-1;
+		   		$('#good_count').html(good_count);
+		   		mui_alert("提示","取消赞成功");
+	          }else if(r==-2)
+	          {
+	          	
+	          	low_count=parseInt($('#low_count').html())-1;
+		  		$('#low_count').html(low_count);
+		  		mui_alert("提示","取消踩成功");
+	          }
+	        }
+	    })
+}
+function input(){
+	$('#inputdiv').css('display','none');
+	$('#inputtext').css('display','');
+}
+function disinput(){
+$('#commentinput').val('');
+  	$('#inputdiv').css('display','');
+  	$('#inputtext').css('display','none');
+  	sender=0;
+  	origin_comment=0;
+  	support_count=0;
+}
+
+</script>
+</body>
+</html>

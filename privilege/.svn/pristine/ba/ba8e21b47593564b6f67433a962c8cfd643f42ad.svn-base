@@ -1,0 +1,6 @@
+/build/
+.settings/
+.idea/
+start.iml
+/nbproject/private/
+/nbbuild/

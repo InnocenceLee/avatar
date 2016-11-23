@@ -1,0 +1,36 @@
+[% include('../common/jsFunctionExtends.js'); %]
+[% include('../jssp-lib/cryptutil.js'); %]
+[%
+   var result="";
+	var imports = new JavaImporter(java.util,org.apache.commons.httpclient);
+	with(imports){
+		var WeixinPayTest = Java.type("privilege.WeixinPayTest");
+		result=WeixinPayTest.wxNotifyUrl(request);
+		logger.info(result);
+			var imports11 = new JavaImporter(java.util);
+			logger.info(imports11);
+			with(imports11){
+				var WriteTxt1 = Java.type("privilege.WriteTxt");
+				WriteTxt1.contentToTxt('微信支付结果'+result);
+			}
+		if(result == null){
+			throw new Error('请求失败');
+		}
+	}
+	logger.info('result'+result);
+	
+	if(result!='fail'){//成功则处理业务逻辑，更新订单状态
+	logger.info('in');
+	var imports3 = new JavaImporter(java.util);
+	with(imports3){
+		var WriteTxt3 = Java.type("privilege.WriteTxt");
+		WriteTxt3.contentToTxt('进入订单');
+
+	}
+		//paySuccess(result);
+		this.callD2js('../person/memberService.d2js', 'paySuccess', result);
+		return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";// 如果回调成功，则告诉微信服务器，我收到信息了，不要在调用回调action了
+	}
+	
+	return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[失败]]></return_msg></xml>";// 如果回调成功，则告诉微信服务器，我收到信息了，不要在调用回调action了
+%]

@@ -1,0 +1,16 @@
+
+//访问接口：http://localhost:8082/fk/order/orderService.d2js?_m=fetch&params={"id":"1"}
+d2js.fetch = function(params){
+	var result={};
+	 $V(params, {id : [T.int]  });//转换参数中的id为id
+	var orders=this.callD2js('orderDAO.d2js', 'fetch', params);//调用orderDAO.d2js的fetch方法
+	if(orders==null || orders.rows==null || orders.rows.length==0){//返回查询失败
+		result.code=-1;
+		result.msg="没有查询到订单！";
+	}else{
+		result.code=0;
+		result.data=orders;//返回成功记录
+	}
+	//这里少写了一种情况，查询出错 --todo
+	return result;
+}

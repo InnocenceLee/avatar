@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>d2js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <link href="css/swiper.min.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+    <script src="../jslib/swiper.min.js"></script>
+    <style>
+    
+    </style>
+</head>
+<body id="body" style="background:#f0f0f0">
+	<div style="width:100%;">
+    <img src="images/lb2.jpg" style="width:100%;height:220px"/>
+	</div>
+	<div style="margin-top:25px;color:#333;font-size:24px;text-align:center;">	
+	  马光远说房产
+	  <img style="width:90%" src="images/line.png"/>
+	</div>
+	<div style="text-align:center">
+		<span class="bar bar_left bar_active">内容列表</span><span class="bar bar_right">专栏介绍</span>
+	</div>
+	<div id="list" style="padding:20px 10px;float:left">
+	  <div style="background:#fff;float:left">
+		  <img src="images/lb1.jpg" style="width:100%"/>
+		  <div style="padding:20px 18px 15px 18px;font-size:18px;color:#333">《马光远专访》北京房价将飙升至40万，买房需尽快</div>
+		  <div style="width:100%;padding:0px 0px 10px 0px;float:left;"><span style="margin-left:18px;float:left;font-size:12px;color:#888">08/10</span><div style="float:right"><img src="images/yanjing.png" style="width:25px;height:14px;vertical-align: middle;"/><span style="margin-left:7px;margin-right:18px;font-size:12px;color:#888;vertical-align: middle;">909876</span></div></div>
+	  </div>
+	</div>
+	<div id="brief" style="display:none;padding:0px 31px;margin-bottom:70px">
+	  <div style="margin-top:10px;width:100%;text-align:center;font-size:18px;color:#333">专栏简介</div>
+	  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+  	  <div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+	         从改革的视角而言，通过对房地产领域现存的各种税费的规范和调整，在总体税负不改变的情况下增加多套住房持有环节的税收，减少或者取消交易环节的一些不合理的税费，通过设置合理的房地产税收体系给房市以明确的制度预期，以保房价稳定，并使之成为地方的主要税源，这个大方向没有任何问题。然而，问题的关键是，如果每一次对于房产税的讨论或者推行试点，都以地方政府的财政收入、房地产市场的兴衰和宏观经济的基本面作为风向标，则无疑使得房产税本身就具有极其明显的急功近利的目标。比如，对于房产税，地方政府会将其作为创收的新的增长点，民众会对房产税寄予遏制房价的厚望。
+	  </div>
+	  
+	    <div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">适宜人群</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		 所有渴望实现财富自由，并对自己能实现财富自由深信不疑的人
+		</div>
+		
+		<div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">订阅须知</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		 1.本专栏为年付费订阅产品，199元/年
+		</div>
+		
+		<div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">最近更新</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		 <div class="swiper-container swiper-container-horizontal" style="cursor: -webkit-grab;">
+        <div class="swiper-wrapper" style="">
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+            <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="images/article1.png"/><div>为什么傅园慧那么火</div><div>08/06</div></div></div>
+
+        </div>
+        <!-- Add Scrollbar -->
+        <div class="swiper-scrollbar" style="opacity: 0; transition-duration: 400ms;"><div class="swiper-scrollbar-drag" style="width: 659.822px; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"></div></div>
+    </div>
+		</div>
+	</div>
+	
+<script type="text/javascript">
+var swiper;
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+$('.bar').click(function(){
+	$('.bar').removeClass('bar_active');
+	$(this).addClass('bar_active');
+	if($(this).hasClass('bar_left')){
+		$("#list").css('display','');
+		$("#brief").css('display','none');
+		
+	}else{
+		$("#list").css('display','none');
+		$("#brief").css('display','');
+		swiper = new Swiper('.swiper-container', {
+		    scrollbar: '.swiper-scrollbar',
+		    scrollbarHide: true,
+		    slidesPerView: 'auto',
+		    centeredSlides: false,
+		    spaceBetween: 20,
+		    grabCursor: true
+		});
+	}
+})
+});
+</script>
+</body>
+</html>

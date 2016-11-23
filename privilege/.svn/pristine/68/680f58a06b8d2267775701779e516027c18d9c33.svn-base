@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>专栏详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <link href="css/swiper.min.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+    <script src="../jslib/swiper.min.js"></script>
+    <style>
+    
+    </style>
+</head>
+<body id="body" style="background:#f0f0f0">
+[%
+    sql{.
+		SELECT * FROM gf_item WHERE id = ?
+	.}
+	logger.info('sql'+sql);
+	var r = this.queryRow(sql,[params.id]);
+	
+	 sql{.
+		SELECT * FROM gf_item WHERE channel = ?
+	.}
+	logger.info('sql2'+sql);
+	var r2 = this.query(sql,[r.id]);
+	logger.info('r2'+r2);
+	sql{.
+		SELECT * FROM gf_channel WHERE id = ?
+	.}
+	logger.info('sql3'+sql);
+	var r3 = this.queryRow(sql,[params.id]);
+	logger.info('r3'+r3);
+%]
+	<div style="width:100%;">
+    <img src="[%= r.tag.large_thumb %]" style="width:100%;height:220px"/>
+	</div>
+	<div style="margin-top:25px;color:#333;font-size:24px;text-align:center;">	
+	<div>[%= r3.name %]</div>
+	  <img style="width:90%" src="images/line.png"/>
+	</div>
+	<div style="text-align:center">
+		<span class="bar bar_left bar_active">内容列表</span><span class="bar bar_right">专栏介绍</span>
+	</div>
+	<div id="list" style="float:left;width:100%;padding:20px 10px;box-sizing: border-box">
+			[%  r2.rows.forEach(function(col){ %]
+		 	 <div style="width:100%;background:#fff;float:left;margin-bottom:25px;">
+		 	 <a href="article/[%= col.id %]" style="width:100%">
+				  <img src="[%= col.tag.banner %]" style="width:100%;height:200px"/>
+				  <div style="padding:20px 18px 15px 18px;font-size:18px;color:#333">[%= col.name %]</div>
+				  <div style="width:100%;padding:0px 0px 10px 0px;float:left;"><span style="margin-left:18px;float:left;font-size:12px;color:#888">[%= col.created.format("yyyy-MM-dd HH:mm:ss") %]</span><div style="float:right"><img src="images/yanjing.png" style="width:25px;height:14px;vertical-align: middle;"/><span style="margin-left:7px;margin-right:18px;font-size:12px;color:#888;vertical-align: middle;">[%= col.view_count %]</span></div></div>
+	 		 </div>  
+	 		 </a> 
+			[%  }); %]
+	</div>
+	<div id="brief" style="display:none;padding:0px 31px;margin-bottom:70px">
+	  <div style="margin-top:10px;width:100%;text-align:center;font-size:18px;color:#333">专栏简介</div>
+	  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+  	  <div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+	        [%= r.tag.brief %]
+	  </div>
+	  
+	    <div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">适宜人群</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		[%= r.tag.suit_crowds %]
+		</div>
+		
+		<div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">订阅须知</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		 [%= r.tag.information %]
+		</div>
+		
+		<div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">最近更新</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		 <div class="swiper-container swiper-container-horizontal" style="cursor: -webkit-grab;">
+        <div class="swiper-wrapper" style="">
+			 [%  r2.rows.forEach(function(col){ %]
+		 	 <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><a href="article/[%= col.id %]"><img src="[%= col.tag.thumb %]"/></a><div>[%= col.name %]</div><div>08/06</div></div></div>    
+			[%  }); %]
+        </div>
+        <!-- Add Scrollbar -->
+        <div class="swiper-scrollbar" style="opacity: 0; transition-duration: 400ms;"><div class="swiper-scrollbar-drag" style="width: 659.822px; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"></div></div>
+    </div>
+		</div>
+	</div>
+<script type="text/javascript">
+var swiper;
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+$('.bar').click(function(){
+	$('.bar').removeClass('bar_active');
+	$(this).addClass('bar_active');
+	if($(this).hasClass('bar_left')){
+		$("#list").css('display','');
+		$("#brief").css('display','none');
+		
+	}else{
+		$("#list").css('display','none');
+		$("#brief").css('display','');
+		swiper = new Swiper('.swiper-container', {
+		    scrollbar: '.swiper-scrollbar',
+		    scrollbarHide: true,
+		    slidesPerView: 'auto',
+		    centeredSlides: false,
+		    spaceBetween: 20,
+		    grabCursor: true
+		});
+	}
+})
+});
+</script>
+</body>
+</html>

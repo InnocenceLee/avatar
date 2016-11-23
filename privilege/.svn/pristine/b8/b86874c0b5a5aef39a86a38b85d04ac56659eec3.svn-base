@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+ 
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+ 
+<!--[if !IE]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+<meta charset="UTF-8">
+<title>[%=homeTitle%]</title>
+[%
+ 	if(session.user == null) return response.sendRedirect('../index.jssp');
+%]
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+[% includeJssp('../common/include_lib_beyond.jssp'); %]
+</head>
+<body class="page-header-fixed">
+	<!-- Loading Container -->
+    <div class="loading-container">
+        <div class="loading-progress">
+            <div class="rotator">
+                <div class="rotator">
+                    <div class="rotator colored">
+                        <div class="rotator">
+                            <div class="rotator colored">
+                                <div class="rotator colored"></div>
+                                <div class="rotator"></div>
+                            </div>
+                            <div class="rotator colored"></div>
+                        </div>
+                        <div class="rotator"></div>
+                    </div>
+                    <div class="rotator"></div>
+                </div>
+                <div class="rotator"></div>
+            </div>
+            <div class="rotator"></div>
+        </div>
+    </div>
+    <!--  /Loading Container -->
+    
+	[%
+	 	var functions = session.user.functions;		
+		// 顶级功能
+		var funcRoots = functions.roots || (functions.roots = function(){ 
+			var stk = [];
+			var tops = [];
+			var data = functions;
+			for(var i=0; i < data.length;i++){
+				var row = data[i];
+				while(stk.length){
+					var prev = stk[stk.length -1];
+					if(row.parent_id == prev.id){
+						if(prev.data) prev.data.push(row); else prev.data = [row];	// 因为行数组用的属性名是 data，子节点也必须用 data，如果用children，因为没有标为 leaf，会发生反复递归
+						if(stk.length <= 2) {	// 展开 2 层
+							prev.expanded = true;
+						}
+						break;
+					} else {
+						prev.leaf = (prev.data == null);
+						stk.pop();
+					}
+				}
+				if(stk.length == 0) tops.push(row);
+				stk.push(row);
+			}
+			if(stk.length){stk[stk.length-1].leaf = true;}
+			
+			return tops.filter(function trimInvisible(fun){
+				if(fun.data && fun.data.length){
+					fun.data = fun.data.filter(trimInvisible);
+				}
+				return (fun.open_mode != 'N' || (fun.data && fun.data.length)) && fun.status != 'H';
+			});
+			
+		}());
+		
+	%]
+    <!-- Navbar -->
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="navbar-container">
+                <!-- Navbar Barnd -->
+                <div class="navbar-header pull-left">
+                    <a href="#" class="navbar-brand">
+                        <small>
+                            <img src="../jslib/beyond/img/logo.png" alt="" />
+                        </small>
+                    </a>
+                </div>
+                <!-- /Navbar Barnd -->
+
+                <!-- Sidebar Collapse -->
+                <div class="sidebar-collapse" id="sidebar-collapse">
+                    <i class="collapse-icon fa fa-bars"></i>
+                </div>
+                <!-- /Sidebar Collapse -->
+                <!-- Account Area and Settings --->
+                <div class="navbar-header pull-right">
+                    <div class="navbar-account">
+                        <ul class="account-area">
+                            <li>
+                                <a class=" dropdown-toggle" data-toggle="dropdown" title="Help" href="#">
+                                    <i class="icon fa fa-warning"></i>[%= session.newCount%]
+                                </a>
+                                <!--Notification Dropdown-->
+                                <ul class="pull-right dropdown-menu dropdown-arrow dropdown-notifications">
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <div class="notification-icon">
+                                                    <i class="fa fa-phone bg-themeprimary white"></i>
+                                                </div>
+                                                <div class="notification-body">
+                                                    <span class="title">Skype meeting with Patty</span>
+                                                    <span class="description">01:00 pm</span>
+                                                </div>
+                                                <div class="notification-extra">
+                                                    <i class="fa fa-clock-o themeprimary"></i>
+                                                    <span class="description">office</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <div class="notification-icon">
+                                                    <i class="fa fa-check bg-darkorange white"></i>
+                                                </div>
+                                                <div class="notification-body">
+                                                    <span class="title">Uncharted break</span>
+                                                    <span class="description">03:30 pm - 05:15 pm</span>
+                                                </div>
+                                                <div class="notification-extra">
+                                                    <i class="fa fa-clock-o darkorange"></i>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <div class="notification-icon">
+                                                    <i class="fa fa-gift bg-warning white"></i>
+                                                </div>
+                                                <div class="notification-body">
+                                                    <span class="title">Kate birthday party</span>
+                                                    <span class="description">08:30 pm</span>
+                                                </div>
+                                                <div class="notification-extra">
+                                                    <i class="fa fa-calendar warning"></i>
+                                                    <i class="fa fa-clock-o warning"></i>
+                                                    <span class="description">at home</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <div class="notification-icon">
+                                                    <i class="fa fa-glass bg-success white"></i>
+                                                </div>
+                                                <div class="notification-body">
+                                                    <span class="title">Dinner with friends</span>
+                                                    <span class="description">10:30 pm</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-footer ">
+                                        <span>
+                                            Today, March 28
+                                        </span>
+                                        <span class="pull-right">
+                                            10°c
+                                            <i class="wi wi-cloudy"></i>
+                                        </span>
+                                    </li>
+                                </ul>
+                                <!--/Notification Dropdown-->
+                            </li>
+                            <li>
+                                <a class="wave in dropdown-toggle" data-toggle="dropdown" title="Help" href="#">
+                                    <i class="icon fa fa-envelope"></i>
+                                    <span class="badge">3</span>
+                                </a>
+                                <!--Messages Dropdown-->
+                                <ul class="pull-right dropdown-menu dropdown-arrow dropdown-messages">
+                                    <li>
+                                        <a href="#">
+                                            <img src="../jslib/beyond/img/avatars/divyia.jpg" class="message-avatar" alt="Divyia Austin">
+                                            <div class="message">
+                                                <span class="message-sender">
+                                                    Divyia Austin
+                                                </span>
+                                                <span class="message-time">
+                                                    2 minutes ago
+                                                </span>
+                                                <span class="message-subject">
+                                                    Here's the recipe for apple pie
+                                                </span>
+                                                <span class="message-body">
+                                                    to identify the sending application when the senders image is shown for the main icon
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <img src="../jslib/beyond/img/avatars/bing.png" class="message-avatar" alt="Microsoft Bing">
+                                            <div class="message">
+                                                <span class="message-sender">
+                                                    Bing.com
+                                                </span>
+                                                <span class="message-time">
+                                                    Yesterday
+                                                </span>
+                                                <span class="message-subject">
+                                                    Bing Newsletter: The January Issue‏
+                                                </span>
+                                                <span class="message-body">
+                                                    Discover new music just in time for the Grammy® Awards.
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <img src="../jslib/beyond/img/avatars/adam-jansen.jpg" class="message-avatar" alt="Divyia Austin">
+                                            <div class="message">
+                                                <span class="message-sender">
+                                                    Nicolas
+                                                </span>
+                                                <span class="message-time">
+                                                    Friday, September 22
+                                                </span>
+                                                <span class="message-subject">
+                                                    New 4K Cameras
+                                                </span>
+                                                <span class="message-body">
+                                                    The 4K revolution has come over the horizon and is reaching the general populous
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <!--/Messages Dropdown-->
+                            </li>
+
+                            <li>
+                                <a class="dropdown-toggle" data-toggle="dropdown" title="Tasks" href="#">
+                                    <i class="icon fa fa-tasks"></i>
+                                    <span class="badge">4</span>
+                                </a>
+                                <!--Tasks Dropdown-->
+                                <ul class="pull-right dropdown-menu dropdown-tasks dropdown-arrow ">
+                                    <li class="dropdown-header bordered-darkorange">
+                                        <i class="fa fa-tasks"></i>
+                                        4 Tasks In Progress
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <span class="pull-left">Account Creation</span>
+                                                <span class="pull-right">65%</span>
+                                            </div>
+
+                                            <div class="progress progress-xs">
+                                                <div style="width:65%" class="progress-bar"></div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <span class="pull-left">Profile Data</span>
+                                                <span class="pull-right">35%</span>
+                                            </div>
+
+                                            <div class="progress progress-xs">
+                                                <div style="width:35%" class="progress-bar progress-bar-success"></div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <span class="pull-left">Updating Resume</span>
+                                                <span class="pull-right">75%</span>
+                                            </div>
+
+                                            <div class="progress progress-xs">
+                                                <div style="width:75%" class="progress-bar progress-bar-darkorange"></div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <div class="clearfix">
+                                                <span class="pull-left">Adding Contacts</span>
+                                                <span class="pull-right">10%</span>
+                                            </div>
+
+                                            <div class="progress progress-xs">
+                                                <div style="width:10%" class="progress-bar progress-bar-warning"></div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-footer">
+                                        <a href="#">
+                                            See All Tasks
+                                        </a>
+                                        <button class="btn btn-xs btn-default shiny darkorange icon-only pull-right"><i class="fa fa-check"></i></button>
+                                    </li>
+                                </ul>
+                                <!--/Tasks Dropdown-->
+                            </li>
+                            <li>
+                                <a class="login-area dropdown-toggle" data-toggle="dropdown">
+                                    <div class="avatar" title="View your public profile">
+                                        <img src="../jslib/beyond/img/avatars/adam-jansen.jpg">
+                                    </div>
+                                    <section>
+                                        <h2><span class="profile"><span>[%= session.user.person.name%]</span></span></h2>
+                                    </section>
+                                </a>
+                                <!--Login Area Dropdown-->
+                                <ul class="pull-right dropdown-menu dropdown-arrow dropdown-login-area">
+                                    [% if(session.stationChooses){%]
+							     	[% session.stationChooses.forEach(function(choose,idx){ %]
+							      	[% if(idx == session.currRoleIdx){ %]
+							        	<li class="disabled"><a href="#">[%= choose.roles[0].node_name %]&nbsp;&nbsp;
+							        	[%= choose.roles.map(function(a){return a.station_name}).join() %]&nbsp;&nbsp;
+							        	[%= choose.roles.map(function(a){return a.name}).join() %]</a></li>
+							        [%} else { %]
+							        	<li><a href="../login.d2js?_m=shiftRole&chooseIdx=[%= idx %]">
+							        	[%= choose.roles[0].node_name %]&nbsp;&nbsp;
+							        	[%= choose.roles.map(function(a){return a.station_name}).join() %]&nbsp;&nbsp;
+							        	[%= choose.roles.map(function(a){return a.name}).join() %]</a></li>
+							        [%} %]
+							      [% }); }%]
+							        <li class="divider"></li>
+							        <li><a href="../login.d2js?_m=logout"><i class="icon-signout"></i>退出</a></li>
+                                </ul>
+                                <!--/Login Area Dropdown-->
+                            </li>
+                            <!-- /Account Area -->
+                            <!--Note: notice that setting div must start right after account area list.
+                            no space must be between these elements-->
+                            <!-- Settings -->
+                        </ul><div class="setting">
+                            <a id="btn-setting" title="Setting" href="#">
+                                <i class="icon glyphicon glyphicon-cog"></i>
+                            </a>
+                        </div><div class="setting-container">
+                            <label>
+                                <input type="checkbox" id="checkbox_fixednavbar">
+                                <span class="text">Fixed Navbar</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="checkbox_fixedsidebar">
+                                <span class="text">Fixed SideBar</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="checkbox_fixedbreadcrumbs">
+                                <span class="text">Fixed BreadCrumbs</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="checkbox_fixedheader">
+                                <span class="text">Fixed Header</span>
+                            </label>
+                        </div>
+                        <!-- Settings -->
+                    </div>
+                </div>
+                <!-- /Account Area and Settings -->
+            </div>
+        </div>
+    </div>
+    <!-- /Navbar -->
+    [% 
+		function getIcon(fun){
+           	if(fun.icon_url ){
+	    		if(fun.icon_url.indexOf("icon-") == 0)
+		    		return '<i class="menu-icon '+ fun.icon_url+'"></i>';  
+	    		else
+		    		return '<img width="16" height="16" src = "'+fun.icon_url+'"/>';
+   			}else{
+   				return '';
+   			}
+    	}%]
+
+	 [%
+        function createSysFunLink(fun, level){
+            if (level == 1) {
+                var iconAndName =  getIcon(fun)+ '<span class="menu-text">' + fun.name + '</span>';
+            } else if (level == 2) {
+                var iconAndName = fun.name;
+            }
+            if(fun.open_mode == 'W' || fun.open_mode == 'w'){
+                return '<a href="' + fun.uri + '" target="_blank">' + iconAndName + '</a>';
+            } else if(fun.open_mode == 't'){
+                return '<a href="javascript:;" fun-uri="' + (website + fun.uri) + '" fun-code="' + fun.code + '">' + iconAndName  + '</a>';
+            } else if(fun.open_mode == 'N'){
+                return '<a href="javascript:;">' + iconAndName + '</a>'
+            } else if(fun.open_mode == 'C'){
+                return '<a href="javascript:;" data-molecule="true" fun-uri="' + fun.uri + '" fun-code="' + fun.code + '">' + iconAndName  + '</a>';
+            } else if(fun.open_mode == 'P'){
+            	return '<a href="' + request.contextPath + fun.uri + '" fun-code="' + fun.code + '">' + iconAndName  + '</a>';
+            } else{
+            	return iconAndName;
+            }
+        }
+    %]    
+	<!-- Main Container -->
+    <div class="main-container container-fluid">
+        <!-- Page Container -->
+        <div class="page-container">
+	        <ul class="nav nav-pills hidden" id="tabActionsNav">
+			  <li class="active"><a href="#home" data-toggle="tab">首页</a></li>
+			</ul>
+            <!-- Page Sidebar -->
+            <div class="page-sidebar sidebar-fixed" id="sidebar">
+                <!-- Page Sidebar Header-->
+                <div class="sidebar-header-wrapper">
+                    <input type="text" class="searchinput" />
+                    <i class="searchicon fa fa-search"></i>
+                    <div class="searchhelper">Search Reports, Charts, Emails or Notifications</div>
+                </div>
+                <!-- /Page Sidebar Header -->
+                <!-- Sidebar Menu -->
+                <ul class="nav sidebar-menu">
+	                <li>
+				        <a href="[%=website%]pcadmin#!/">
+				            <i class="menu-icon glyphicon glyphicon-home"></i>
+				            <span class="menu-text"> 主页 </span>
+				        </a>
+				    </li>
+	                [% funcRoots[0].data.forEach(function(fun){ %]
+	                    [% if(fun.data && fun.data.length){ %]
+	                        <li>
+	                            <a href="javascript:;" class="menu-dropdown">
+	                                [%= getIcon(fun) %]<span class="menu-text">[%= fun.name %]</span>
+                            		<i class="menu-expand"></i>
+	                            </a>
+	                            <ul class="submenu">
+	                                [% fun.data.forEach(function(fun){%]
+	                                    <li>
+	                                        [%= createSysFunLink(fun, 2) %]
+	                                    </li>
+	                                [% }); %]
+	                            </ul>
+	                        </li>
+	                    [% } else { %]
+	                        <li>[%= createSysFunLink(fun, 1) %]</li>
+	                    [% } %]
+	                [% }); %]
+                </ul>
+                <!-- /Sidebar Menu -->
+            </div>
+            <!-- /Page Sidebar -->
+            <!-- Page Content -->
+            <div class="page-content">
+	            <!-- Tab panes -->
+				<div class="tab-content" id="tabContents" style="padding: 0;">			
+				  <div class="tab-pane active" id="home">
+				  	<iframe src="welcome.jssp" frameborder="0" onLoad="autoResize(this);">
+				  	</iframe>
+				  </div>
+				</div>
+            </div>
+            <!-- /Page Content -->
+        </div>
+        <!-- /Page Container -->
+    </div>
+	
+	<div class="modal fade" id="my-del-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="" aria-hidden="false">
+	    <div class="modal-dialog" role="document">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+	                <h4 class="modal-title" id="myModalLabel">操作提示</h4>
+	            </div>
+	            <div class="modal-body">
+	                <p id="delP">
+	                  你确定要删除你选择的数据吗
+	                </p>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" role data-dismiss="modal">取消</button>
+	                <button type="button" class="btn" role="save" id="del-btn">确定</button>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+    <div class="modal fade" id="my-no-select-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="" aria-hidden="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="myModalLabel">操作提示</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="delP">
+                        请选择要删除的数据行
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" role="save" data-dismiss="modal">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!--Beyond Scripts-->
+    <script src="../jslib/beyond/js/beyond.min.js"></script>
+</body>
+<script>
+
+	function autoResize(frame){
+	    frame.width = frame.contentWindow.document.body.scrollWidth + 'px';
+	    frame.height = Math.max(frame.contentWindow.document.body.scrollHeight + 20, window.screen.availHeight) + 'px';
+	}
+	
+	// 监听URL改变
+	window.addEventListener("popstate", function() {
+	    var currentState = history.state;
+	    currentState && currentState.code && selectMenuByCode(currentState.code);
+	});
+	
+	function loadTarget(code,uri,name,isMolecule){
+		var aId = 'a_id_' + code; 
+		var id = 'tab_id_' + code;
+		var docTitle = '[%=homeTitle%] - ' + name;
+		var query = window.location.href.split("?")[1];
+
+		// 将新状态推入URL历史栈，来实现单页面前进后退效果
+		document.title = docTitle;
+		if (!window.history.state || window.history.state.code != code) {
+            window.history.pushState({ code: code }, docTitle, window.location.href.split("?")[0] + '?fun=' + code);
+		}
+		
+		if(document.getElementById(id)){	
+			$('#' + aId).tab('show');
+		} else {
+			var ele = document.createElement('li');
+			ele.innerHTML = '<a href="#' + id + '" data-toggle="tab" id="' + aId + '">' + name + '&nbsp;<span class="close">×</span></a>';
+			tabActionsNav.appendChild(ele);
+
+			// var random = Ext.Number.randomInt(0, 200);
+			var randomId = new Date() * 1;
+			
+			var cnt = document.createElement('div');
+			cnt.className = "tab-pane";
+			cnt.id = id;
+			cnt.style.marginTop = '0px';
+			if(isMolecule){
+				// Molecule.debug = true;
+				Molecule.loadHtml(uri);
+				$('<div class="+ main-content" molecule=' + code + '></div>').appendTo(cnt)
+				tabContents.appendChild(cnt);
+			} else {
+				cnt.innerHTML = '<iframe id="' + randomId + '" src="' + uri + '" frameborder="0"  width="100%" height="500px" onLoad=\'setupIframe("' + randomId + '")\'></iframe>';
+				tabContents.appendChild(cnt);
+			}
+			$('#tabActionsNav a:last').tab('show');
+			$(ele).find(".close").click(function () {
+			     //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
+			     var tabContentId = $(this).parent().attr("href");
+			     $(this).parent().parent().remove(); //remove li of tab
+			     $('#tabActionsNav a:last').tab('show'); // Select first tab
+			     $(tabContentId).remove(); //remove respective tab content
+			});
+		}
+						
+	}
+	
+	
+	
+	$(document).ready(function(){
+		setInterval("fresh()",60000);
+		$(document).on('click', 'a[fun-uri]', function(event){
+			var $this = $(event.target);
+			$this.closest('ul').find('>li').removeClass('active');
+			$this.parent().addClass('active');
+			$this.closest('.dropdown').click().parent().addClass('active');;
+			var code = $(event.target).attr('fun-code');
+			var uri = $(event.target).attr('fun-uri');
+			var name = $(event.target)[0].innerText;
+			var isMolecule = $(event.target).data('molecule');
+			
+			loadTarget(code,uri,name,isMolecule);
+		});
+		
+		[%if(request.fun){%]
+			selectMenuByCode('[%= request.fun %]');
+			
+			
+			[% var fun = session.user.functions.find(function(f){return (f.code).equals(request.fun)});java.lang.System.out.println("###"+JSON.stringify(fun))%]
+			
+			[%
+			 	println("functions:" +JSON.stringify(session.user.functions))
+			 %]
+			
+			var fun = [%~ fun%]
+			
+			console.log(fun);
+			
+			loadTarget(fun.code,fun.uri, fun.name,fun.open_mode == 'C');
+			
+		[%}%]
+		
+	});
+	
+	function fresh(){
+		$.ajax({
+			isModal : false,
+	        type: "get",
+	        url: "jv/notify/listNewCount.do",
+	        success: function(data){
+				var oldCount = $("#newCount").html()*1;
+				if(oldCount<data){
+					var audio = document.createElement("audio");
+					audio.src = "/start/image/notify.mp3";
+					audio.play();
+				}
+            	if(oldCount!=data){
+            		$("#newCount").html(data)
+            	}
+	        }
+	    });
+	}
+	
+	function selectMenuByCode(code) {
+        var $a = $('a[fun-code=' + code + ']');
+        $a.closest('ul').show().parents('li').first().addClass('active open');
+        $a.parent().addClass('active');
+        $a.click();
+	}
+	
+	function setupIframe(id){
+		var frame = document.getElementById(id);
+		frame.contentWindow.iframe = frame;
+		frame.contentDocument.iframe = frame;
+		frame.height = Math.max(frame.contentWindow.height || 0, 640);
+	};
+
+</script>
+</html>

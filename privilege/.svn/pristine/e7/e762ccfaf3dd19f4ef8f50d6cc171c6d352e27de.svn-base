@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v8.0">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.web"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcprov-jdk16-1.45.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-fileupload-1.3.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-logging-1.1.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/fastjson-1.1.37.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/ffmpeg-java.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/fluent-hc-4.3.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/freemarker-2.3.15.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/httpclient-4.3.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/httpcore-4.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jakarta-oro.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jaxen-1.1-beta-6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jdom.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json-java.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jsoup-1.7.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jsp-api.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/kaptcha-2.3.2-jdk14.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/kaptcha-2.3.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mongo-java-driver-3.2.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/ognl-2.7.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/org.siphon.d2js.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-excelant-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-ooxml-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-ooxml-schemas-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-scratchpad-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/postgresql-9.4-1200.jdbc41.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/slf4j-api-1.5.11.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/slf4j-api-1.6.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/slf4j-log4j12-1.5.11.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/struts2-core-2.1.8.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/taobao-sdk-java-auto_1455552377940-20160607-source.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/taobao-sdk-java-auto_1455552377940-20160607.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/ueditor-1.1.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/upacp_sdk-1.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xstream-1.4.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xwork-core-2.1.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gexin-rp-sdk-base-4.0.0.12.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gexin-rp-sdk-http-4.0.1.7.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gexin-rp-sdk-template-4.0.0.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/protobuf-java-2.5.0.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

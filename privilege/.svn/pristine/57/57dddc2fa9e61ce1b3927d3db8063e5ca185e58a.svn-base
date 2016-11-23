@@ -1,0 +1,198 @@
+
+
+d2js.updateOrder=function(params){
+	var me = this;
+	var es = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+	es.scheduleWithFixedDelay(function(){
+		logger.info(new Date());
+		sql{.
+			select DISTINCT gfo.* from gf_order gfo LEFT JOIN gf_item gf ON gf.id=ANY(gfo.items) where gfo.state='p' and gf.type!='C' and gfo.id in (select id from gf_order where (now() -orderd)>interval '20 M')
+		.}
+		var android = new Array();
+		var ios= new Array();
+		var orderList = me.query(sql);
+		logger.info(JSON.stringify(orderList));
+		logger.info("length:"+orderList.rows.length);
+		for(var i=0;i<orderList.rows.length;i++)
+		{
+			if(orderList.rows[i].order_member==null)
+				{
+				continue;
+				}
+			sql{.
+				select * from member where id = ?
+			.}
+			var tmp_member = me.queryRow(sql,[orderList.rows[i].order_member]);
+			logger.info("tmp_member:"+JSON.stringify(tmp_member));
+			for(var j=0;j<tmp_member.tag.devices.length;j++)
+			{
+				if(tmp_member.tag.devices[j].system!=undefined&&tmp_member.tag.devices[j].system!='undefined'&&tmp_member.tag.devices[j].system!=null&&tmp_member.tag.devices[j].system!='')
+					{
+					
+				if(tmp_member.tag.devices[j].system=='ios')
+				{
+					if(tmp_member.tag.devices[j].cid!=undefined&&tmp_member.tag.devices[j].cid!='undefined'&&tmp_member.tag.devices[j].cid!=null&&tmp_member.tag.devices[j].cid!='')
+					{
+						ios.push(tmp_member.tag.devices[j].cid);
+					}
+				}else if(tmp_member.tag.devices[j].system=='android'){
+					if(tmp_member.tag.devices[j].cid!=undefined&&tmp_member.tag.devices[j].cid!='undefined'&&tmp_member.tag.devices[j].cid!=null&&tmp_member.tag.devices[j].cid!='')
+					{
+						android.push(tmp_member.tag.devices[j].cid);
+					}
+				}
+					}
+			}
+			logger.info('order_detail.items.length:'+orderList.rows[i].order_detail.items.length);
+			for(var k=0;k<orderList.rows[i].order_detail.items.length;k++)
+				{	
+				sql{.
+					update gf_item set id=id
+						 , store_count =store_count+ ?,
+						   buy_count =buy_count - ?,
+						   real_buy_count =real_buy_count - ? 
+					where 1=1 and id = ?
+				.}
+				logger.info('sql:'+sql);
+					me.execute(sql,[orderList.rows[i].order_detail.items[k].count,orderList.rows[i].order_detail.items[k].count,orderList.rows[i].order_detail.items[k].count,orderList.rows[i].order_detail.items[k].id]);
+				}
+			
+		}
+		if(ios.length>0)
+		{
+			logger.info("ios.length"+ios.length);
+			var result='';
+			var imports = new JavaImporter(java.util,java.io);
+			with(imports){
+				var AppPush = Java.type("privilege.AppPush");
+				result=AppPush.AllPush_I('订单失效通知','您有一个下单超过20分钟未支付的订单已被自动取消','order/0',ios);
+				logger.info(result);
+				logger.info("ORiosPUSH结果"+result);
+			}
+		}
+		if(android.length>0)
+		{
+			logger.info("android.length"+android.length);
+			var result='';
+			var result2='';
+			var imports2 = new JavaImporter(java.util,java.io);
+			with(imports2){
+				var AppPush2 = Java.type("privilege.AppPush");
+				result2=AppPush2.AllPush_A('订单失效通知','您有一个下单超过20分钟未支付的订单已被自动取消','order/0',android);
+				logger.info(result2);
+				logger.info("ORANPUSH结果"+result);
+			}
+		}
+		logger.info("out0");	
+		me.execute("update gf_order set state = 'C' where state='p' and id in (select DISTINCT gfo.id from gf_order gfo LEFT JOIN gf_item gfi ON gfi.id=ANY(gfo.items) where (now() -gfo.orderd)>interval '20 M' and gfi.type!='C')",[]);
+//
+		logger.info("out1");
+	}, 0, 1, java.util.concurrent.TimeUnit.SECONDS);
+}
+d2js.updateToday=function(params){
+	var me = this;
+	var es = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+	es.scheduleWithFixedDelay(function(){
+
+		me.execute("update gf_today set state = 'A' where state='W' and id in (select id from gf_today where (now() -postd)>interval '1 S')",[]);
+//		logger.info("today");	
+	}, 0, 1, java.util.concurrent.TimeUnit.SECONDS);
+	
+}
+d2js.updateChannel=function(params){
+	var me = this;
+	var es = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+	es.scheduleWithFixedDelay(function(){
+
+		me.execute("delete from channel_subscription where id in (select id from channel_subscription where (now() -expired)>interval '1 S')",[]);
+//		logger.info("today");	
+	}, 0, 1, java.util.concurrent.TimeUnit.SECONDS);
+	
+}
+d2js.DeleteChannelBug=function(params){
+	//删除重复数据
+	var me = this;
+	var es = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+	es.scheduleWithFixedDelay(function(){
+
+		me.execute("delete from channel_subscription a where (a.member,a.channel) in (select member,channel from channel_subscription group by member,channel having count(*) > 1) and id not in (select max(id) from channel_subscription group by member,channel having count(*)>1)",[]);
+//		logger.info("today");	
+	}, 0, 1, java.util.concurrent.TimeUnit.SECONDS);
+	
+}
+d2js.updatePush=function(params){
+	logger.info("push00");
+	var me = this;
+	var es = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+	es.scheduleWithFixedDelay(function(){
+		logger.info("push0");
+		sql{.
+			select * from push where state='W' and (now() -pushd)>interval '1 S'
+		.}
+		logger.info("push1");
+		var pushList = me.query(sql);
+		var android = new Array();
+		var ios= new Array();
+		sql{.
+			select * from member
+		.}
+		var memberList = me.query(sql);
+		logger.info("push2"+memberList.rows.length);
+		logger.info("push2pushList"+pushList.rows.length);
+		for(var i=0;i<pushList.rows.length;i++)
+		{
+			logger.info("push2pushListRow");
+			for(var j=0;j<memberList.rows.length;j++)
+			{
+				logger.info("push4devices"+memberList.rows[j].tag.devices);
+				for(var k=0;k<memberList.rows[j].tag.devices.length;k++)
+				{
+					if(memberList.rows[j].tag.devices[k].system!=undefined&&memberList.rows[j].tag.devices[k].system!='undefined'&&memberList.rows[j].tag.devices[k].system!=null&&memberList.rows[j].tag.devices[k].system!='')
+					{
+						logger.info("system"+memberList.rows[j].tag.devices[k].system);
+						if(memberList.rows[j].tag.devices[k].system=='ios')
+						{
+							if(memberList.rows[j].tag.devices[k].cid!=undefined&&memberList.rows[j].tag.devices[k].cid!='undefined'&&memberList.rows[j].tag.devices[k].cid!=null&&memberList.rows[j].tag.devices[k].cid!='')
+							{
+								ios.push(memberList.rows[j].tag.devices[k].cid);
+							}
+						}else{
+							if(memberList.rows[j].tag.devices[k].cid!=undefined&&memberList.rows[j].tag.devices[k].cid!='undefined'&&memberList.rows[j].tag.devices[k].cid!=null&&memberList.rows[j].tag.devices[k].cid!='')
+							{
+								android.push(memberList.rows[j].tag.devices[k].cid);
+							}
+						}
+					}
+				}
+			}
+			if(ios.length>0)
+			{
+				var result='';
+				var imports = new JavaImporter(java.util,java.io);
+				with(imports){
+					var AppPush = Java.type("privilege.AppPush");
+					result=AppPush.AllPush_I(pushList.rows[i].title,pushList.rows[i].content,pushList.rows[i].action,ios);
+					logger.info(result);
+					logger.info("ORiosPUSH结果"+result);
+				}
+			}
+			if(android.length>0)
+			{
+				var result2='';
+				var imports2 = new JavaImporter(java.util,java.io);
+				with(imports2){
+					var AppPush2 = Java.type("privilege.AppPush");
+					result2=AppPush2.AllPush_A(pushList.rows[i].title,pushList.rows[i].content,pushList.rows[i].action,android);
+					logger.info(result2);
+					logger.info("ORANPUSH结果"+result);
+				}
+			}
+			logger.info("push2pushListEnd");
+		}
+		
+		
+		me.execute("update push set state = 'A' where state='W' and id in (select id from push where (now() -pushd)>interval '1 S')",[]);
+		logger.info("pushend");
+	}, 0, 1, java.util.concurrent.TimeUnit.SECONDS);
+	
+}

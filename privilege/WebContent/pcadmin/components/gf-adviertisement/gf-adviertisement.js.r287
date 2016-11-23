@@ -1,0 +1,122 @@
+var $ = require('jquery');
+var avalon = require('avalon');
+var beyond = require('/vendor/beyond');
+var Notify = beyond.Notify;
+var bootbox = require('bootbox.js/bootbox');
+
+var ajax = require('/services/ajaxService');
+var store = require('/services/storeService');
+
+require('/vendor/avx-component');
+var imageSelector = require('/components/gf-select-image');
+var itemSelector = require('/components/gf-select-item');
+
+avalon.filters.url2action = function (url) {
+    if (url.indexOf('good') === 0) {  
+        return '打开商品详情页';
+    } else if (url.indexOf('article') === 0) {
+        return '打开文章页';
+    } else {
+        return '打开网址';
+    }
+}
+
+var dataVm, dialogVm;
+var demo = avalon.define({
+    $id: 'gf-adviertisement',
+    '$data-box_config': {
+        store: 'adviertisement',
+        dialogId: 'dialog_adviertisement',
+        actionBtns: {
+            showPic: '<img ms-attr-src="el.image" style="height: 100px;max-width: 500px;">',
+            operation: '<a href="javascript:;" class="btn btn-info btn-xs" ms-click="actions.preEdit(el)"><i class="fa fa-edit"></i> 修改</a> ' + 
+            '<a href="javascript:;" class="btn btn-info btn-xs" ms-click="actions.upload(el)"><i class="fa fa-edit"></i> 上传图片</a> ' + 
+                '<a href="javascript:;" class="btn btn-danger btn-xs" ms-click="actions.del(el)"><i class="fa fa-trash-o"></i> 删除</a>'
+        },
+        actions: {
+            preEdit: function (record) {
+                var url = record.url;
+                if (url.indexOf('good') === 0) {  
+                    dialogVm.state.chooseType = 'good';
+                } else if (url.indexOf('article') === 0) {
+                    dialogVm.state.chooseType = 'article';
+                } else {
+                    dialogVm.state.chooseType = 'channel';
+                }
+                dataVm.actions.edit.call(this, record);
+            },
+            upload: function (record) {
+                var dataVm = avalon.vmodels['data-box_adviertisement'];
+                imageSelector.open({ }, function (selected) {
+                    record.image = selected.image;
+                    store['adviertisement'].update(record.$model).then(function (result) {
+                        if (result.code == '0') {
+                            Notify('修改成功', 'top-right', '5000', 'success', 'fa-check', true);
+                            dataVm.loadData();
+                        }
+                    });
+                });
+            }
+        },
+        processData: function (package, post) {
+            post(function () {});
+        }
+    },
+    '$dialog_config': {
+        $validateFields: {
+            itemName: {
+                validators: {
+                    notEmpty: { message: '请选择' }
+                }
+            },
+            image: {
+                validators: {
+                    notEmpty: { message: '请选择图片' }
+                }
+            },
+            url: {
+                validators: {
+                    notEmpty: { message: '请填写网址' },
+                    uri: { message: '网址格式不正确' }
+                }
+            }
+        }
+    },
+    dataBoxInit: function (vm) {
+        dataVm = vm;
+        dialogVm = avalon.vmodels['dialog_adviertisement'];
+        vm.loadData(function () {
+            // 隐藏加载动画
+            beyond.hideLoading();
+        });
+        dialogVm.state = {
+            chooseType: 'good',
+            choose: function () {
+                itemSelector.open({ isMultiSelect: false }, function (selected) {
+                    var typePathMap = {
+                        G: 'good',
+                        A: 'article',
+                        C: 'channel'
+                    };
+                    dialogVm.record.url = typePathMap[selected.type] + '/' + selected.id;
+                    dialogVm.record.image = selected.tag.large_thumb;
+                    dialogVm.record.itemName = selected.name;
+                    dialogVm.record.item = selected.id;s
+                });
+            }
+        };
+    }
+});
+
+// 导出模板
+exports.view = __inline('./gf-adviertisement.html');
+// 导出逻辑
+exports.controller = avalon.controller(function($ctrl) {
+    $ctrl.$onRendered = function() {
+    }
+    $ctrl.$onEnter = function(params, rs) {
+    }
+    $ctrl.$onBeforeUnload = function(oldState, newState) {
+    }
+    $ctrl.$vmodels = [];
+});

@@ -1,0 +1,64 @@
+.search-bar {
+	margin: 0 20px 15px 20px;
+	border-bottom: 1px solid #e6e6eb;
+    text-align: left;
+    padding: 25px 20px 25px 0;
+}
+.search-bar form {
+	float: none;
+}
+.search-bar .form-group {
+	margin-right: 40px;
+}
+.search-bar label {
+	color: #7a818b;
+    font-size: 14px;
+}
+.search-bar .form-group .form-control {
+	height: 30px;
+}
+.search-bar .form-group .input-group > .input-group-btn > .btn {
+	height: 30px;
+}
+.search-bar > form > .btn {
+	width: 90px;
+}
+
+.tool-bar {
+	margin: 0 20px 15px;
+}
+.tool-bar .btn:first-child {
+    margin-left: 0;
+}
+.tool-bar .btn {
+	margin-left: 20px;
+}
+
+.main-table {
+	margin: 0 0 15px 20px;
+	padding: 0 20px 25px 0;
+}
+.main-table > table {
+	border: 1px solid #e6e6ed;
+}
+.main-table > table > thead {
+	background: #f2f2f4;
+    color: #343941;
+}
+.main-table > table > thead > tr {
+    height: 30px;
+}
+.main-table > table > thead > tr > th {
+    line-height: 30px;
+    border-bottom: none;
+}
+.main-table > table > tbody {
+	color: #7a818b;
+}
+.main-table > table > tbody a {
+    color: #2d94ff;
+}
+.main-table > table td,th {
+	white-space: nowrap;
+	border-bottom: 1px solid #dddddd;
+}

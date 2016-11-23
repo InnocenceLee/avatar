@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>专栏详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <link href="css/swiper.min.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+    <script src="../jslib/swiper.min.js"></script>
+    <style>
+    
+    </style>
+</head>
+<body id="body" style="background:#f0f0f0">
+[%
+var m_id=0;
+	logger.info(request.id);
+	if(request.id!=undefined&&request.id!=null&&request.id!=""&&request.id!=0)
+	{
+		m_id=parseInt(request.id);
+	}else{
+	m_id=params.id;
+	}
+    sql{.
+		SELECT * FROM gf_item WHERE id = ?
+	.}
+	logger.info('sql'+sql);
+	var r = this.queryRow(sql,[m_id]);
+	
+	 sql{.
+		SELECT * FROM gf_item WHERE channel = ?
+	.}
+	logger.info('sql2'+sql);
+	var r2 = this.query(sql,[r.id]);
+	logger.info('r2'+r2);
+	sql{.
+		SELECT * FROM gf_channel WHERE id = ?
+	.}
+	logger.info('sql3'+sql);
+	var r3 = this.queryRow(sql,[m_id]);
+%]
+	<div style="width:100%;">
+    <img src="images/lb2.jpg" style="width:100%;height:220px"/>
+	</div>
+	<div style="margin-top:25px;color:#333;font-size:24px;text-align:center;">	
+	  <div>[%= r3.name %]</div>
+	  <img style="width:90%" src="images/line.png"/>
+	</div>
+	<div style="padding:0px 31px;margin-bottom:70px">
+	  <div style="margin-top:10px;width:100%;text-align:center;font-size:18px;color:#333">专栏简介</div>
+	  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+  	  <div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+	         [%= r.tag.brief %]
+	  </div>
+	  
+	    <div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">适宜人群</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		 [%= r.tag.suit_crowds %]
+		</div>
+		
+		<div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">订阅须知</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;border-bottom:#DCDCDC solid 1px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		  [%= r.tag.information %]
+		</div>
+		
+		<div style="margin-top:25px;width:100%;text-align:center;font-size:18px;color:#333">最近更新</div>
+	    <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+	  	<div style="padding-bottom:25px;visibility: visible; height: auto;color:#666;font-size:15px;line-height:30px">
+		 <div class="swiper-container swiper-container-horizontal" style="cursor: -webkit-grab;">
+        <div class="swiper-wrapper" style="">
+        [%  r2.rows.forEach(function(col){ %]
+		 	 <div class="swiper-slide" style="margin-right: 30px;width:105px!imprtant;height:140px!imprtant"><div class="swiper-self"><img src="[%= col.tag.thumb %]"/><div>[%= col.name %]</div><div>08/06</div></div></div>    
+		[%  }); %]
+        </div>
+        <!-- Add Scrollbar -->
+        <div class="swiper-scrollbar" style="opacity: 0; transition-duration: 400ms;"><div class="swiper-scrollbar-drag" style="width: 659.822px; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"></div></div>
+    </div>
+		</div>
+	</div>
+	<div style="border: 1px solid #000;position:fixed;bottom:0;background:#fff;width:100%;height:100px;z-index:100;padding:10px 10px;vertical-align: middle;">
+		<img src="images/kongfu.png" style="width:100px;height:100px;float:left;vertical-align: middle;">
+		<div style="float:left;margin-left:10px;top: 50%;position: relative;margin-top: -25px;">
+		<div style="width:100%;font-weight:700;font-size:20px;vertical-align: middle;">功夫财经</div>
+		<span style="vertical-align: middle;">口号口号口号口号口号口号</span>
+		</div>
+		<div style="width:80px;height:20px;background:red;color:#fff;float:right;margin-right:20px;text-align:center;top: 50%;position: relative;margin-top: -10px;">立即下载</div>
+	</div>
+<script type="text/javascript">
+var swiper = new Swiper('.swiper-container', {
+    scrollbar: '.swiper-scrollbar',
+    scrollbarHide: true,
+    slidesPerView: 'auto',
+    centeredSlides: false,
+    spaceBetween: 20,
+    grabCursor: true
+});
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+
+});
+</script>
+</body>
+</html>

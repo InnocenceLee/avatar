@@ -1,0 +1,18 @@
+[% include('../common/jsFunctionExtends.js'); %]
+
+[%
+var tmp_channel=new Object();
+tmp_channel.unread_items=[];
+sql{.
+select * from gf_item where channel=?
+.}
+var tmp_article=this.query(sql,[6]);
+    logger.info(JSON.stringify(tmp_article));
+			for(var i=0;i<tmp_article.rows.length;i++)
+			{
+				tmp_channel.unread_items.push(tmp_article.rows[i].id);
+				logger.info(tmp_article.rows[i].id);
+			}
+			logger.info(JSON.stringify(tmp_channel));
+			return JSON.stringify(tmp_channel);
+%]

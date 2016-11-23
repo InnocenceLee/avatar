@@ -1,0 +1,35 @@
+
+//list
+d2js.exports.memberlist= d2js.memberlist= function(params){
+
+ logger.info('memberlist params:'+JSON.stringify(params));
+	sql{.
+	SELECT 
+	member.id,
+	person."name",
+	person.mobile, 
+	person.username,
+	member.tag->>'createtime' AS createtime,
+	member.tag->>'type' AS type
+	FROM member 
+	LEFT JOIN "person" on person.id = "member".person
+	where 1=1 and "member".state !='D'
+		sql{.?(params.name) and strpos(person."name", :name) > 0   .}
+		sql{.?(params.state) and strpos(member."state", :state) > 0   .}
+		sql{.?(params.content) and strpos(person."content", :content) > 0   .}
+		sql{.?(params.type) and strpos(member.tag->>'type', :type) > 0   .}
+		sql{.?(params.createtime) and strpos(member.tag->>'createtime' , :createtime) > 0   .}
+	.}
+
+	return this.query(sql,params,params.page);
+}
+
+d2js.exports.delmember= d2js.delmember= function(params){
+     logger.info('memberlist params:'+JSON.stringify(params));
+	sql{.
+	   UPDATE  member  set state = 'D' WHERE member.id =:id
+	.}
+
+	return this.execute(sql,params);
+}
+

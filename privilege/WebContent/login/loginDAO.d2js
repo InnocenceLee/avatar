@@ -1,0 +1,131 @@
+// 根据物品ID，获取评论列表
+d2js.getItemCommentsByID = function(params){
+	logger.info('getItemCommentsByID Comment ' + JSON.stringify(params));
+	sql{.
+		SELECT 
+		p.name,
+		p.photo,
+		gc.coment_content,
+		gc.origin_comment
+		gc.support_count
+		from person p,member m, gf_item gi, comment_log cl, gf_comment gc
+		where 1=1
+		sql{.?(params.id) and gi.id= :id  .}
+		and m.id=cl.member and gi.id=cl.item and cl.comment=gc.id
+		and p.id=m.person and gc.state='A'
+	.}
+	sql = this.orderBy(sql, params._sorts, {'gc.postd' : 'desc'});
+	var comments=this.query(sql, params, params._page);
+	logger.info('comments result: ' + JSON.stringify(comments));
+	return comments;
+}
+
+// 收藏物品
+d2js.insertFav = function(rcd){
+	logger.info('add member_fav ' + JSON.stringify(rcd));
+	return this.insertRow('member_fav', rcd, ['member',  'item', 'favd']);
+}
+// 追加member表收藏字段的值
+d2js.appendMemberFav = function(fav){
+	return this.execute("update member set fav = array_append(fav,'{?}') where id=?", [fav.item,fav.member]);
+}
+
+// 取消收藏物品
+d2js.delFav = function(rcd){
+	logger.info('delete member_fav ' + JSON.stringify(rcd));
+	return this.deleteRow('member_fav', rcd);
+}
+// 移除member表收藏字段的值
+d2js.removeMemberFav = function(fav){
+	return this.execute("update member set fav = array_remove(fav,'{?}') where id=?", [fav.item,fav.member]);
+}
+
+// 增加评论
+d2js.insertComment = function(rcd){
+	logger.info('add gf_comment ' + JSON.stringify(rcd));
+	return this.insertRow('gf_comment', rcd, ['item', 'author', 'related_members', 'origin_comment', 'postd', 'state', 'support_count']);
+}
+// 增加评论_log，需要返回ID
+d2js.insertCommentLog = function(rcd){
+	logger.info('add comment_log ' + JSON.stringify(rcd));
+	return this.insertRow('comment_log', rcd, ['member', 'item', 'comment', 'action']);
+}
+
+// 根据条件获取订单列表 (订单编号、创建时间、商品图片、商品名称、发货状态、金额、数量)
+// order_detail: 包含商品下单时价格、商品数量等信息。对于栏目，还包括所选择套餐类型。
+// 商品：
+// {date : ,order_no : '',items: [{id: , name: , price: , count: ,}]}
+
+// 栏目：
+// {date : ,order_no : '',items: [{id: , name: , price: , count:1, effectDuration: , suite: {}}]}
+// 其中 effectDuration 为有效期，秒数，suite 为所选套餐，见栏目表套餐。
+
+d2js.getOrdersByCondition = function(params){
+	logger.info('getOrdersByCondition ' + JSON.stringify(params));
+	sql{.
+		SELECT
+			go.order_no,
+			go.orderd,
+			gi.name,
+			go.state,
+			go.order_detail // jsonb，里面包含的信息丰富
+		from gf_item gi, gf_order go
+		WHERE gi.id = any(go.items)
+		sql{.?(params.state) and go.state= :state  .}
+		sql{.?(params.order_member) and go.order_member= :order_member  .}
+		sql{.?(params.id) and go.id= :id  .}
+	.}
+	sql = this.orderBy(sql, params._sorts, {'go.orderd' : 'desc'});
+	var orders=this.query(sql, params, params._page);
+	logger.info('orders result: ' + JSON.stringify(orders));
+	return orders;
+}
+
+// 修改订单表的“催单中”字段
+d2js.updateOrderUrging = function(params){
+	return this.execute("update gf_order set urging = ? where id=?", [params.urging,params.id]);
+}
+
+// 修改订单表的“状态”字段
+d2js.updateOrderUrging = function(params){
+	return this.execute("update gf_order set state = ? where id=?", [params.state,params.id]);
+}
+
+// 获取个人信息（包括个人信息、代付款、待发货、带收货数量）【根据用户获取】
+d2js.getMyInfo = function(params){
+	logger.info('getMyInfo User ' + JSON.stringify(params));
+	sql{.
+		SELECT
+			p.name,
+			p.photo,
+			CASE WHEN gfo.state='p' THEN count(*) END AS p_num,
+			CASE WHEN gfo.state='s' THEN count(*) END AS s_num,
+			CASE WHEN gfo.state='L' THEN count(*) END AS l_num
+		from person p, member m, gf_order gfo
+		where and p.id=m.person and m.id=gfo.order_member
+		sql{.?(params.id) and p.id= :id  .}
+		GROUP BY gfo.state, p.name, p.photo
+	.}
+	sql = this.orderBy(sql, params._sorts, null);
+	var users=this.query(sql, params, params._page);
+	logger.info('users result: ' + JSON.stringify(users));
+	return users;
+}
+
+var comment = {
+		order_member : this.session.user.id,
+		state : params.state
+	};
+if(params.author && params.author instanceof Array && params.author.length){
+
+d2js.modify = function(rcd){
+	logger.info('edit book ' + JSON.stringify(rcd));
+	this.updateRow('book', rcd, ['id', 'title',  'kind', 'isbn', 'remarks'])
+}
+
+
+
+d2js.destroy = function(rcd){
+	logger.info('delete book ' + JSON.stringify(rcd));
+	this.deleteRow('book', rcd)
+}

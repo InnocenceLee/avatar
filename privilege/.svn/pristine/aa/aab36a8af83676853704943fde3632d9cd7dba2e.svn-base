@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>d2js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+</head>
+<body>
+	<div class="flexslider">
+		<ul class="slides cl">
+		    <li><a href="#" ><img src="images/lb2.jpg" alt="1" /></a></li>
+			<li><a href="#" ><img src="images/lb2.jpg" alt="1" /></a></li>
+			<li><a href="#" ><img src="images/lb3.jpg" alt="1" /></a></li>
+    	</ul>
+  </div>
+  <div style="background:#fff;padding-top:15px">
+  <div style="font-size:24px;color:#333333;padding-left:10px">儒家典籍与思想研究</div>
+  <div style="font-size:24px;padding-left:10px"><span style="color:#fdd000">￥199.00</span><span style="padding:5px 5px;text-align:center;margin-right:10px;float: right;width:90px;height:30px;font-size:12px;background:url(images/blue.png);background-repeat:no-repeat;background-size:100% 30px;">剩余20件</span></div>
+  </div>
+<script type="text/javascript">
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+});
+</script>
+</body>
+</html>

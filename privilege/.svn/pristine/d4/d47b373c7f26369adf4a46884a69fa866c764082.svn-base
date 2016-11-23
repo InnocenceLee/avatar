@@ -1,0 +1,192 @@
+imports("../common/jsFunctionExtends.js");
+/**
+根据会员ID获取当前会员的地址列表
+*/
+d2js.receiverinfo_list=function(params){
+	var result=new JsonResult();
+	
+	sql{.
+		select receiver_infos from member where 1=1
+		code{. 
+			sql{.?(getCurrentMemberId()) and id = ?  .}
+		.}
+	.}
+	//sql = this.orderBy(sql, condition._sorts, {'receiver_infos->favd' : 'desc'});//增加时间排序
+	return this.query(sql, [getCurrentMemberId()], params._page);
+
+}
+
+d2js.receiverinfo_create=function(params){
+	var result=new JsonResult();
+	logger.info("---------"+JSON.stringify(params.receiverInfo));
+	
+	sql{.
+		SELECT receiver_infos FROM member WHERE 1=1
+		code{.
+			sql{.?(getCurrentMemberId()) and id = ?  .}
+		.}
+	.}
+	var data = this.query(sql,[getCurrentMemberId()]);
+	
+
+	var array=new Array();
+	if(JSON.stringify(data.rows[0]['receiver_infos'])!='null'){
+		array = eval(data.rows[0]['receiver_infos']);
+	}
+	array.push(params.receiverInfo);
+	//处理默认设置
+	if(params.receiverInfo.is_default){
+		for(var i=0;i<array.length;i++){
+			if(array[i].uuid != params.receiverInfo.uuid){
+				array[i].is_default = false;
+			}
+		}
+	}
+	sql{.
+		code{.
+			sql{. UPDATE member SET receiver_infos = ? WHERE 1=1 .}
+		.}
+		sql{.?(getCurrentMemberId()) and id = ?  .}
+	.}
+	this.execute(sql,[array,getCurrentMemberId()]);
+}
+
+
+
+d2js.receiverinfo_update=function(params){
+	var result=new JsonResult();
+	
+	sql{.
+		SELECT receiver_infos FROM member WHERE 1=1
+		code{.
+			sql{.?(getCurrentMemberId()) and id = ?  .}
+		.}
+	.}
+	var data = this.query(sql,[getCurrentMemberId()]);
+	
+
+	var array=new Array();
+	if(JSON.stringify(data.rows[0]['receiver_infos'])!='null'){
+		array = eval(data.rows[0]['receiver_infos']);
+	}else{
+		throw new Error('not found ' + JSON.stringify(params));
+	}
+	
+	var temp_receiver_info=undefined;
+	for(var i=0;i<array.length;i++){
+		if(array[i].uuid == params.receiverInfo.uuid){
+			temp_receiver_info = array[i];
+			break;
+		}
+	}
+	if(temp_receiver_info == undefined){
+		throw new Error('not found uuid = ' + params.receiverInfo.uuid );
+	}
+	
+	temp_receiver_info.name = params.receiverInfo.name;
+	temp_receiver_info.address = params.receiverInfo.address;
+	temp_receiver_info.zip = params.receiverInfo.zip;
+	temp_receiver_info.phone = params.receiverInfo.phone;
+	temp_receiver_info.is_default = params.receiverInfo.is_default;
+	//处理默认设置
+	if(temp_receiver_info.is_default){
+		for(var i=0;i<array.length;i++){
+			if(array[i].uuid != params.receiverInfo.uuid){
+				array[i].is_default = false;
+			}
+		}
+	}
+	
+	sql{.
+		code{.
+			sql{. UPDATE member SET receiver_infos = ? WHERE 1=1 .}
+		.}
+		sql{.?(getCurrentMemberId()) and id = ?  .}
+	.}
+	this.execute(sql,[array,getCurrentMemberId()]);
+}
+
+
+
+d2js.receiverinfo_delete=function(params){
+	var result=new JsonResult();
+	
+	sql{.
+		SELECT receiver_infos FROM member WHERE 1=1
+		code{.
+			sql{.?(getCurrentMemberId()) and id = ?  .}
+		.}
+	.}
+	var data = this.query(sql,[getCurrentMemberId()]);
+	
+
+	var array=new Array();
+	if(JSON.stringify(data.rows[0]['receiver_infos'])!='null'){
+		array = eval(data.rows[0]['receiver_infos']);
+	}else{
+		throw new Error('not found ' + JSON.stringify(params));
+	}
+	
+	var temp_receiver_info=undefined;
+	for(var i=0;i<array.length;i++){
+		if(array[i].uuid == params.receiverInfo.uuid){
+			temp_receiver_info = array[i];
+			break;
+		}
+	}
+	if(temp_receiver_info == undefined){
+		throw new Error('not found uuid = ' + params.receiverInfo.uuid );
+	}
+	array.remove(temp_receiver_info);
+	
+	//如果删除的是默认收货地址，则把最后一个地址设置成默认地址
+	if(temp_receiver_info.is_default && array.length>0){
+		array[array.length-1].is_default=true;
+	}
+	
+	if(array.length == 0){
+	array = null;
+	}
+	
+	sql{.
+		 UPDATE member SET receiver_infos = ? WHERE 1=1 
+		sql{.?(getCurrentMemberId()) and id = ?  .}
+	.}
+	this.execute(sql,[array,getCurrentMemberId()]);
+}
+
+d2js.fav_list=function(params){
+	var result=new JsonResult();
+	
+	sql{.
+		SELECT 
+		fav.*,
+		item.name AS item_name,
+		item.type AS type,
+		item.tag->>'author_name' AS author_name,
+    item.tag->>'thumb' AS thumb
+		 FROM member_fav fav,gf_item item WHERE 1=1 and fav.item = item.id
+		code{.
+			sql{.?(getCurrentMemberId()) and fav.member = ?  .}
+		.}
+		and item.state!='D'
+		order by fav.favd desc
+	.}
+	//sql = this.orderBy(sql, condition._sorts, {'fav.favd' : 'desc'});//增加时间排序
+	return this.query(sql, [getCurrentMemberId()], params._page);
+}
+
+
+d2js.pwd_update=function(params){
+	var result=new JsonResult();
+	logger.info("------------------------------------------------------");
+	sql{.
+		UPDATE person SET password = ? WHERE 1=1
+		code{.
+			sql{.?(params.phone) and mobile = ?  .}
+		.}
+	.}
+
+	return this.execute(sql, [params.pwd,params.phone]);
+}
+

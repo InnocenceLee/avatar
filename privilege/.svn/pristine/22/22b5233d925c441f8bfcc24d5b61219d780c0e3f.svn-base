@@ -1,0 +1,242 @@
+package privilege;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.catalina.core.ApplicationPart;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+import org.siphon.jssp.JsspRequest;
+
+import com.taobao.api.DefaultTaobaoClient;
+import com.taobao.api.TaobaoClient;
+import com.taobao.api.request.AlibabaAliqinFcSmsNumSendRequest;
+import com.taobao.api.response.AlibabaAliqinFcSmsNumSendResponse;
+
+import entity.UeResult;
+
+public class Test {
+
+	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+	private static final String url = "http://gw.api.taobao.com/router/rest";
+	private static final String appkey = "23517095";//"23455586";
+	private static final String secret = "38df2d64f9179152f5edef0a94deede4";//"7ecf9f14751d82420ade5a0f3b5181b2";
+
+	public static String getJson(String orderNo) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("logistics_no", getRandoms(10));
+		map.put("order_no", orderNo);
+		map.put("express", "顺风快递");
+		map.put("destination", "北京和平里小区12号");
+		map.put("time", df.format(new Date()));
+
+		String str = JSONObject.valueToString(map);
+		System.out.println(str);
+		return str;
+	}
+
+	private static String getRandoms(int num) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < num; i++) {
+			sb.append((int) (Math.random() * 10));
+		}
+		return sb.toString();
+	}
+
+	/*
+	 * 调用阿里大于SDK，发送短信
+	 */
+	public static String sendSMS(String mobile, String randomCode) {
+		try {
+			TaobaoClient client = new DefaultTaobaoClient(url, appkey, secret);
+			AlibabaAliqinFcSmsNumSendRequest req = new AlibabaAliqinFcSmsNumSendRequest();
+			req.setExtend("");// 公共回传参数，在“消息返回”中会透传回该参数
+			req.setSmsType("normal");// 短信类型，传入值请填写normal
+			req.setSmsFreeSignName("功夫财经");// 短信签名
+			req.setSmsParamString("{\"code\":\"" + randomCode + "\"}");// 短信模板替换文字
+			req.setRecNum(mobile);// 短信接收号码。支持单个或多个手机号码，传入号码为11位手机号码，不能加0或+86。群发短信需传入多个号码，以英文逗号分隔，一次调用最多传入200个号码。
+			req.setSmsTemplateCode("SMS_25385114");// 短信模板ID，传入的模板必须是在阿里大于“管理中心-短信模板管理”中的可用模板
+			AlibabaAliqinFcSmsNumSendResponse rsp = client.execute(req);// 发送操作
+			System.out.println(rsp.getBody());
+			return rsp.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static String saveImage(ArrayList<ApplicationPart> list, JsspRequest request) {
+
+		System.out.println(list + "" + request);
+
+		if (list.size() == 0) {
+			return null;
+		}
+		ApplicationPart part = list.get(0);
+		String tmp_name = list.get(0).getSubmittedFileName();
+		String fileName = Calendar.getInstance().getTimeInMillis() + tmp_name.substring(tmp_name.lastIndexOf("."));
+		
+		try {
+			InputStream is = part.getInputStream();
+			String path = request.getRealPath("/uploadedFile");
+			File dir = new File(path);
+			// 如果文件夹不存在则创建
+			if (!dir.exists() && !dir.isDirectory()) {
+				dir.mkdirs();
+			}
+			File file = new File(path + "/" + fileName);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			
+			OutputStream os = new FileOutputStream(file);
+			int bytesRead = 0;
+			byte[] buffer = new byte[8192];
+			while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			os.close();
+			is.close();
+			
+			return "http://"+request.getLocalAddr()+":" + request.getLocalPort() + request.getContextPath()+"/uploadedFile/" + fileName;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public static String ueditorUpdateFile(ArrayList<ApplicationPart> list, JsspRequest request) {
+		System.out.println(list + "" + request);
+
+		if (list.size() == 0) {
+			return null;
+		}
+		ApplicationPart part = list.get(0);
+		String o_fileName = list.get(0).getSubmittedFileName();
+		String tmp_name = list.get(0).getSubmittedFileName();
+		String fileName = Calendar.getInstance().getTimeInMillis() + tmp_name.substring(tmp_name.lastIndexOf("."));
+		String path = request.getRealPath("/uploadedFile");
+		long fileSize=0;
+		try {
+			InputStream is = part.getInputStream();
+			
+			File dir = new File(path);
+			// 如果文件夹不存在则创建
+			if (!dir.exists() && !dir.isDirectory()) {
+				dir.mkdirs();
+			}
+			File file = new File(path + "/" + fileName);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			//fileSize=file
+			OutputStream os = new FileOutputStream(file);
+			int bytesRead = 0;
+			byte[] buffer = new byte[8192];
+			while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			os.close();
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
+		UeResult result2 = null;
+		result2 = new UeResult();
+		result2.setOriginal(fileName);
+		result2.setUrl(fileName);
+		result2.setState("SUCCESS");
+		result2.setTitle(fileName);
+		System.out.println("文件成功上传到指定目录下");
+		return "{\"original\":\""+fileName+"\","+
+				"\"name\":\""+fileName+"\","+
+				"\"url\":\""+"http://"+request.getLocalAddr()+":" + request.getLocalPort() + request.getContextPath()+"/uploadedFile/" + fileName+"\","+
+				"\"size\":\"99697\","+
+			    "\"type\":\"."+prefix+"\","+
+				"\"state\": \"SUCCESS\""+
+				"}";
+	}
+	public static String UpdateFile(ArrayList<ApplicationPart> list, JsspRequest request) {
+
+		System.out.println(list + "" + request);
+
+		if (list.size() == 0) {
+			return null;
+		}
+		ApplicationPart part = list.get(0);
+		String tmp_name = list.get(0).getSubmittedFileName();
+		String fileName = Calendar.getInstance().getTimeInMillis() + tmp_name.substring(tmp_name.lastIndexOf("."));
+		try {
+			InputStream is = part.getInputStream();
+			String path = request.getRealPath("/uploadedFile");
+			File dir = new File(path);
+			// 如果文件夹不存在则创建
+			if (!dir.exists() && !dir.isDirectory()) {
+				dir.mkdirs();
+			}
+			File file = new File(path + "/" + fileName);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			
+			OutputStream os = new FileOutputStream(file);
+			int bytesRead = 0;
+			byte[] buffer = new byte[8192];
+			while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			os.close();
+			is.close();
+			boolean isvideo=false;
+//			//判断是否为视频并截取第一帧
+			String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
+		    if(prefix.equals("mp4")||prefix.equals("rmvb")||prefix.equals("avi"))
+		    {
+//		    	String tmp_name=fileName.substring(0,fileName.lastIndexOf("."));
+//		    	String picpath = path+"/"+tmp_name+".png";
+//		    	VideoThumbTaker vt = new VideoThumbTaker("D://ffmpeg.exe");
+//		    	try {
+//					vt.getThumb("http://"+request.getLocalAddr()+":" + request.getLocalPort() + request.getContextPath()+"/uploadedFile/" + fileName, picpath, 800, 408, 0, 0, 1);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+		    	isvideo=true;
+		    }
+			return "{\"type\":"+isvideo+",\"msg\":\"http://"+request.getLocalAddr()+":" + request.getLocalPort() + request.getContextPath()+"/uploadedFile/" + fileName
+					+ "\"}";
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public static void main(String[] args) {
+		// System.out.println(getJson("abc"));
+		sendSMS("13541347224", "6666");
+		// IOUtils.copy(input, output);
+		// String broadBillId="13601581068_NET";
+		// String billId="13601581068";
+		//
+		// if(broadBillId.contains("_net") || broadBillId.contains("_NET")){
+		// String temp=broadBillId.substring(0, broadBillId.length()-4);//去掉_NET
+		// if(!temp.equals(billId)){
+		// System.out.println("主卡号码与绑定号码宽带不一致！");
+		// return;
+		// }
+		// }
+		// System.out.println("主卡号码与绑定号码宽带是一致的！");
+	}
+}

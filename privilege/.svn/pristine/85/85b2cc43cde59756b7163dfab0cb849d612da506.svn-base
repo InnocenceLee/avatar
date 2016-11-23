@@ -1,0 +1,76 @@
+[%
+var m_id=0;
+	logger.info(request.id);
+	if(request.id!=undefined&&request.id!=null&&request.id!=""&&request.id!=0)
+	{
+		m_id=parseInt(request.id);
+	}else{
+	m_id=params.id;
+	}
+    sql{.
+		SELECT * FROM gf_item WHERE id = ?
+	.}
+	logger.info('sql'+sql);
+	var r = this.queryRow(sql,[m_id]);
+	sql{.
+			update gf_item set id=id
+				 , view_count =view_count+ ?
+				 , real_view_count =real_view_count+ ?
+			where 1=1 and id = ?
+		.}
+		logger.info('sql:'+sql);
+		this.execute(sql,[1,1,m_id]);
+%]
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>[%= r.name %]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+    <style>
+    
+    </style>
+</head>
+<body>
+
+	<div class="flexslider">
+		<ul class="slides cl">
+		[%  r.tag.images.forEach(function(col){ %]
+		 	<li><a href="#" ><img src="[%= col %]" alt="1" /></a></li>    
+		[%  }); %]
+    	</ul>
+  </div>
+  <div class="good_title">
+	  <div style="font-size:24px;color:#333333;padding-left:10px">[%= r.name %]</div>
+	  <div style="font-size:24px;padding-left:10px"><span style="color:#fdd000">￥[%= r.price %]</span>
+	  <div class="store_count"><span style="font-size:13px">剩余：</span>[%= r.store_count %]件</div></div>
+  </div>
+  <div class="good_detail" style="margin-bottom:70px">
+  <div style="width:100%;text-align:center;margin-top:25px;font-size:18px;color:#333">商品详情</div>
+  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+  <div id="detail" style="padding:122px 10px">[%= r.tag.description %]</div>
+  </div>
+  <div style="border: 1px solid #000;position:fixed;bottom:0;background:#fff;width:100%;height:100px;z-index:100;padding:10px 10px;vertical-align: middle;">
+		<img src="images/kongfu.png" style="width:100px;height:100px;float:left;vertical-align: middle;">
+		<div style="float:left;margin-left:10px;top: 50%;position: relative;margin-top: -25px;">
+		<div style="width:100%;font-weight:700;font-size:20px;vertical-align: middle;">功夫财经</div>
+		<span style="vertical-align: middle;">口号口号口号口号口号口号</span>
+		</div>
+		<div style="width:80px;height:20px;background:red;color:#fff;float:right;margin-right:20px;text-align:center;top: 50%;position: relative;margin-top: -10px;"><a href="http://kofuf.kofuf.com:8080/app/app-1114.apk">立即下载</a></div>
+	</div>
+<script type="text/javascript">
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+});
+</script>
+</body>
+</html>

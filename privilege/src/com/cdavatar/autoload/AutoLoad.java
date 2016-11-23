@@ -1,0 +1,68 @@
+package com.cdavatar.autoload;
+
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.siphon.d2js.D2jsExecutor;
+
+/**
+ * Servlet implementation class AutoLoad
+ */
+@WebServlet(name = "/AutoLoad", loadOnStartup = 1)
+public class AutoLoad extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AutoLoad() {
+        super();
+        // TODO Auto-generated constructor stub
+        
+        try {
+			D2jsExecutor.exec("autoWork/autoService.d2js", "updateOrder");
+			D2jsExecutor.exec("autoWork/autoService.d2js", "updateToday");
+			D2jsExecutor.exec("autoWork/autoService.d2js", "updatePush");
+			D2jsExecutor.exec("autoWork/autoService.d2js", "updateChannel");
+			D2jsExecutor.exec("autoWork/autoService.d2js", "DeleteChannelBug");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
+    }
+    
+    @Override
+    public void init() throws ServletException {
+    	// TODO Auto-generated method stub
+    	super.init();
+    }
+    
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+    	// TODO Auto-generated method stub
+    	super.init(config);
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
+
+}

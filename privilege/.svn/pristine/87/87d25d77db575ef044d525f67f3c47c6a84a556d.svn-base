@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>d2js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+    <style>
+    
+    </style>
+</head>
+<body>
+	<div class="flexslider">
+		<ul class="slides cl">
+		    <li><a href="#" ><img src="images/lb2.jpg" alt="1" /></a></li>
+			<li><a href="#" ><img src="images/lb2.jpg" alt="1" /></a></li>
+			<li><a href="#" ><img src="images/lb3.jpg" alt="1" /></a></li>
+    	</ul>
+  </div>
+  <div class="good_title">
+	  <div style="font-size:24px;color:#333333;padding-left:10px">儒家典籍与思想研究</div>
+	  <div style="font-size:24px;padding-left:10px"><span style="color:#fdd000">￥199.00</span>
+	  <div class="store_count"><span style="font-size:13px">剩余：</span>2000000件</div></div>
+  </div>
+  <div class="good_detail">
+  <div style="width:100%;text-align:center;margin-top:25px;font-size:18px;color:#333">商品详情</div>
+  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+  <div id="detail" style="padding:0px 10px">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</div>
+  </div>
+<script type="text/javascript">
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+});
+</script>
+</body>
+</html>

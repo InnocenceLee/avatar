@@ -1,0 +1,13 @@
+[% include('../common/jsFunctionExtends.js'); %]
+
+[%
+	var imports = new JavaImporter(java.util,org.apache.commons.httpclient);
+	with(imports){
+		var AliPay = Java.type("privilege.AliPay");
+		result=AliPay.contentToTxt("1234");
+		if(result == null){
+			throw new Error('请求失败');
+		}
+	}
+	
+%]

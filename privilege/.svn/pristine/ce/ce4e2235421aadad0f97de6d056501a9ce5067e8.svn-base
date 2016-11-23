@@ -1,0 +1,52 @@
+imports("../common/jsFunctionExtends.js");
+/**
+上传头像
+**/
+d2js.exports.uploadPhoto = d2js.uploadPhoto=function(){
+
+
+	var parts = request.getParts();
+	var arr;
+	var rcd = new Object();
+	var dataUrl = '';
+	var imports = new JavaImporter(org.json,java.util,java.io,java.text,com.taobao.api);
+	with(imports){
+		var Test = Java.type("privilege.Test");
+		var smsResult=Test.saveImage(parts,request);
+		if(smsResult == null){
+			throw new Error('上传失败');
+		}
+		dataUrl= smsResult;
+	}
+	
+	rcd.photo = dataUrl;
+	logger.info('set rcd.photo :'+rcd.photo);
+	sql{.
+		SELECT person FROM member WHERE 1=1
+		code{.
+			sql{.?(getCurrentMemberId()) and id = ?  .}
+		.}
+	.}
+	data = this.queryRow(sql,[getCurrentMemberId()]);
+	rcd.id=data.person;
+	logger.info('set rcd.id :'+rcd.id);
+	this.updateRow('person', rcd, ['id', 'photo']);
+	return dataUrl;
+
+}
+
+/**
+修改个人信息,传入id,name,gender(M|F),注意id为person.id
+*/
+d2js.exports.person_update = d2js.person_update=function(params){
+	
+	$V(params, {
+		id : [T.int]  ,
+		gender : [V.notNull],  
+		name : [V.notNull]
+	});
+
+	return this.callD2js('personDAO.d2js', 'updateInfo', params);//调用personDAO.d2js的updateInfo方法
+
+
+}

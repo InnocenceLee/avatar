@@ -1,0 +1,5 @@
+[% include('../common/jsFunctionExtends.js'); %]
+[% include('../jssp-lib/cryptutil.js'); %]
+[%
+   return this.callD2js('../person/memberService.d2js', 'aliNotifyUrl', params);
+%]

@@ -1,0 +1,2363 @@
+imports("../common/jsFunctionExtends.js");
+imports("jssp-lib/cryptutil.js");
+/**
+检查版本
+*/
+d2js.exports.checkVersion = d2js.checkVersion=function(params){
+	return '1.0';
+}
+/*
+查询快递
+*/
+d2js.exports.express = d2js.express=function(params){
+
+	var result='';
+	var imports = new JavaImporter(java.util,java.io);
+	with(imports){
+		var KdniaoTrackQueryAPI = Java.type("privilege.KdniaoTrackQueryAPI");
+		var smsResult=KdniaoTrackQueryAPI.Express(params.no);
+		result=smsResult;
+	}
+	return result;
+	
+}
+/*心跳接口*/
+d2js.exports.heartbeat= d2js.heartbeat=function(params){
+	
+	var memberId=getCurrentMemberId();
+	if(memberId==null)
+	{
+		throw new Error('Session失效');
+	}else{
+		return;
+	}
+	
+	
+}
+/*写BUG接口*/
+d2js.exports.bugwrite= d2js.bugwrite=function(params){
+	
+	with(imports){
+		var WriteTxt = Java.type("privilege.WriteTxt");
+		WriteTxt.contentToTxt('安卓BUG记录:'+params.content);
+
+	}
+	return;
+	
+}
+/*
+获取收货地址列表
+*/
+d2js.exports.receiverinfo_list = d2js.receiverinfo_list=function(params){
+
+ 
+	return this.callD2js('memberDAO.d2js', 'receiverinfo_list', params);
+	
+}
+/**
+新增收货地址
+**/
+d2js.exports.receiverinfo_create = d2js.receiverinfo_create=function(params){
+	
+	
+		var receiverInfo = new Object();
+		receiverInfo.name = params.name;
+		receiverInfo.address = params.address;
+		receiverInfo.zip = params.zip;
+		receiverInfo.phone = params.phone;
+		receiverInfo.is_default = params.is_default;
+		receiverInfo.uuid = getUUID();
+		
+		params.receiverInfo=receiverInfo;
+		
+		this.callD2js('memberDAO.d2js', 'receiverinfo_create', params);
+		return;
+}
+
+/**
+修改收货地址
+**/
+d2js.exports.receiverinfo_update = d2js.receiverinfo_update=function(params){
+
+    
+		var receiverInfo = new Object();
+		receiverInfo.name = params.name;
+		receiverInfo.address = params.address;
+		receiverInfo.zip = params.zip;
+		receiverInfo.phone = params.phone;
+		receiverInfo.is_default = params.is_default;
+		receiverInfo.uuid = params.uuid;
+		
+		params.receiverInfo=receiverInfo;
+		this.callD2js('memberDAO.d2js', 'receiverinfo_update', params);
+		return;
+		
+
+}
+
+
+/**
+删除收货地址
+**/
+d2js.exports.receiverinfo_delete = d2js.receiverinfo_delete=function(params){
+
+    
+		var receiverInfo = new Object();
+		receiverInfo.uuid = params.uuid;
+		
+		params.receiverInfo=receiverInfo;
+		this.callD2js('memberDAO.d2js', 'receiverinfo_delete', params);
+		return;
+
+}
+/**
+苹果支付
+**/
+d2js.exports.applepay = d2js.applepay=function(params){
+
+    
+	var dataUrl=0;
+	var imports0 = new JavaImporter(java.util);
+	with(imports0){
+		var WriteTxt0 = Java.type("privilege.WriteTxt");
+		WriteTxt0.contentToTxt('参数'+params.data);
+
+	}
+	var imports = new JavaImporter(java.util,org.apache.commons.httpclient);
+	with(imports){
+		var AliPay = Java.type("privilege.ApplePost");
+		var data='ewoJInNpZ25hdHVyZSIgPSAiQXlaN3p5bWsrYU5nd3hRQlpic0c3RTFjL3JZZGZYZ255Uk1rd3pPcUNZM05DeC85TUUxTHVTczJtbEdFNTM5UDR5ODFRV1UwR1lEa0RxNU1CbWdzV05lWUFCaTVVV3pJTk8rOFNYTmtOOTNNeDFDYS90aUdXcXZCWVQ5Skd0b1ZSK2ljWS8zck9MNUZiS0M4c05xODF6dTc0aTd4VUQ4SnYzMWRBZmVPYTI0NjNPaWFIMk1XcEpidUw3Y3dUMFlmYW00UG1IblRsZXF2RC9NTkdaTE5OQmZMRyttaERnRkptaXFrZk1jb3QxOTVocEF2cWZ4ME9iQmJ0Z2o3TlFGRlJkaVl4bmhSc0phaVFBOVFvSTZHNHphOEZFMHRoRGpGbDNSN0x0RlhXVW9YclpQQzdEZ1E2Qm84NHpDZkhuTzFzTGphUmxIL0ZQc0VCd0RGZGpVNmVNZ0FBQVdBTUlJRmZEQ0NCR1NnQXdJQkFnSUlEdXRYaCtlZUNZMHdEUVlKS29aSWh2Y05BUUVGQlFBd2daWXhDekFKQmdOVkJBWVRBbFZUTVJNd0VRWURWUVFLREFwQmNIQnNaU0JKYm1NdU1Td3dLZ1lEVlFRTERDTkJjSEJzWlNCWGIzSnNaSGRwWkdVZ1JHVjJaV3h2Y0dWeUlGSmxiR0YwYVc5dWN6RkVNRUlHQTFVRUF3dzdRWEJ3YkdVZ1YyOXliR1IzYVdSbElFUmxkbVZzYjNCbGNpQlNaV3hoZEdsdmJuTWdRMlZ5ZEdsbWFXTmhkR2x2YmlCQmRYUm9iM0pwZEhrd0hoY05NVFV4TVRFek1ESXhOVEE1V2hjTk1qTXdNakEzTWpFME9EUTNXakNCaVRFM01EVUdBMVVFQXd3dVRXRmpJRUZ3Y0NCVGRHOXlaU0JoYm1RZ2FWUjFibVZ6SUZOMGIzSmxJRkpsWTJWcGNIUWdVMmxuYm1sdVp6RXNNQ29HQTFVRUN3d2pRWEJ3YkdVZ1YyOXliR1IzYVdSbElFUmxkbVZzYjNCbGNpQlNaV3hoZEdsdmJuTXhFekFSQmdOVkJBb01Da0Z3Y0d4bElFbHVZeTR4Q3pBSkJnTlZCQVlUQWxWVE1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBcGMrQi9TV2lnVnZXaCswajJqTWNqdUlqd0tYRUpzczl4cC9zU2cxVmh2K2tBdGVYeWpsVWJYMS9zbFFZbmNRc1VuR09aSHVDem9tNlNkWUk1YlNJY2M4L1cwWXV4c1FkdUFPcFdLSUVQaUY0MWR1MzBJNFNqWU5NV3lwb041UEM4cjBleE5LaERFcFlVcXNTNCszZEg1Z1ZrRFV0d3N3U3lvMUlnZmRZZUZScjZJd3hOaDlLQmd4SFZQTTNrTGl5a29sOVg2U0ZTdUhBbk9DNnBMdUNsMlAwSzVQQi9UNXZ5c0gxUEttUFVockFKUXAyRHQ3K21mNy93bXYxVzE2c2MxRkpDRmFKekVPUXpJNkJBdENnbDdaY3NhRnBhWWVRRUdnbUpqbTRIUkJ6c0FwZHhYUFEzM1k3MkMzWmlCN2o3QWZQNG83UTAvb21WWUh2NGdOSkl3SURBUUFCbzRJQjF6Q0NBZE13UHdZSUt3WUJCUVVIQVFFRU16QXhNQzhHQ0NzR0FRVUZCekFCaGlOb2RIUndPaTh2YjJOemNDNWhjSEJzWlM1amIyMHZiMk56Y0RBekxYZDNaSEl3TkRBZEJnTlZIUTRFRmdRVWthU2MvTVIydDUrZ2l2Uk45WTgyWGUwckJJVXdEQVlEVlIwVEFRSC9CQUl3QURBZkJnTlZIU01FR0RBV2dCU0lKeGNKcWJZWVlJdnM2N3IyUjFuRlVsU2p0ekNDQVI0R0ExVWRJQVNDQVJVd2dnRVJNSUlCRFFZS0tvWklodmRqWkFVR0FUQ0IvakNCd3dZSUt3WUJCUVVIQWdJd2diWU1nYk5TWld4cFlXNWpaU0J2YmlCMGFHbHpJR05sY25ScFptbGpZWFJsSUdKNUlHRnVlU0J3WVhKMGVTQmhjM04xYldWeklHRmpZMlZ3ZEdGdVkyVWdiMllnZEdobElIUm9aVzRnWVhCd2JHbGpZV0pzWlNCemRHRnVaR0Z5WkNCMFpYSnRjeUJoYm1RZ1kyOXVaR2wwYVc5dWN5QnZaaUIxYzJVc0lHTmxjblJwWm1sallYUmxJSEJ2YkdsamVTQmhibVFnWTJWeWRHbG1hV05oZEdsdmJpQndjbUZqZEdsalpTQnpkR0YwWlcxbGJuUnpMakEyQmdnckJnRUZCUWNDQVJZcWFIUjBjRG92TDNkM2R5NWhjSEJzWlM1amIyMHZZMlZ5ZEdsbWFXTmhkR1ZoZFhSb2IzSnBkSGt2TUE0R0ExVWREd0VCL3dRRUF3SUhnREFRQmdvcWhraUc5Mk5rQmdzQkJBSUZBREFOQmdrcWhraUc5dzBCQVFVRkFBT0NBUUVBRGFZYjB5NDk0MXNyQjI1Q2xtelQ2SXhETUlKZjRGelJqYjY5RDcwYS9DV1MyNHlGdzRCWjMrUGkxeTRGRkt3TjI3YTQvdncxTG56THJSZHJqbjhmNUhlNXNXZVZ0Qk5lcGhtR2R2aGFJSlhuWTR3UGMvem83Y1lmcnBuNFpVaGNvT0FvT3NBUU55MjVvQVE1SDNPNXlBWDk4dDUvR2lvcWJpc0IvS0FnWE5ucmZTZW1NL2oxbU9DK1JOdXhUR2Y4YmdwUHllSUdxTktYODZlT2ExR2lXb1IxWmRFV0JHTGp3Vi8xQ0tuUGFObVNBTW5CakxQNGpRQmt1bGhnd0h5dmozWEthYmxiS3RZZGFHNllRdlZNcHpjWm04dzdISG9aUS9PamJiOUlZQVlNTnBJcjdONFl0UkhhTFNQUWp2eWdhWndYRzU2QWV6bEhSVEJoTDhjVHFBPT0iOwoJInB1cmNoYXNlLWluZm8iID0gImV3b0pJbTl5YVdkcGJtRnNMWEIxY21Ob1lYTmxMV1JoZEdVdGNITjBJaUE5SUNJeU1ERTJMVEV4TFRFd0lEQXhPak0zT2pNeElFRnRaWEpwWTJFdlRHOXpYMEZ1WjJWc1pYTWlPd29KSW5WdWFYRjFaUzFwWkdWdWRHbG1hV1Z5SWlBOUlDSmpaR1ptWWpVelpXWTVaVGd5TkRsak9Ea3pNak5qTURnMU1qUTFNalE1TmpnMllUSTVOVEptSWpzS0NTSnZjbWxuYVc1aGJDMTBjbUZ1YzJGamRHbHZiaTFwWkNJZ1BTQWlNVEF3TURBd01ESTBPVFF5TXpBeU5pSTdDZ2tpWW5aeWN5SWdQU0FpTVM0Mk1pSTdDZ2tpZEhKaGJuTmhZM1JwYjI0dGFXUWlJRDBnSWpFd01EQXdNREF5TkRrME1qTXdNallpT3dvSkluRjFZVzUwYVhSNUlpQTlJQ0l4SWpzS0NTSnZjbWxuYVc1aGJDMXdkWEpqYUdGelpTMWtZWFJsTFcxeklpQTlJQ0l4TkRjNE56Y3dOalV4T1RZeklqc0tDU0oxYm1seGRXVXRkbVZ1Wkc5eUxXbGtaVzUwYVdacFpYSWlJRDBnSWprM05URTVNVFEwTFRaRFFVSXROREl4T0MxQk5rRTVMVVpEUWtaRk1VVkNPVFpHT0NJN0Nna2ljSEp2WkhWamRDMXBaQ0lnUFNBaWEyOW1kV1pmTXlJN0Nna2lhWFJsYlMxcFpDSWdQU0FpTVRFM05EYzJOek00T0NJN0Nna2lZbWxrSWlBOUlDSmpiMjB1YTI5bWRXWXVhMjl1WjJaMUlqc0tDU0p3ZFhKamFHRnpaUzFrWVhSbExXMXpJaUE5SUNJeE5EYzROemN3TmpVeE9UWXpJanNLQ1NKd2RYSmphR0Z6WlMxa1lYUmxJaUE5SUNJeU1ERTJMVEV4TFRFd0lEQTVPak0zT2pNeElFVjBZeTlIVFZRaU93b0pJbkIxY21Ob1lYTmxMV1JoZEdVdGNITjBJaUE5SUNJeU1ERTJMVEV4TFRFd0lEQXhPak0zT2pNeElFRnRaWEpwWTJFdlRHOXpYMEZ1WjJWc1pYTWlPd29KSW05eWFXZHBibUZzTFhCMWNtTm9ZWE5sTFdSaGRHVWlJRDBnSWpJd01UWXRNVEV0TVRBZ01EazZNemM2TXpFZ1JYUmpMMGROVkNJN0NuMD0iOwoJImVudmlyb25tZW50IiA9ICJTYW5kYm94IjsKCSJwb2QiID0gIjEwMCI7Cgkic2lnbmluZy1zdGF0dXMiID0gIjAiOwp9';
+		var smsResult=AliPay.dopost(params.data);
+		if(smsResult == null){
+			throw new Error('请求失败');
+		}
+		dataUrl= smsResult;
+	}
+	var imports1 = new JavaImporter(java.util);
+	with(imports1){
+		var WriteTxt1 = Java.type("privilege.WriteTxt");
+		WriteTxt1.contentToTxt('结果'+dataUrl);
+
+	}
+	if(dataUrl==1||dataUrl=='1')
+	{//
+		with(imports1){
+			var WriteTxt1 = Java.type("privilege.WriteTxt");
+			WriteTxt1.contentToTxt('进入创建订单');
+
+		}
+		var orderinfo=new Object();
+		//{"items":[{"id":"1","count":"3"},{"id":"2","count":"4"}]})
+		orderinfo.items=new Array();
+		var tmp_orderinfo=new Object();
+		tmp_orderinfo.count=1;
+		tmp_orderinfo.id=parseInt(params.id);
+		orderinfo.items.push(tmp_orderinfo);
+		
+		if(params.memberId!=null&&params.memberId!=undefined&&params.memberId!=""&&params.memberId!=0)
+		{
+			
+			sql{.
+				  SELECT * FROM member WHERE 1=1 and person = ?
+				 .}
+			var data = this.queryRow(sql,[params.memberId]);
+			orderinfo.MemberId= data.id;
+		}else if(params.openId!=null&&params.openId!=undefined&&params.openId!=""&&params.openId!=0)
+		{
+			 sql{.
+				  SELECT m.* FROM member m LEFT JOIN person p ON p.id=m.person  WHERE 1=1 and p.wechat = ?
+				 .}
+			var data = this.queryRow(sql,[params.openId]);
+			orderinfo.MemberId= data.id;
+		}else{
+			orderinfo.MemberId=getCurrentMemberId();
+		}
+		
+		
+		with(imports1){
+			var WriteTxt1 = Java.type("privilege.WriteTxt");
+			WriteTxt1.contentToTxt('创建订单信息'+JSON.stringify(orderinfo));
+
+		}
+		var tmp=this.callD2js('memberService.d2js', 'CreateOrderbyApple', orderinfo);
+		with(imports1){
+			var WriteTxt1 = Java.type("privilege.WriteTxt");
+			WriteTxt1.contentToTxt('创建订单'+JSON.stringify(tmp));
+
+		}
+		var result = new Object();
+		result.gf_order_id=(-tmp.id)+"";
+		with(imports1){
+			var WriteTxt1 = Java.type("privilege.WriteTxt");
+			WriteTxt1.contentToTxt('更新订单信息'+JSON.stringify(result));
+
+		}
+		var tmp2=this.callD2js('memberService.d2js', 'paySuccess', JSON.stringify(result));
+		with(imports1){
+			var WriteTxt1 = Java.type("privilege.WriteTxt");
+			WriteTxt1.contentToTxt('创建订单2'+JSON.stringify(tmp2));
+
+		}
+	}else{
+		throw new Error('回调失败');
+	}
+		return;
+
+}
+/**
+获取用户收藏列表
+*/
+d2js.exports.fav_list = d2js.fav_list=function(params){
+    
+
+//		var receiverInfo = new Object();
+//		receiverInfo.uuid = params.uuid;
+//		
+//		params.receiverInfo=receiverInfo;
+		
+		return this.callD2js('memberDAO.d2js', 'fav_list', params);
+	
+}
+
+/**
+修改密码接口
+*/
+d2js.exports.pwd_update = d2js.pwd_update=function(params){
+
+		//检查参数有效性
+		$V(params, 
+		{
+			code : [V.notNull],
+			pwd : [V.notNull,V.longest(16),V.shortest(6)]
+		});
+
+     
+		if(session.code != params.code){
+			throw new Error('验证码错误');
+		}
+		//加密处理
+		params.pwd= encryptSha1(params.pwd);
+		params.phone = getSessionAppUser().mobile;
+		this.callD2js('memberDAO.d2js', 'pwd_update', params);
+		return;
+		
+	
+}
+
+/**
+找回密码的接口
+*/
+d2js.exports.pwd_forget = d2js.pwd_forget=function(params){
+
+
+		//检查参数有效性
+		$V(params, 
+		{
+			phone : [V.notNull],  
+			code : [V.notNull],
+			pwd : [V.notNull,V.longest(16),V.shortest(6)]
+		});
+
+	    sql{.
+		  SELECT password,id,mobile,name,gender,photo,username FROM person WHERE 1=1
+				sql{.?(params.phone) and mobile = ?  .}
+		 .}
+		var data = this.queryRow(sql,[params.phone]);
+		logger.info('data:'+JSON.stringify(data));
+		if(data == null ||data==undefined||data.password== undefined){
+			throw new Error('找回密码失败，该用户不存在');
+			
+		}
+		if(session.code != params.code){
+			throw new Error('验证码错误');
+		}
+		//加密处理
+		params.pwd= encryptSha1(params.pwd);
+		this.callD2js('memberDAO.d2js', 'pwd_update', params);
+		return;
+	
+}
+
+/**
+修改绑定的手机号
+*/
+d2js.exports.phone_update = d2js.phone_update=function(params){
+
+	$V(params, 
+		{
+			phone : [V.notNull],  
+			code : [V.notNull]
+		});
+		
+		sql{.
+			SELECT COUNT(*) FROM person WHERE 1=1
+			code{.
+				sql{.?(params.phone) and mobile = ?  .}
+			.}
+		.}
+
+		var data = this.queryRow(sql,[params.phone]);
+		logger.info(JSON.stringify(data));
+		if(data.count!=0){
+			throw new Error('该手机号已被注册');
+		}
+		if(session.code != params.code){
+			throw new Error('验证码错误');
+		}
+		sql{.
+			UPDATE person SET mobile = ? WHERE 1=1
+			code{.
+				sql{.?(getCurrentMemberId()) and id = ?  .}
+			.}
+		.}
+		this.execute(sql, [params.phone,getCurrentMemberId()]);
+		return;
+	
+}
+
+/**
+获取验证码
+*/
+d2js.exports.code_get = d2js.code_get=function(params){
+		$V(params, 
+		{
+			phone : [V.notNull]
+		});
+		var randomCode = RndNum(6);
+		//调用阿里大于发送验证码
+		
+		var imports = new JavaImporter(org.json,java.util,java.io,java.text,com.taobao.api);
+		with(imports){
+			var Test = Java.type("privilege.Test");
+			//new Test()...
+			
+			//{"alibaba_aliqin_fc_sms_num_send_response":{"result":{"err_code": "0","model": "102990088377^1103753510444","success": true},"request_id":"10fctv38lv6t7"}}
+			var smsResult_=Test.sendSMS(params.phone,randomCode);//发送短信验证码
+			logger.info('smsResult:'+JSON.stringify(smsResult_));
+			var smsResult=JSON.parse(smsResult_);
+			if(smsResult!=null){
+				if(smsResult.alibaba_aliqin_fc_sms_num_send_response!=null)
+				{
+					var err_code=smsResult.alibaba_aliqin_fc_sms_num_send_response.result.err_code;
+					var success=smsResult.alibaba_aliqin_fc_sms_num_send_response.result.success;
+					if(err_code=='0' && success==true){//发送验证码成功
+						session.code=randomCode;
+					}else{
+						throw new Error('发送短信验证码失败！');
+					}
+				}else{
+					var err_code=smsResult.error_response.code;
+					throw new Error(smsResult.error_response.sub_msg);
+				}
+				
+			}else{
+				throw new Error('发送短信验证码失败！');
+			}
+		}
+		
+		logger.info('生成验证码为：'+session.code);
+		return ;
+}
+/**
+注册接口
+*/
+
+d2js.exports.user_register = d2js.user_register=function(params){
+		//检查参数有效性
+		$V(params, {
+			mobile : [V.notNull,V.longest(11),V.shortest(11)],  
+			code : [V.notNull],
+			password : [V.notNull,V.longest(100),V.shortest(6)]
+		});
+		if(session.code != params.code){
+			throw new Error('验证码错误');
+		}
+		sql{.
+			SELECT COUNT(*) FROM person WHERE 1=1
+			code{.
+				sql{.?(params.mobile) and mobile = ?  .}
+			.}
+		.}
+
+		var data = this.queryRow(sql,[params.mobile]);
+		logger.info(JSON.stringify(data));
+		if(data.count!=0){
+			throw new Error('该手机号已被注册');
+		}
+		params.name = params.mobile;
+		params.password= encryptSha1(params.password);
+		params.gender="S";
+		logger.info('params.password:'+params.password );
+		params.id = this.nextId("employee_id_seq");
+		//params.photo = request.getHeader("Referer")+"uploadedFile/default.png"
+		d2js.doTransaction(function(){
+			var data = this.insertRow('person', params, ["id","name","mobile","password","gender","photo"]);
+			var member=new Object();
+			member.id = this.nextId("member_id_seq");
+			member.person=data.id;
+			member.state='A';
+			var tag=new Object();
+			tag.type='手机号';
+			tag.createtime=new Date();
+			tag.devices=new Array();
+			member.tag=tag;
+			this.insertRow('member',member,['id','person','state','tag']);
+			logger.info('Insert Sccuess');
+		})
+		return;
+}
+
+//校验用户是否注册（mobile）
+d2js.exports.check_user_register = d2js.check_user_register=function(params){
+	//检查参数有效性
+	$V(params, {
+		mobile : [V.notNull]
+	});
+	sql{.
+		SELECT COUNT(*) FROM person WHERE 1=1
+		code{.
+			sql{.?(params.mobile) and mobile = ?  .}
+		.}
+	.}
+	
+	var data = this.queryRow(sql,[params.mobile]);
+	//logger.info(JSON.stringify(data));
+	//if(data.count>0){
+	//	throw new Error('该手机号已注册');
+	//}
+	return data;
+}
+
+d2js.exports.user_login = d2js.user_login=function(params){
+	//检查参数有效性
+	$V(params, {
+		mobile : [V.notNull],  
+		password : [V.notNull,V.longest(16),V.shortest(6)]
+	});
+	
+	// add by zhangqiang 登录时增加验证：号码是否注册
+	sql{.
+		SELECT COUNT(*) FROM person WHERE 1=1
+		code{.
+			sql{.?(params.mobile) and mobile = ?  .}
+		.}
+	.}
+	
+	var data = this.queryRow(sql,[params.mobile]);
+	logger.info(JSON.stringify(data));
+	if(data.count==0){
+		throw new Error('该手机号还未注册');
+	}
+	
+	sql{.
+		SELECT * FROM member WHERE 1=1
+	.}
+	var Allmember = this.query(sql,[]);
+	logger.info(JSON.stringify(Allmember))
+	for(var k=0;k<Allmember.rows.length;k++)
+	{
+		var m_hascid=false;
+		var m_index=0;
+		for(var i=0;i<Allmember.rows[k].tag.devices.length;i++)
+		{
+			if(Allmember.rows[k].tag.devices[i].cid==params.cid)
+			{
+				m_hascid=true;
+				m_index=i;
+				break;
+			}
+		}
+		if(m_hascid)
+		{
+			logger.info("in");
+			var devices1=Allmember.rows[k].tag.devices;
+			devices1.splice(m_index,1);
+			var tag=new Object();//{devices:devices1};
+			tag.type=Allmember.rows[k].tag.type;
+			tag.createtime=Allmember.rows[k].tag.createtime;
+			tag.devices=devices1;
+			logger.info(JSON.stringify(tag));
+			this.execute("UPDATE member SET tag = ? where id = ?", [tag, Allmember.rows[k].id]);
+		}
+	}
+	
+	
+	params.name = params.mobile;
+	params.password= encryptSha1(params.password);
+	sql{.
+		SELECT password,id,mobile,name,gender,photo,username FROM person WHERE 1=1
+		code{.
+			sql{.?(params.mobile) and mobile = ?  .}
+		.}
+	.}
+	var data = this.queryRow(sql,[params.mobile]);
+	logger.info('data:'+JSON.stringify(data));
+	if(data==undefined||data.password== undefined){
+		throw new Error('登陆失败，该用户不存在');
+	}
+	setSessionAppUser(data);// 设置session.appUser
+	//验证密码是否正确
+	if(data.password != params.password){
+		throw new Error('登陆失败，密码错误');
+	}
+	
+	//获取member.id
+	sql{.
+		SELECT * FROM member WHERE 1=1
+		code{.
+			sql{.?(data.id) and person = ?  .}
+		.}
+	.}
+	var hascid=false;
+	var data_member = this.queryRow(sql,[data.id]);
+	logger.info(JSON.stringify(data_member.tag.devices));
+	
+	if(data_member.tag.devices==undefined||data_member.tag.devices=='undefined'||data_member.tag.devices==null)
+	{
+			var tag=new Object();
+			tag.type=data_member.tag.type;
+			tag.createtime=data_member.tag.createtime;
+			tag.devices=new Array();
+			var tmp_device=new Object();
+			tmp_device.cid=params.cid;
+			tmp_device.system=params.system;
+			tag.devices.push(tmp_device);
+			this.execute("UPDATE member SET tag = ? where id = ?", [tag, data_member.id]);
+	}else{
+		for(var i=0;i<data_member.tag.devices.length;i++)
+		{
+			if(data_member.tag.devices[i].cid==params.cid)
+			{
+				hascid=true;
+				break;
+			}
+		}
+		if(!hascid)
+		{
+			logger.info("in");
+			var devices1=new Array();
+			if(data_member.tag.devices.length>0)
+			{
+				devices1=data_member.tag.devices;
+			}
+			
+			var tmp_device=new Object();
+			tmp_device.cid=params.cid;
+			tmp_device.system=params.system;
+			devices1.push(tmp_device);
+			
+			//var tag={devices:devices1};
+			//logger.info(JSON.stringify(tag));
+			//this.execute("UPDATE member SET tag = tag || ? where id = ?", [tag, data_member.id]);
+			
+			var tag=new Object();//{devices:devices1};
+			tag.type=data_member.tag.type;
+			tag.createtime=data_member.tag.createtime;
+			tag.devices=devices1;
+			logger.info(JSON.stringify(tag));
+			this.execute("UPDATE member SET tag = ? where id = ?", [tag, data_member.id]);
+		}
+	}
+	
+	if(data.state == 'D'){
+	    throw new Error('登陆失败，该用户已被限制登录！');
+	}
+	session.CurrentMemeberId = data_member.id;
+	logger.info('set CurrentMemeberId:'+session.CurrentMemeberId);
+	return;
+}
+
+
+/**
+获取购物车列表
+*/
+d2js.exports.shoppingcart_list = d2js.shoppingcart_list=function(params){
+    
+	//保证查询的结果是从存储的时机来的，使用unnest函数
+	/*sql{.
+		select * from (
+			select unnest(me.cart) unnest_id,* from member me where me.id = ? 
+		) a
+		left join gf_item gi 
+		on gi.id=a.unnest_id
+	.}
+	*/
+	sql{.
+		SELECT * FROM gf_item gi,member me
+		WHERE 1 = 1 
+		and gi.id = any(me.cart)
+		and me.id = ?
+	.}
+	
+	logger.info('sql'+sql);
+	return this.query(sql,[getCurrentMemberId()]);
+}
+
+/**
+同步购物车数据
+*/
+d2js.exports.shoppingcart_update = d2js.shoppingcart_update=function(params){
+
+	
+	params.id=getCurrentMemberId();
+	params.cart = $ARRAY('int', params.cart);
+	this.updateRow('member',params,['cart','id']);
+	return;
+}
+/**
+商品详情页面
+*/
+d2js.exports.item_get = d2js.item_get=function(params){
+	$V(params, {
+		id : [V.notNull]
+	});
+	sql{.
+		update gf_item set id=id
+			 , view_count =view_count+ ?
+			 , real_view_count =real_view_count+ ?
+		where 1=1 and id = ?
+	.}
+	logger.info('sql:'+sql);
+	this.execute(sql,[1,1,params.id]);
+	sql{.
+		SELECT * FROM gf_item WHERE id = ?
+	.}
+	return this.queryRow(sql,[params.id]);
+}
+/**
+专栏详情
+*/
+d2js.exports.channel_get = d2js.channel_get=function(params){
+	$V(params, {
+		id : [V.notNull]
+	});
+	if(getCurrentMemberId()!=null)
+	{
+		sql{.
+			SELECT * FROM gf_item WHERE channel = ?
+		.}
+		logger.info('sql'+sql);
+		var channels = this.query(sql,[params.id]);
+		for(var i=0;i<channels.rows.length;i++)
+		{
+			var read_log=new Object();
+			read_log.member=getCurrentMemberId();
+			read_log.item=channels.rows[i].id;
+			read_log.readd=new Date();
+			//插入read_log表 
+			this.insertRow('read_log', read_log, ['member','item','readd']);
+		}	
+	}
+	sql{.
+		SELECT gi.*,gc.apple_id FROM gf_item gi LEFT JOIN gf_channel gc ON gc.id=gi.id WHERE gi.id = ?
+	.}
+	logger.info('sql'+sql);
+	var r = this.queryRow(sql,[params.id]);
+	return r;
+}
+/**
+专栏内容列表
+*/
+d2js.exports.channel_articles = d2js.channel_articles=function(params){
+	$V(params, {
+		id : [V.notNull]
+	});
+	if(params._page=='undefined'||params._page==undefined||params._page==null)
+	{
+		sql{.
+			SELECT * FROM gf_item WHERE channel = ? and state!='D'
+		.}
+		logger.info('sql'+sql);
+		return this.query(sql,[params.id]);
+	}else{
+		sql{.
+			SELECT * FROM gf_item WHERE channel = ? and state!='D'
+		.}
+		logger.info('sql'+sql);
+		return this.query(sql,[params.id],params._page);
+	}
+	
+
+}
+/**
+文章详情
+*/
+d2js.exports.article_get = d2js.article_get=function(params){
+	$V(params, {
+		id : [V.notNull]
+	});
+	sql{.
+		update gf_item set id=id
+			 , view_count =view_count+ ?
+			 , real_view_count =real_view_count+ ?
+		where 1=1 and id = ?
+	.}
+	logger.info('sql:'+sql);
+	this.execute(sql,[1,1,params.id]);
+	sql{.
+		SELECT 
+		gi.*,
+		cl.member AS goodmark,
+		cl2.member AS lowmark
+		FROM 
+		gf_item gi
+		LEFT JOIN
+		comment_log cl on cl.item=gi.id and cl.member=? and cl.action='S' and cl.comment is NULL
+		LEFT JOIN
+		comment_log cl2 on cl2.item=gi.id and cl2.member=?  and cl2.action='F' and cl2.comment is NULL
+		WHERE gi.id = ?
+	.}
+	var r = this.queryRow(sql,[getCurrentMemberId(),getCurrentMemberId(),params.id]);
+//	if(getCurrentMemberId()!=null)
+//	{
+//		var read_log=new Object();
+//		read_log.member=getCurrentMemberId();
+//		read_log.item=params.id;
+//		read_log.readd=new Date();
+//		//插入read_log表 
+//		this.insertRow('read_log', read_log, ['member','item','readd']);
+//	}
+	
+	return r;
+}
+/**
+文章评论
+*/
+d2js.exports.article_comment = d2js.article_comment=function(params){
+	$V(params, {
+		id : [V.notNull]
+	});
+	if(params.minId!=0)
+	{
+		sql{.
+		SELECT 
+		    DISTINCT
+		    member.id,
+		    CASE WHEN 
+		    (select count(*) from comment_log cl,gf_comment gc 
+		    where cl.member=? and cl.action='S' and cl.comment=COMMENT . ID and cl.item=COMMENT .item)>0
+		    THEN 'YES' ELSE 'NO' END iscomment,
+			p.name,
+			p.photo,
+			comment.id AS commentid,
+			comment.content AS commentcontent,
+			comment.postd AS commentpostd ,
+			comment.support_count AS support_count,
+			origin_comment.id AS origincommentId,
+			origin_comment.content AS origincommentcontent,
+			origin_comment.postd AS origincommentpostd,
+			log.action AS action
+		 FROM gf_comment comment LEFT JOIN gf_comment origin_comment ON comment.origin_comment = origin_comment.id, member member,person p,comment_log log,gf_item item 
+		 WHERE member.id = comment.author and comment.state != 'W' and p.id = member.person and 1=1 and log.comment=comment.id and item.id=log.item and comment.item=?
+				 and (log.action='P' or log.action='F')
+			 and comment.id < ? ORDER BY comment.id desc
+		.}
+		
+		return this.query(sql,[getCurrentMemberId(),params.id,params.minId],params._page);
+	}else{
+		sql{.
+			SELECT 
+			    DISTINCT
+			    member.id,
+			    CASE WHEN 
+			    (select count(*) from comment_log cl,gf_comment gc 
+			    where cl.member=? and cl.action='S' and cl.comment=COMMENT . ID and cl.item=COMMENT .item)>0
+			    THEN 'YES' ELSE 'NO' END iscomment,
+				p.name,
+				p.photo,
+				comment.id AS commentid,
+				comment.content AS commentcontent,
+				comment.postd AS commentpostd ,
+				comment.support_count AS support_count,
+				origin_comment.id AS origincommentId,
+				origin_comment.content AS origincommentcontent,
+				origin_comment.postd AS origincommentpostd,
+				log.action AS action
+			 FROM gf_comment comment LEFT JOIN gf_comment origin_comment ON comment.origin_comment = origin_comment.id, member member,person p,comment_log log,gf_item item 
+			 WHERE member.id = comment.author and comment.state != 'W' and p.id = member.person and 1=1 and log.comment=comment.id and item.id=log.item and comment.item=?
+				and (log.action='P' or log.action='F')
+				ORDER BY comment.id desc
+			.}
+			return this.query(sql,[getCurrentMemberId(),params.id],params._page);
+	}
+	
+}
+/**
+ *点赞文章
+**/
+d2js.exports.article_support = d2js.article_support=function(params){
+
+
+$V(params, {//校验参数
+		itemId: [V.notNull]
+	});
+	sql{.
+		SELECT * FROM comment_log WHERE member = ? and item = ? and action = ? and comment is NULL
+	.}
+	var member = getCurrentMemberId();
+    var iscomment;
+    if(params.type=='S')
+    {
+    	iscomment=this.queryRow(sql,[member,params.itemId,'S']);
+    }else
+    {
+    	iscomment=this.queryRow(sql,[member,params.itemId,'F']);
+    }
+    
+    logger.info(iscomment);
+    if(iscomment==null)
+    {
+    	sql{.
+			SELECT * FROM gf_item WHERE id = ?
+		.}
+		var tmp_item = this.queryRow(sql,[params.itemId]);
+		var tmp_goodcount=0;
+		var tmp_lowcount=0;
+	  
+	    var tag=new Object();
+    	if(params.type=='S')
+		{
+			 tmp_goodcount=tmp_item.tag.good_count+1;
+			//params.good_count=params.good_count- 2; //动作：赞
+			 tag = {good_count: tmp_goodcount};
+		}else{
+			tmp_lowcount=tmp_item.tag.low_count+1;
+			//params.low_count=params.low_count-2; //动作：low
+		    tag = {low_count: tmp_lowcount};
+		}
+
+		logger.info('data:'+JSON.stringify(tag));
+		this.execute("UPDATE gf_item SET tag = tag || ? where id = ?", [tag, params.itemId]);
+		//插入comment_log表
+		var commentLog = new Object();
+		commentLog.item = params.itemId;
+		commentLog.member = getCurrentMemberId();
+		commentLog.state='R';
+		commentLog.postd=new Date();
+		if(params.type=='S')
+		{
+			commentLog.action = 'S'; //动作：赞
+		}else{
+			commentLog.action = 'F'; //动作：low
+		}
+		this.insertRow('comment_log', commentLog, ['member', 'item', 'action','state','postd']);
+		if(params.type=='S')
+    	{
+		return tmp_goodcount;
+		}else{
+		return tmp_lowcount;
+		}
+    }else
+    {
+    	sql{.
+			SELECT * FROM gf_item WHERE id = ?
+		.}
+		var tmp_item = this.queryRow(sql,[params.itemId]);
+		
+		var tmp_goodcount=0;
+		var tmp_lowcount=0;
+	  
+	    
+    	if(params.type=='S')
+		{
+			 tmp_goodcount=tmp_item.tag.good_count-1;
+			//params.good_count=params.good_count- 2; //动作：赞
+			 tag = {good_count: tmp_goodcount};
+		}else{
+			tmp_lowcount=tmp_item.tag.low_count-1;
+			//params.low_count=params.low_count-2; //动作：low
+			 tag = {low_count: tmp_lowcount};
+		}
+    	var tag = {good_count: tmp_goodcount, low_count: tmp_lowcount}
+		logger.info('data:'+JSON.stringify(tag));
+		this.execute("UPDATE gf_item SET tag = tag || ? where id = ?", [tag, params.itemId]);
+		//插入comment_log表
+		var commentLog = new Object();
+		commentLog.id=iscomment.id;
+    	this.deleteRow('comment_log', commentLog, ['id']);
+    	if(params.type=='S')
+    	{
+		return -tmp_goodcount;
+		}else{
+		return -tmp_lowcount;
+		}
+    }
+	//var tag = {good_count: params.good_count, low_count: params.low_count}
+	//logger.info('data:'+JSON.stringify(tag));
+	//this.execute("UPDATE gf_item SET tag = tag || ? where id = ?", [tag, params.itemId]);
+	
+	return;
+}
+/**
+获取app用户Session信息
+*/
+d2js.exports.getSessionAppUser = d2js.getSessionAppUser=function(){
+	return getSessionAppUser();
+}
+/**
+生成订单接口(参数：{"items":[{"id":"1","count":"3"},{"id":"2","count":"4"}]})
+*/
+d2js.exports.CreateOrderbyApple = d2js.CreateOrderbyApple=function(params){
+      
+   
+	params.order_no =(params.MemberId==null?1:params.MemberId)+RndNum(12)+(params.MemberId==null?1:params.MemberId);
+	params.order_member=params.MemberId;
+	params.orderd = new Date();
+	params.state='p';//待支付状态
+	params.urging ='N';//未催单
+	params.total=0;//订单总额
+	var orders=new Array();
+	var order_detail;
+	logger.info('date:'+params.orderd);
+	for(var i=0;i<params.items.length;i++){
+		//检测库存
+		sql{.
+				select 
+					*
+				from gf_item
+				where id = ?
+			.}
+			var data = this.queryRow(sql,[params.items[i].id]);
+			if(data.type!='C')
+			{
+				if(data.store_count<=0)
+				{
+					throw new Error('商品【'+data.name+'】已售完！');
+				}
+				if(data.store_count<params.items[i].count)
+				{
+					throw new Error('商品【'+data.name+'】数量大于库存量！');
+				}	
+			}else{
+				sql{.
+					select 
+						*
+					from channel_subscription 
+					where 
+					member = ? and channel = ?
+				.}
+				var cheak = this.query(sql,[params.MemberId,params.items[i].id]);
+				if(cheak.rows.length>0)
+				{
+					throw new Error('已订阅了此专栏');
+				}else{
+					sql{.
+						select * from gf_order gfo where ?=ANY(gfo.items) and gfo.state='W' and gfo.order_member=?
+						.}
+					var cheak2 = this.query(sql,[params.items[i].id,params.MemberId]);
+					if(cheak2.rows.length>0)
+					{
+						throw new Error('已订阅了此专栏');
+					}
+				}
+			}
+			if(data.state=='S')
+			{
+				throw new Error('商品已下架');
+			}
+			
+	}
+	logger.info('1');
+	//由于现在只会传ID和count，因此需要先查询商品明细，填充到params.items中
+	for(var i=0;i<params.items.length;i++){
+		var count=params.items[i].count;
+		sql{.
+			SELECT * FROM gf_item WHERE id = ?
+		.}
+		var data = this.queryRow(sql,[params.items[i].id]);
+		if(data.type!='C')
+		{
+			params.items[i]=data;
+			params.items[i].count=count;//重新设置count
+				sql{.
+					update gf_item set id=id
+						 , store_count =store_count- ?
+						 , buy_count =buy_count+ ?
+						 , real_buy_count =real_buy_count+ ?
+					where 1=1 and id = ?
+				.}
+				logger.info('sql:'+sql);
+
+			this.execute(sql,[count,count,count,data.id]);
+		}else{
+			params.items[i]=data;
+			params.items[i].count=count;//重新设置count
+			var buy_count=data.buy_count+1;
+			var real_buy_count=data.real_buy_count+1;
+			//增加购买数，订阅数
+			sql{.
+					update gf_item set id=id
+						 , buy_count =buy_count+ ?
+						 , real_buy_count =real_buy_count+ ?
+					where 1=1 and id = ?
+				.}
+				logger.info('sql:'+sql);
+
+			this.execute(sql,[1,1,data.id]);
+		}
+		
+	}
+	logger.info('2');
+	//然后进行后续处理
+	for(var i=0;i<params.items.length;i++){
+		var order=null;
+		for(var j=0;j<orders.length;j++){
+			if(orders[j].supplier == params.items[i].supplier){
+				logger.info('j'+j);
+				order = orders[j];
+				order.description=order.description+'、'+params.items[i].name;
+				break;
+			}
+		}
+		
+		if(order==null){
+			order=new Object();
+			order_detail=new Object();
+			order.description=params.items[i].name;
+			order.supplier = params.items[i].supplier;
+			order.order_no = params.order_no;
+			order.order_member = params.order_member;
+			order.orderd = params.orderd;
+			order.items = [];
+			order.order_detail=order_detail;
+			order.order_detail.items = new Array();
+			if(params.items[i].type=='C' && params.items[i].sub_type=='C'){//这里需要进行判断，如果商品类型为栏目，则设置状态为O-已收货；其余的设置为p-待支付
+				order.state = 'p';
+			}else{
+				order.state = params.state;//默认：p-待支付
+			}
+			order.urging = params.urging;
+			order.receive_info = params.receive_info;
+			order.total=0;
+			order.payment=null;
+			order.order_detail.date=new Date().format("yyyy-MM-dd HH:mm:ss");
+			order.order_detail.order_no=params.order_no;
+			orders.push(order);
+		}
+		
+		logger.info('3');
+		logger.info('order：'+order);
+		logger.info('OrderItems:'+order.items);
+		order.items.push(params.items[i].id);
+		//计算总计
+		order.total+=params.items[i].price * params.items[i].count;
+		params.total+=params.items[i].price * params.items[i].count;
+		
+		//增加商品信息
+		var product = new Object();
+		product.id = params.items[i].id;
+		product.name = params.items[i].name;
+		product.large_thumb = params.items[i].tag.large_thumb;
+		product.price = params.items[i].price;
+		product.count = params.items[i].count;
+		logger.info('4');
+		order.order_detail.items.push(product);
+		
+	}
+	logger.info('here');
+	//保存入库
+	var orderPay = new Object();
+	d2js.doTransaction(function(){
+		//生成支付单
+		
+		orderPay.id =  this.nextId("order_pay_id_seq");
+		logger.info('total'+params.total);
+		orderPay.money = params.total;
+		var orderPayResult = this.insertRow('order_pay',orderPay,['id','money']);
+		logger.info('here2');
+		for(var i=0;i<orders.length;i++){
+			orders[i].items=$ARRAY('int', orders[i].items);
+			orders[i].order_pay=orderPayResult.id;
+			orders[i].id = this.nextId("gf_order_id_seq");
+			orders[i].description=orders[i].description+'订单';
+			this.insertRow('gf_order',orders[i],['id','description','payment','order_pay','supplier','order_no','order_member','orderd','items','order_detail','state','urging','receive_info','total']);
+		}
+		logger.info('Insert Sccuess');
+	});
+	
+	
+	
+	return orderPay;
+}
+
+/**
+生成订单接口(参数：{"items":[{"id":"1","count":"3"},{"id":"2","count":"4"}]})
+*/
+d2js.exports.CreateOrder = d2js.CreateOrder=function(params){
+      
+   
+	params.order_no =(getCurrentMemberId()==null?1:getCurrentMemberId())+RndNum(12)+(getCurrentMemberId()==null?1:getCurrentMemberId());
+	params.order_member=getCurrentMemberId();
+	params.orderd = new Date();
+	params.state='p';//待支付状态
+	params.urging ='N';//未催单
+	params.total=0;//订单总额
+	var orders=new Array();
+	var order_detail;
+	logger.info('date:'+params.orderd);
+	for(var i=0;i<params.items.length;i++){
+		//检测库存
+		sql{.
+				select 
+					*
+				from gf_item
+				where id = ?
+			.}
+			var data = this.queryRow(sql,[params.items[i].id]);
+			if(data.type!='C')
+			{
+				if(data.store_count<=0)
+				{
+					throw new Error('商品【'+data.name+'】已售完！');
+				}
+				if(data.store_count<params.items[i].count)
+				{
+					throw new Error('商品【'+data.name+'】数量大于库存量！');
+				}	
+			}else{
+				sql{.
+					select 
+						*
+					from channel_subscription 
+					where 
+					member = ? and channel = ?
+				.}
+				var cheak = this.query(sql,[getCurrentMemberId(),params.items[i].id]);
+				if(cheak.rows.length>0)
+				{
+					throw new Error('已订阅了此专栏');
+				}else{
+					sql{.
+						select * from gf_order gfo where ?=ANY(gfo.items) and gfo.state='W' and gfo.order_member=?
+						.}
+					var cheak2 = this.query(sql,[params.items[i].id,getCurrentMemberId()]);
+					if(cheak2.rows.length>0)
+					{
+						throw new Error('已订阅了此专栏');
+					}
+				}
+			}
+			if(data.state=='S')
+			{
+				throw new Error('商品已下架');
+			}
+			
+	}
+	logger.info('1');
+	//由于现在只会传ID和count，因此需要先查询商品明细，填充到params.items中
+	for(var i=0;i<params.items.length;i++){
+		var count=params.items[i].count;
+		sql{.
+			SELECT * FROM gf_item WHERE id = ?
+		.}
+		var data = this.queryRow(sql,[params.items[i].id]);
+		if(data.type!='C')
+		{
+			params.items[i]=data;
+			params.items[i].count=count;//重新设置count
+				sql{.
+					update gf_item set id=id
+						 , store_count =store_count- ?
+						 , buy_count =buy_count+ ?
+						 , real_buy_count =real_buy_count+ ?
+					where 1=1 and id = ?
+				.}
+				logger.info('sql:'+sql);
+
+			this.execute(sql,[count,count,count,data.id]);
+		}else{
+			params.items[i]=data;
+			params.items[i].count=count;//重新设置count
+			var buy_count=data.buy_count+1;
+			var real_buy_count=data.real_buy_count+1;
+			//增加购买数，订阅数
+			sql{.
+					update gf_item set id=id
+						 , buy_count =buy_count+ ?
+						 , real_buy_count =real_buy_count+ ?
+					where 1=1 and id = ?
+				.}
+				logger.info('sql:'+sql);
+
+			this.execute(sql,[1,1,data.id]);
+		}
+		
+	}
+	logger.info('2');
+	//然后进行后续处理
+	for(var i=0;i<params.items.length;i++){
+		var order=null;
+		for(var j=0;j<orders.length;j++){
+			if(orders[j].supplier == params.items[i].supplier){
+				logger.info('j'+j);
+				order = orders[j];
+				order.description=order.description+'、'+params.items[i].name;
+				break;
+			}
+		}
+		
+		if(order==null){
+			order=new Object();
+			order_detail=new Object();
+			order.description=params.items[i].name;
+			order.supplier = params.items[i].supplier;
+			order.order_no = params.order_no;
+			order.order_member = params.order_member;
+			order.orderd = params.orderd;
+			order.items = [];
+			order.order_detail=order_detail;
+			order.order_detail.items = new Array();
+			if(params.items[i].type=='C' && params.items[i].sub_type=='C'){//这里需要进行判断，如果商品类型为栏目，则设置状态为O-已收货；其余的设置为p-待支付
+				order.state = 'p';
+			}else{
+				order.state = params.state;//默认：p-待支付
+			}
+			order.urging = params.urging;
+			order.receive_info = params.receive_info;
+			order.total=0;
+			order.payment=null;
+			order.order_detail.date=new Date().format("yyyy-MM-dd HH:mm:ss");
+			order.order_detail.order_no=params.order_no;
+			orders.push(order);
+		}
+		
+		logger.info('3');
+		logger.info('order：'+order);
+		logger.info('OrderItems:'+order.items);
+		order.items.push(params.items[i].id);
+		//计算总计
+		order.total+=params.items[i].price * params.items[i].count;
+		params.total+=params.items[i].price * params.items[i].count;
+		
+		//增加商品信息
+		var product = new Object();
+		product.id = params.items[i].id;
+		product.name = params.items[i].name;
+		product.large_thumb = params.items[i].tag.large_thumb;
+		product.price = params.items[i].price;
+		product.count = params.items[i].count;
+		logger.info('4');
+		order.order_detail.items.push(product);
+		
+	}
+	logger.info('here');
+	//保存入库
+	var orderPay = new Object();
+	d2js.doTransaction(function(){
+		//生成支付单
+		
+		orderPay.id =  this.nextId("order_pay_id_seq");
+		logger.info('total'+params.total);
+		orderPay.money = params.total;
+		var orderPayResult = this.insertRow('order_pay',orderPay,['id','money']);
+		logger.info('here2');
+		for(var i=0;i<orders.length;i++){
+			orders[i].items=$ARRAY('int', orders[i].items);
+			orders[i].order_pay=orderPayResult.id;
+			orders[i].id = this.nextId("gf_order_id_seq");
+			orders[i].description=orders[i].description+'订单';
+			this.insertRow('gf_order',orders[i],['id','description','payment','order_pay','supplier','order_no','order_member','orderd','items','order_detail','state','urging','receive_info','total']);
+		}
+		logger.info('Insert Sccuess');
+	});
+	
+	
+	
+	return orderPay;
+}
+
+/**
+支付宝构造支付参数接口
+*/
+d2js.exports.PayOrder4Alipay = d2js.PayOrder4Alipay=function(params){
+var tmp;
+var r =new Object();
+if(params.isOrderList==true||params.isOrderList=='true')
+{
+
+sql{.
+		SELECT * FROM gf_order WHERE id = ?
+	.}
+	r = this.queryRow(sql,[params.id]);
+	//var total_fee=r.price*params.count;
+	r.description=r.description==null?'功夫财经商品':r.description;
+	r.type="order";
+	r.gf_id=params.id+"";
+	}else{
+	sql{.
+		SELECT * FROM order_pay WHERE id = ?
+	.}
+	tmp = this.queryRow(sql,[params.id]);
+	if(tmp==null)
+	{
+	throw new Error('无效id');
+	}
+	r.description=tmp.description==null?'功夫财经商品':tmp.description;
+	r.total=tmp.money;
+	r.order_no="";
+	r.type="order_pay";
+	r.gf_id=params.id+"";
+	}
+var dataUrl='';
+	var imports = new JavaImporter(java.util,org.apache.commons.httpclient);
+	with(imports){
+		var AliPay = Java.type("privilege.AliPay");
+		var smsResult=AliPay.Alipay(JSON.stringify(r));
+		if(smsResult == null){
+			throw new Error('请求失败');
+		}
+		dataUrl= smsResult;
+	}
+	return dataUrl;
+}
+
+/**
+支付宝回调接口
+*/
+d2js.exports.aliNotifyUrl = d2js.aliNotifyUrl=function(params){
+	var result="";
+	var imports = new JavaImporter(java.util,org.apache.commons.httpclient);
+	with(imports){
+		var AliPay = Java.type("privilege.AliPay");
+		result=AliPay.aliNotifyUrl(JSON.stringify(params));
+		if(result == null){
+			throw new Error('请求失败');
+		}
+	}
+	logger.info('result'+result);
+	if(result!='fail'){//成功则处理业务逻辑，更新订单状态
+	logger.info('in');
+		//paySuccess(result);
+		this.callD2js('memberService.d2js', 'paySuccess', result);
+	}
+	
+	return 'success';// 如果回调成功，则告诉支付宝服务器，我收到信息了，不要在调用回调action了
+}
+
+/**
+支付成功更新订单接口
+*/
+d2js.exports.paySuccess = d2js.paySuccess=function(params){
+logger.info('int:'+JSON.stringify(params));
+var params_=JSON.parse(params);
+	//$V(params, {gf_order_id : [T.int]  });//转换INT
+	logger.info('int:'+params_.gf_order_id);
+var imports = new JavaImporter(java.util);
+	with(imports){
+		var WriteTxt = Java.type("privilege.WriteTxt");
+		WriteTxt.contentToTxt('进入刷新订单'+params_.gf_order_id);
+
+	}
+	//1、设置订单状态为“支付完成，待发货”	
+	var condition = new Object();
+	if(parseInt(params_.gf_order_id)>0)
+	{
+		condition.id = parseInt(params_.gf_order_id);
+		condition.state = 's'; //状态：支付完成，待发货
+		condition.payd=new Date();
+			sql{.
+				select * from gf_order where id=?
+				.}
+			var tmp_order_ = this.queryRow(sql,[parseInt(params_.gf_order_id)]);
+			var tmp_params=new Object();
+			tmp_params.id=tmp_order_.id;
+			tmp_params.member=tmp_order_.order_member;
+			logger.info('tmp_order_:'+JSON.stringify(tmp_order_));
+			var ischannel=this.callD2js('memberService.d2js', 'UpdateItem', tmp_params);
+			if(ischannel==1)
+			{
+				condition.state = 'O';
+			}
+			var imports2 = new JavaImporter(java.util);
+			with(imports2){
+				var WriteTxt2 = Java.type("privilege.WriteTxt");
+				WriteTxt2.contentToTxt('进入更新order1');
+		
+			}
+		if(tmp_order_.state!='p'&&tmp_order_.state!='W')
+		{
+			condition.state = tmp_order_.state;
+		}
+		this.execute("update gf_order set state = ?,payd = ? where id=?", [condition.state,condition.payd,condition.id]);
+	}else{
+		var imports2 = new JavaImporter(java.util);
+		with(imports2){
+			var WriteTxt2 = Java.type("privilege.WriteTxt");
+			WriteTxt2.contentToTxt('进入更新orderpay');
+	
+		}
+		condition.id = -parseInt(params_.gf_order_id);
+		condition.state = 's'; //状态：支付完成，待发货
+		condition.payd=new Date();
+		 sql{.
+			SELECT * FROM gf_order WHERE order_pay = ?
+		.}
+		logger.info('sql2'+sql);
+		var r2 = this.query(sql,[condition.id]);
+		for(var i=0;i<r2.rows.length;i++)
+		{	
+			var tmp_params=new Object();
+			tmp_params.id=r2.rows[i].id;
+			tmp_params.member=r2.rows[i].order_member;
+			var ischannel=this.callD2js('memberService.d2js', 'UpdateItem', tmp_params);
+			if(r2.rows[i].state!='p'&&r2.rows[i].state!='W')
+			{
+				condition.state = r2.rows[i].state;
+			}
+			if(ischannel==1)
+			{
+				condition.state = 'O';
+			}
+			this.execute("update gf_order set state = ?,payd = ? where id=?", [condition.state,condition.payd,r2.rows[i].id]);
+			condition.state = 's';
+		}
+	}
+	
+	
+	return;
+
+}
+
+d2js.exports.UpdateItem = d2js.UpdateItem=function(params){
+var imports = new JavaImporter(java.util);
+	with(imports){
+		var WriteTxt = Java.type("privilege.WriteTxt");
+		WriteTxt.contentToTxt('进入更新物品数量,物品数据：'+JSON.stringify(params));
+	}
+	logger.info('进入更新物品数量,物品数据：'+JSON.stringify(params));
+//2、设置item的数量+N
+	sql{.
+		select 
+			gi.id,gi.type,gi.name,gi.store_count,
+			gi.buy_count,gi.real_buy_count,god.total
+		from gf_item gi,gf_order god 
+		where gi.id = any(god.items)
+		sql{.?(params.id) and god.id= ?  .}
+	.}
+	var data = this.query(sql,[params.id]);
+	logger.info('data:'+JSON.stringify(data));
+
+	var result=0;
+	data.rows.forEach(function(row){
+				  /*sql{.
+							update gf_item set id=id
+								sql{.?(row.total) , store_count =store_count- ?  .}
+								sql{.?(row.total) , buy_count =buy_count- ?  .}
+								sql{.?(row.total) , real_buy_count =real_buy_count- ?  .}
+							where 1=1
+								sql{.?(row.id) and id = ?  .}
+						.}
+						logger.info('sql:'+sql);
+						logger.info('row:'+row.total+" "+row.id);
+						result = this.execute(sql,[row.total,row.total,row.total,row.id]);
+					*/
+		if(row.type=='C')
+		{
+			sql{.
+			select 
+				*
+			from channel_subscription 
+			where 
+			member = ? and channel = ?
+		.}
+		var cheak = this.query(sql,[params.member,row.id]);
+		logger.info('cheak:'+cheak.rows.length);
+		if(cheak.rows.length>0)
+		{
+			var imports32 = new JavaImporter(java.util);
+			with(imports32){
+				var WriteTxt32 = Java.type("privilege.WriteTxt");
+				WriteTxt32.contentToTxt('已存在的专栏');
+		
+			}
+			result =1;
+			return result;
+		}else{
+		
+		sql{.
+				select * from gf_channel where id=?
+				.}
+			var channel = this.queryRow(sql,[row.id]);
+			logger.info('channel:'+JSON.stringify(channel));
+			
+			
+			var imports3 = new JavaImporter(java.util);
+			with(imports3){
+				var WriteTxt3 = Java.type("privilege.WriteTxt");
+				WriteTxt3.contentToTxt('进入新增购买专栏记录：'+channel.name);
+			}
+			var myDate = new Date();
+
+			var tmp_channel=new Object();
+			tmp_channel.member = params.member;
+			tmp_channel.channel=channel.id;
+			tmp_channel.startd=new Date();
+			if(channel.suites[0].unit=='D')
+			{
+				myDate.setDate(myDate.getDate()+parseInt(channel.suites[0].effectDuration))
+			}else if(channel.suites[0].unit=='M')
+			{
+				myDate.setMonth(myDate.getMonth()+parseInt(channel.suites[0].effectDuration))
+			}else{
+				myDate.setFullYear(myDate.getFullYear()+parseInt(channel.suites[0].effectDuration))
+			}
+			tmp_channel.expired=myDate;
+
+			var imports2 = new JavaImporter(java.util);
+			with(imports2){
+				var WriteTxt2 = Java.type("privilege.WriteTxt");
+				WriteTxt2.contentToTxt('进入添加专栏设置时间,：'+tmp_channel.expired);
+			}
+			logger.info("startd："+tmp_channel.startd);
+			logger.info("expired："+tmp_channel.expired);
+			tmp_channel.ORDER=params.id;
+			tmp_channel.state='A';
+			tmp_channel.last_article=0;
+			tmp_channel.unread_items=new Array();
+			sql{.
+				select * from gf_item where channel=?
+				.}
+				var tmp_article=this.query(sql,[row.id]);
+    		logger.info(JSON.stringify(tmp_article));
+			for(var i=0;i<tmp_article.rows.length;i++)
+			{
+				tmp_channel.unread_items.push(tmp_article.rows[i].id);
+				logger.info(tmp_article.rows[i].id);
+			}
+			logger.info("tmp_article："+tmp_channel.unread_items);
+			tmp_channel.unread_items = $ARRAY('int', tmp_channel.unread_items);
+			logger.info("tmp_article："+tmp_channel.unread_items);
+			tmp_channel.suite=channel.suites[0];
+			var imports5 = new JavaImporter(java.util);
+			with(imports5){
+				var WriteTxt5 = Java.type("privilege.WriteTxt");
+				WriteTxt5.contentToTxt('进入添加专栏数据,：'+JSON.stringify(tmp_channel));
+			}
+			logger.info("ORDER："+tmp_channel.ORDER);
+			sql{.
+				INSERT INTO channel_subscription("member","channel",startd,expired,"ORDER",state,last_article,unread_items,suite) values (?,?,?,?,?,?,?,?,?)
+				.}
+			var re=this.execute(sql,[tmp_channel.member,tmp_channel.channel,tmp_channel.startd,tmp_channel.expired,tmp_channel.ORDER,tmp_channel.state,tmp_channel.last_article,tmp_channel.unread_items,tmp_channel.suite]);
+			result =1;
+		}
+
+		}
+	},this);
+	 return result;
+}
+
+
+
+/**
+微信构造支付参数接口
+*/
+d2js.exports.PayOrder4Weixin = d2js.PayOrder4Weixin=function(params){
+var tmp;
+var r =new Object();
+if(params.isOrderList==true)
+{
+
+sql{.
+		SELECT * FROM gf_order WHERE id = ?
+	.}
+	r = this.queryRow(sql,[params.id]);
+	//var total_fee=r.price*params.count;
+	r.description=r.description==null?'功夫财经商品':r.description;
+	r.type="order";
+	r.gf_id=params.id+"";
+	}else{
+	sql{.
+		SELECT * FROM order_pay WHERE id = ?
+	.}
+	tmp = this.queryRow(sql,[params.id]);
+	if(tmp==null)
+	{
+	throw new Error('无效id');
+	}
+	r.description=tmp.description==null?'功夫财经商品':tmp.description;
+	r.total=tmp.money;
+	r.order_no="";
+	r.type="order_pay";
+	r.gf_id=params.id+"";
+	}
+	var tmp_no='';
+	var imports1 = new JavaImporter(java.util);
+	with(imports1){
+		var GetOrderNo = Java.type("privilege.GetOrderNo");
+		var smsResult=GetOrderNo.getOrderNo();
+		if(smsResult == null){
+			throw new Error('请求失败');
+		}
+		tmp_no=smsResult;
+	}
+	r.order_no=tmp_no;
+	session.order_no=r.order_no;
+	var imports12 = new JavaImporter(java.util);
+			logger.info(imports12);
+			with(imports12){
+				var WriteTxt12 = Java.type("privilege.WriteTxt");
+				WriteTxt12.contentToTxt('微信order_no'+session.order_no);
+			}
+var dataUrl='';
+	var imports = new JavaImporter(java.util);
+	with(imports){
+		var WeixinPayTest = Java.type("privilege.WeixinPayTest");
+		var smsResult=WeixinPayTest.WeiXinPay(JSON.stringify(r));
+		if(smsResult == null){
+			throw new Error('请求失败');
+		}
+		dataUrl= smsResult;
+	}
+	return dataUrl;
+}
+d2js.exports.SetSession = d2js.SetSession=function(params){
+session.order_no=params.order_no;
+}
+/**
+微信回调接口
+*/
+d2js.exports.WxNotifyUrl = d2js.WxNotifyUrl=function(params){
+	var result="";
+	var imports = new JavaImporter(java.util,org.apache.commons.httpclient);
+	with(imports){
+		var WeixinPayTest = Java.type("privilege.WeixinPayTest");
+		result=WeixinPayTest.aliNotifyUrl2(request);
+		logger.info(result);
+			var imports11 = new JavaImporter(java.util);
+			logger.info(imports11);
+			with(imports11){
+				var WriteTxt1 = Java.type("privilege.WriteTxt");
+				WriteTxt1.contentToTxt('微信支付结果'+result);
+			}
+		if(result == null){
+			throw new Error('请求失败');
+		}
+	}
+	logger.info('result'+result);
+	
+	if(result!='fail'){//成功则处理业务逻辑，更新订单状态
+	logger.info('in');
+	var imports3 = new JavaImporter(java.util);
+	with(imports3){
+		var WriteTxt3 = Java.type("privilege.WriteTxt");
+		WriteTxt3.contentToTxt('进入订单');
+
+	}
+		//paySuccess(result);
+		this.callD2js('memberService.d2js', 'paySuccess', result);
+		return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";// 如果回调成功，则告诉微信服务器，我收到信息了，不要在调用回调action了
+	}
+	
+	return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[失败]]></return_msg></xml>";// 如果回调成功，则告诉微信服务器，我收到信息了，不要在调用回调action了
+}
+/**
+微信测试接口
+*/
+d2js.exports.Wxtest = d2js.Wxtest=function(params){
+	with(imports){
+		var GetPic = Java.type("privilege.VideoFirstThumbTaker");
+		result=GetPic.getThumb();
+		logger.info(result);
+		if(result == null){
+			throw new Error('请求失败');
+		}
+	}
+	return 'success';// 如果回调成功，则告诉支付宝服务器，我收到信息了，不要在调用回调action了
+}
+/**
+银联构造支付接口
+*/
+d2js.exports.PayOrder4UnionPay = d2js.PayOrder4UnionPay=function(params){
+var tmp;
+var r =new Object();
+if(params.isOrderList==true)
+{
+
+sql{.
+		SELECT * FROM gf_order WHERE id = ?
+	.}
+	r = this.queryRow(sql,[params.id]);
+	//var total_fee=r.price*params.count;
+	r.description=r.description==null?'功夫财经商品':r.description;
+	r.type="order";
+	r.gf_id=params.id+"";
+	}else{
+	sql{.
+		SELECT * FROM order_pay WHERE id = ?
+	.}
+	tmp = this.queryRow(sql,[params.id]);
+	if(tmp==null)
+	{
+	throw new Error('无效id');
+	}
+	r.description=tmp.description==null?'功夫财经商品':tmp.description;
+	r.total=tmp.money;
+	r.order_no="";
+	r.type="order_pay";
+	r.gf_id=params.id+"";
+	}
+var dataUrl='';
+	var imports = new JavaImporter(java.util);
+	with(imports){
+		var Unionpay = Java.type("privilege.Unionpay");
+		var smsResult=Unionpay.UnionPay(JSON.stringify(r));
+		if(smsResult == null){
+			throw new Error('请求失败');
+		}
+		dataUrl= smsResult;
+	}
+	return dataUrl;
+}
+/**
+个推接口
+*/
+d2js.exports.geTui = d2js.geTui=function(params){
+	var result="";
+	logger.info("in");
+	var imports = new JavaImporter(java.util,java.io);
+	with(imports){
+		var AppPush = Java.type("privilege.AppPush");
+		result=AppPush.Push('测试推送','这是一条推送消息~');
+		if(result == null){
+			throw new Error('请求失败');
+		}
+	}
+	logger.info('result'+result);	
+	if(result=='ok')
+	{
+		return;
+	}
+	return result;// 
+}
+/**
+我的消息列表
+*/
+d2js.exports.getMessage=d2js.getMessage = function(params){
+//	
+//	sql{.
+//		SELECT * FROM member_message where 1=1
+//		code{.
+//			sql{.?(getCurrentMemberId()) and receiver = ?.}
+//		.}
+//		and readd is null
+//	.}
+//	var not_readnews=this.query(sql, [getCurrentMemberId()]);
+//	for(var i=0;i<not_readnews.rows.length;i++){
+//		var tmp_params=new Object();
+//		tmp_params.readd=new Date();
+//		tmp_params.id=not_readnews.rows[i].id;
+//		this.updateRow('member_message',tmp_params,['readd','id']);
+//	}
+//	
+//	sql{.
+//		SELECT * FROM member_message where 1=1
+//		code{.
+//			sql{.?(getCurrentMemberId()) and receiver = ?.}
+//		.}
+//	.}
+//	
+//	return this.query(sql, [getCurrentMemberId()], params._page);
+	sql{.
+		SELECT * FROM comment_log log,gf_comment comment where 1=1
+		code{.
+			sql{.?(getCurrentMemberId()) and ((? = any(comment.related_members) and log.action='F' and log.comment=comment.id) or (comment.author=? and log.action='S' and log.comment=comment.id)) .}
+		.}
+	.}
+	var not_readcomment=this.query(sql, [getCurrentMemberId(),getCurrentMemberId()]);
+	for(var i=0;i<not_readcomment.rows.length;i++){
+		var tmp_params=new Object();
+		tmp_params.state='R';
+		tmp_params.id=not_readcomment.rows[i].id;
+		this.updateRow('comment_log',tmp_params,['state','id']);
+	}
+
+	sql{.
+		SELECT 
+			    DISTINCT
+
+				p.name,
+				p.photo,
+				comment.id AS commentId,
+				comment.content AS commentContent,
+				//comment.postd AS commentPostd ,
+				log.postd AS commentPostd ,
+				origin_comment.id AS originCommentId,
+				origin_comment.content AS originCommentContent,
+				//origin_comment.postd AS originCommentPostd,
+				log.postd AS originCommentPostd,
+				log.action AS action,
+				item.name AS itemName,
+				item.id AS itemId
+			 FROM gf_comment comment , gf_comment origin_comment,
+				member member,person p,comment_log log,gf_item item 
+			  WHERE member.id = log.member and comment.state != 'W' and p.id = member.person and 1=1 and 
+	 			item.id=log.item
+	and ((log.comment=comment.id and comment.author =? and log.action='S' and origin_comment.id=comment.id)
+	or (log.comment= comment.id and ? = any(comment.related_members) and log.action='F' and origin_comment.id=comment.origin_comment))
+	and item.state!='D'
+	order by log.postd desc
+	.}
+logger.info('sql'+sql);
+	return this.query(sql, [getCurrentMemberId(),getCurrentMemberId()], params._page);
+
+}
+
+/**
+获取与我相关的评论
+*/
+d2js.exports.get_comment = d2js.get_comment=function(params){
+	
+//	sql{.
+//		SELECT * FROM gf_comment comment where 1=1
+//		code{.
+//			sql{.?(getCurrentMemberId()) and (? = any(comment.related_members) or comment.author = ?) .}
+//		.}
+//		and comment.state='A'
+//	.}
+//	var not_readcomment=this.query(sql, [getCurrentMemberId(),getCurrentMemberId()]);
+//	for(var i=0;i<not_readcomment.rows.length;i++){
+//		var tmp_params=new Object();
+//		tmp_params.state='R';
+//		tmp_params.id=not_readcomment.rows[i].id;
+//		this.updateRow('gf_comment',tmp_params,['state','id']);
+//	}
+//	sql{.
+//		SELECT 
+//		    DISTINCT
+//			p.name,
+//			p.photo,
+//			comment.id AS commentId,
+//			comment.content AS commentContent,
+//			comment.postd AS commentPostd ,
+//			origin_comment.id AS originCommentId,
+//			origin_comment.content AS originCommentContent,
+//			origin_comment.postd AS originCommentPostd,
+//			log.action AS action,
+//			item.name AS itemName,
+//			item.id AS itemId
+//		 FROM gf_comment comment LEFT JOIN gf_comment origin_comment ON comment.origin_comment = origin_comment.id, member member,person p,comment_log log,gf_item item 
+//		 WHERE member.id = log.member and comment.state != 'W' and p.id = member.person and 1=1 and item.id=log.item and comment.id=log.comment
+//		code{.
+//			sql{.?(getCurrentMemberId()) and log.member=?  .}
+//		.}
+//		order by comment.postd desc
+//	.}
+	sql{.
+		SELECT 
+	    DISTINCT
+		p.name,
+		p.photo,
+		comment.id AS commentId,
+		comment.content AS commentContent,
+		//comment.postd AS commentPostd ,
+		log.postd AS commentPostd ,
+		origin_comment.id AS originCommentId,
+		origin_comment.content AS originCommentContent,
+		//origin_comment.postd AS originCommentPostd,
+		log.postd AS originCommentPostd,
+		log.action AS action,
+		item.name AS itemName,
+		item.id AS itemId
+	 FROM gf_comment comment , gf_comment origin_comment,
+		member member,person p,comment_log log,gf_item item 
+	  WHERE member.id = log.member and comment.state != 'W' and p.id = member.person and 1=1 and 
+			item.id=log.item
+	 and ((log.member =? and comment.id=log.comment and log.action='S' and origin_comment.id=comment.id)
+	 or (log.member =? and comment.id=log.comment and log.action='F' and origin_comment.id=comment.origin_comment)
+	 or (log.member =? and comment.id=log.comment and log.action='P' and origin_comment.id=comment.id))
+		and item.state!='D'
+	 order by log.postd desc
+		.}
+logger.info('sql'+sql);
+	return this.query(sql, [getCurrentMemberId(),getCurrentMemberId(),getCurrentMemberId()], params._page);
+
+}
+
+/**
+注销登录
+*/
+d2js.exports.logout = d2js.logout=function(params){
+
+	//获取member
+	sql{.
+		SELECT * FROM member WHERE 1=1 and id = ?
+	.}
+	if(getCurrentMemberId()==null)
+	{
+		throw new Error('您没有登录');
+	}
+	var hascid=false;
+	var index=0;
+	var data = this.queryRow(sql,[getCurrentMemberId()]);
+	if(data.tag.devices==undefined||data.tag.devices=='undefined'||data.tag.devices==null)
+	{
+			var tag=new Object();
+			tag.type=data.tag.type;
+			tag.createtime=data.tag.createtime;
+			tag.devices=new Array();
+			this.execute("UPDATE member SET tag = ? where id = ?", [tag, data.id]);
+	}else{
+		for(var i=0;i<data.tag.devices.length;i++)
+		{
+			if(data.tag.devices[i].cid==params.cid)
+			{
+				hascid=true;
+				index=i;
+				break;
+			}
+		}
+		if(hascid)
+		{
+			logger.info("in");
+			var devices1=data.tag.devices;
+			devices1.splice(index,1);
+			var tag={devices:devices1};
+			logger.info(JSON.stringify(tag));
+			this.execute("UPDATE member SET tag = tag || ? where id = ?", [tag, data.id]);
+		}
+	}
+	session.invalidate();
+}
+/**
+写建议
+*/
+d2js.exports.savefeedback = d2js.savefeedback=function(params){
+	
+
+	$V(params, {
+		content : [V.notNull]
+	});
+	params.id =  this.nextId("gf_feedback_id_seq");
+	params.kind = 'advice';
+	params.feedbackd=new Date();
+	params.state='N';
+	params.member=getCurrentMemberId();
+	this.insertRow('gf_feedback',params,['id','kind','feedbackd','state','content','member']);
+	return;
+}
+
+/**
+获取当前用户未阅读的文章
+*/
+d2js.exports.getNotReadCount4Item = d2js.getNotReadCount4Item=function(params){
+ 
+	sql{.
+		SELECT *,(SELECT COUNT(*) FROM gf_item WHERE type ='A' AND id not IN (SELECT item FROM read_log WHERE member = ?)  and channel = gf_channel.id and state!='D') AS notReadCount FROM gf_channel WHERE id IN (
+			SELECT channel FROM channel_subscription WHERE member = ?
+		)
+	.}
+	return this.query(sql, [getCurrentMemberId(),getCurrentMemberId()]);
+}
+
+/**
+我的新消息
+*/
+d2js.exports.getNewMessage=d2js.getNewMessage = function(params){
+	
+
+//	sql{.
+//		SELECT * FROM member_message where 1=1
+//		code{.
+//			sql{.?(getCurrentMemberId()) and receiver = ?.}
+//		.}
+//		and readd is null
+//		order by readd desc
+//	.}
+//	//sql = this.orderBy(sql, condition._sorts, {'readd' : 'desc'});//增加时间排序
+	sql{.
+		SELECT * FROM comment_log log,gf_comment comment where 1=1
+		code{.
+			sql{.?(getCurrentMemberId()) and ((? = any(comment.related_members) and log.action='F' and log.comment=comment.id) or (comment.author=? and log.action='S' and log.comment=comment.id)) .}
+		.}
+		and log.state='A'
+	.}
+	return this.query(sql, [getCurrentMemberId(),getCurrentMemberId()]);
+
+}
+/**
+我的新评论
+*/
+d2js.exports.getNewComment=d2js.getNewComment = function(params){
+
+
+	sql{.
+		SELECT * FROM gf_comment comment where 1=1
+		code{.
+			sql{.?(getCurrentMemberId()) and (? = any(comment.related_members) or comment.author = ?) .}
+		.}
+		and comment.state='A'
+		order by comment.postd desc
+	.}
+	//sql = this.orderBy(sql, condition._sorts, {'postd' : 'desc'});//增加时间排序
+
+	return this.query(sql, [getCurrentMemberId(),getCurrentMemberId()]);
+
+}
+/**
+读取消息
+*/
+d2js.exports.readMessage = d2js.readMessage=function(params){
+
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+	params.readd=new Date();
+	return this.updateRow('member_message',params,['readd','id']);
+}
+/**
+查询订单状态
+*/
+d2js.exports.cheakOrder = d2js.cheakOrder=function(params){
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+	//throw new Error('未更新');
+	if(params.isOrderList=='false'||params.isOrderList==false)
+	{
+		sql{.
+			select * from gf_order where order_pay=?
+			.}
+		var m_order = this.queryRow(sql,[params.id]);
+		if(m_order.state!='W')
+		{
+			return;
+		}else
+		{
+			throw new Error('未更新');
+		}
+	}else
+	{
+		sql{.
+			select * from gf_order where id=?
+			.}
+		var m_order = this.queryRow(sql,[params.id]);
+		if(m_order.state!='W')
+		{
+			return;
+		}else
+		{
+			throw new Error('未更新');
+		}
+	}
+	
+}
+/**
+更新订单
+*/
+d2js.exports.updateOrder = d2js.updateOrder=function(params){
+	$V(params, {//校验参数
+		id : [V.notNull]
+	});
+	
+	params.state='W';
+	if(params.isOrderList==true||params.isOrderList=='true')
+	{
+		sql{.
+			select * from gf_order where id=?
+			.}
+		var m_order = this.queryRow(sql,[params.id]);
+		if(m_order.state=='p')
+		{
+			this.execute("UPDATE gf_order SET state = ? where id = ?", [params.state, params.id]);
+		}
+	}else
+	{
+		sql{.
+			select * from gf_order where order_pay=?
+			.}
+		var m_order = this.queryRow(sql,[params.id]);
+		if(m_order.state=='p')
+		{
+			this.execute("UPDATE gf_order SET state = ? where order_pay = ?", [params.state, params.id]);
+		}
+	}
+//		if(params.isOrderList=='false'||params.isOrderList==false)
+//		{
+//			sql{.
+//				select * from gf_order where order_pay=?
+//				.}
+//			var m_order = this.queryRow(sql,[params.id]);
+//			for(var i=0;i<m_order.items.length;i++)
+//			{
+//				sql{.
+//					select * from gf_item where id=?
+//					.}
+//				var m_item = this.queryRow(sql,[m_order.items[i]]);
+//			if(m_item.type=='C')
+//			{
+//	
+//			sql{.
+//				select * from gf_channel where id=?
+//				.}
+//			var channel = this.queryRow(sql,[m_item.id]);
+//			logger.info('channel:'+JSON.stringify(channel));
+//			sql{.
+//				select 
+//					*
+//				from channel_subscription 
+//				where 
+//				member = ? and channel = ?
+//			.}
+//			var cheak = this.query(sql,[getCurrentMemberId(),channel.id]);
+//			logger.info('cheak:'+cheak.rows.length);
+//			if(cheak.rows.length>0)
+//			{
+//				logger.info("存在的专栏");
+//				
+//			}else{
+//			
+//			var imports3 = new JavaImporter(java.util);
+//			with(imports3){
+//				var WriteTxt3 = Java.type("privilege.WriteTxt");
+//				WriteTxt3.contentToTxt('进入新增购买专栏记录：'+channel.name);
+//			}
+//			var myDate = new Date();
+//
+//			var tmp_channel=new Object();
+//			tmp_channel.member = getCurrentMemberId();
+//			tmp_channel.channel=channel.id;
+//			tmp_channel.startd=new Date();
+//			if(channel.suites[0].unit=='D')
+//			{
+//				myDate.setDate(myDate.getDate()+channel.suites[0].effectDuration)
+//			}else if(channel.suites[0].unit=='M')
+//			{
+//				myDate.setMonth(myDate.getMonth()+channel.suites[0].effectDuration)
+//			}else{
+//				myDate.setFullYear(myDate.getFullYear()+channel.suites[0].effectDuration)
+//			}
+//			tmp_channel.expired=myDate;
+//
+//			var imports2 = new JavaImporter(java.util);
+//			with(imports2){
+//				var WriteTxt2 = Java.type("privilege.WriteTxt");
+//				WriteTxt2.contentToTxt('进入添加专栏设置时间,：'+tmp_channel.expired);
+//			}
+//			logger.info("startd："+tmp_channel.startd);
+//			logger.info("expired："+tmp_channel.expired);
+//			tmp_channel.ORDER=m_order.id;
+//			tmp_channel.state='A';
+//			tmp_channel.last_article=0;
+//			tmp_channel.unread_items=new Array();
+//			sql{.
+//				select * from gf_item where channel=?
+//				.}
+//				var tmp_article=this.query(sql,[params.id]);
+//    		logger.info(JSON.stringify(tmp_article));
+//			for(var i=0;i<tmp_article.rows.length;i++)
+//			{
+//				tmp_channel.unread_items.push(tmp_article.rows[i].id);
+//				logger.info(tmp_article.rows[i].id);
+//			}
+//			logger.info("tmp_article："+tmp_channel.unread_items);
+//			tmp_channel.unread_items = $ARRAY('int', tmp_channel.unread_items);
+//			logger.info("tmp_article："+tmp_channel.unread_items);
+//			tmp_channel.suite=channel.suites[0];
+//			var imports5 = new JavaImporter(java.util);
+//			with(imports5){
+//				var WriteTxt5 = Java.type("privilege.WriteTxt");
+//				WriteTxt5.contentToTxt('进入添加专栏数据,：'+JSON.stringify(tmp_channel));
+//			}
+//			logger.info("ORDER："+tmp_channel.ORDER);
+//			sql{.
+//				INSERT INTO channel_subscription("member","channel",startd,expired,"ORDER",state,last_article,unread_items,suite) values (?,?,?,?,?,?,?,?,?)
+//				.}
+//			var re=this.execute(sql,[tmp_channel.member,tmp_channel.channel,tmp_channel.startd,tmp_channel.expired,tmp_channel.ORDER,tmp_channel.state,tmp_channel.last_article,tmp_channel.unread_items,tmp_channel.suite]);
+//			}
+//			}
+//		}
+//		}
+	return;
+}
+/**
+查询订单微信
+*/
+d2js.exports.queryOrder = d2js.queryOrder=function(params){
+params.no=session.order_no;
+var result='';
+	var imports = new JavaImporter(org.json,java.util,java.io,java.text,com.taobao.api);
+	with(imports){
+		var WeixinPayTest = Java.type("privilege.WeixinPayTest");
+		var smsResult=WeixinPayTest.orderquery(params.no);
+		if(smsResult == null){
+			throw new Error('上传失败');
+		}
+		result=smsResult
+	}
+	if(result)
+	{
+		return 1;
+	}else{
+		return 0;
+	}
+	return '';
+}
+/**
+查询订单支付宝
+*/
+d2js.exports.queryOrder = d2js.queryOrder=function(params){
+params.no=session.order_no;
+var result='';
+	var imports = new JavaImporter(org.json,java.util,java.io,java.text,com.taobao.api);
+	with(imports){
+		var WeixinPayTest = Java.type("privilege.WeixinPayTest");
+		var smsResult=WeixinPayTest.orderquery(params.no);
+		if(smsResult == null){
+			throw new Error('上传失败');
+		}
+		result=smsResult
+	}
+	if(result)
+	{
+		return 1;
+	}else{
+		return 0;
+	}
+	return '';
+}
+/**
+三方登录注册
+*/
+d2js.exports.otherlogin = d2js.otherlogin=function(params){
+	$V(params, {//校验参数
+		openid : [V.notNull]
+	});
+	sql{.
+		SELECT * FROM member WHERE 1=1
+	.}
+	var Allmember = this.query(sql,[]);
+	for(var k=0;k<Allmember.rows.length;k++)
+	{
+		var m_hascid=false;
+		var m_index=0;
+		for(var i=0;i<Allmember.rows[k].tag.devices.length;i++)
+		{
+			if(Allmember.rows[k].tag.devices[i].cid==params.cid)
+			{
+				m_hascid=true;
+				m_index=i;
+				break;
+			}
+		}
+		if(m_hascid)
+		{
+			logger.info("in");
+			var devices1=Allmember.rows[k].tag.devices;
+			devices1.splice(m_index,1);
+			
+			var tag=new Object();//{devices:devices1};
+			tag.type=Allmember.rows[k].tag.type;
+			tag.createtime=Allmember.rows[k].tag.createtime;
+			tag.devices=devices1;
+			logger.info(JSON.stringify(tag));
+			this.execute("UPDATE member SET tag = ? where id = ?", [tag, Allmember.rows[k].id]);
+		}
+	}
+	sql{.
+		SELECT * FROM person where wechat=?
+	.}
+
+	var tmp_person = this.queryRow(sql, [params.openid]);
+	if(tmp_person==null)
+	{
+		var tmp_params=new Object();
+		tmp_params.name = params.name;
+		tmp_params.gender=params.gender;
+		tmp_params.photo=params.photo;
+		tmp_params.wechat=params.openid;
+		d2js.doTransaction(function(){
+			tmp_person = this.insertRow('person', tmp_params, ["name","wechat","gender","photo"]);
+			var member=new Object();
+			member.person=tmp_person.id;
+			member.state='A';
+			var tag=new Object();
+			tag.type=params.type=='wx'?'微信':params.type=='qq'?'QQ':'微博';
+			tag.createtime=new Date();
+			tag.devices=new Array();
+			member.tag=tag;
+			this.insertRow('member',member,['person','state','tag']);
+			logger.info('Insert Sccuess');
+		})
+	}
+	setSessionAppUser(tmp_person);// 设置session.appUser
+
+	//获取member.id
+	sql{.
+		SELECT * FROM member WHERE 1=1
+		code{.
+			sql{.?(tmp_person.id) and person = ?  .}
+		.}
+	.}
+	var hascid=false;
+	var data = this.queryRow(sql,[tmp_person.id]);
+	logger.info(JSON.stringify(data.tag.devices));
+	if(data.tag.devices==undefined||data.tag.devices=='undefined'||data.tag.devices==null)
+	{
+			var tag=new Object();
+			tag.type=data.tag.type;
+			tag.createtime=data.tag.createtime;
+			tag.devices=new Array();
+			var tmp_device=new Object();
+			tmp_device.cid=params.cid;
+			tmp_device.system=params.system;
+			tag.devices.push(tmp_device);
+			this.execute("UPDATE member SET tag = ? where id = ?", [tag, data.id]);
+	}else{
+		for(var i=0;i<data.tag.devices.length;i++)
+		{
+			if(data.tag.devices[i].cid==params.cid)
+			{
+				hascid=true;
+				break;
+			}
+		}
+		if(!hascid)
+		{
+			logger.info("in");
+			var devices1=new Array();
+			if(data.tag.devices.length>0)
+			{
+				devices1=data.tag.devices;
+			}
+			
+			var tmp_device=new Object();
+			tmp_device.cid=params.cid;
+			tmp_device.system=params.system;
+			devices1.push(tmp_device);
+			var tag=new Object();//{devices:devices1};
+			tag.type=data.tag.type;
+			tag.createtime=data.tag.createtime;
+			tag.devices=devices1;
+			logger.info(JSON.stringify(tag));
+			this.execute("UPDATE member SET tag = ? where id = ?", [tag, data.id]);
+		}
+	}
+	
+	
+	if(data.state == 'D'){
+	    throw new Error('登陆失败，该用户已被限制登录！');
+	}
+	session.CurrentMemeberId = data.id;
+	return;
+}
+/**
+上传
+*/
+d2js.exports.uploadimg = d2js.uploadimg=function(params){
+	var parts = request.getParts();
+	var imports = new JavaImporter(org.json,java.util,java.io,java.text,com.taobao.api);
+	with(imports){
+		var Test = Java.type("privilege.Test");
+		var smsResult=Test.saveImage(parts,request);
+		if(smsResult == null){
+			throw new Error('上传失败');
+		}
+		return {url:smsResult};
+	}
+	
+}
+
+
+
+
+

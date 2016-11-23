@@ -1,0 +1,60 @@
+[%
+    sql{.
+		SELECT * FROM gf_item WHERE id = ?
+	.}
+	logger.info('sql'+sql);
+	var r = this.queryRow(sql,[params.id]);
+	sql{.
+			update gf_item set id=id
+				 , view_count =view_count+ ?
+				 , real_view_count =real_view_count+ ?
+			where 1=1 and id = ?
+		.}
+		logger.info('sql:'+sql);
+		this.execute(sql,[5,1,params.id]);
+%]
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>[%= r.name %]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/style.css" rel="stylesheet" media="screen">
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/jquery.flexslider-min.js"></script>
+    <style>
+    
+    </style>
+</head>
+<body>
+
+	<div class="flexslider">
+		<ul class="slides cl">
+		[%  r.tag.images.forEach(function(col){ %]
+		 	<li><a href="#" ><img src="[%= col %]" alt="1" /></a></li>    
+		[%  }); %]
+    	</ul>
+  </div>
+  <div class="good_title">
+	  <div style="font-size:24px;color:#333333;padding-left:10px">[%= r.name %]</div>
+	  <div style="font-size:24px;padding-left:10px"><span style="color:#fdd000">￥[%= r.price %]</span>
+	  <div class="store_count"><span style="font-size:13px">剩余：</span>[%= r.store_count %]件</div></div>
+  </div>
+  <div class="good_detail" style="margin-bottom:70px">
+  <div style="width:100%;text-align:center;margin-top:25px;font-size:18px;color:#333">商品详情</div>
+  <div style="text-align:center"><span style="display:inline-block;height:5px;width:30px;background:#FBCF00"></span></div>
+  <div id="detail" style="padding:0px 10px">[%= r.tag.description %]</div>
+  </div>
+<script type="text/javascript">
+jQuery(window).load(function(){
+  jQuery('.flexslider').flexslider({
+  animation: "slide",
+  directionNav: false,
+  start: function(slider){
+    jQuery('body').removeClass('loading');
+  }
+  });
+});
+</script>
+</body>
+</html>

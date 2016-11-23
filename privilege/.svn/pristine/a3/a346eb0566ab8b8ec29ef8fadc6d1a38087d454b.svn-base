@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="http://localhost:8080/start/backPortal/itemManage.d2js?_m=uploadFile" method="post" enctype="multipart/form-data">
+		<p> <input type="file" name="file2" /> </p>
+		<p> <input type="submit" /> </p>
+	</form>
+</body>
+</html>

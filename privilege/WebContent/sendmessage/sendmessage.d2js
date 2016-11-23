@@ -1,0 +1,58 @@
+
+//list
+d2js.exports.sendMessagss = d2js.sendMessagss= function(params){
+  logger.info('mod sendMessagss ' + JSON.stringify(params));
+  
+  	if (params.action) {
+		params.action ='%' +params.action+  '%';
+	} else {
+		params.action = '%'+'%';
+	}
+	if(params.action.indexOf("channel") > 0){
+	  sql{.
+	   SELECT 	push.action,push.id,push.content,push.pushd,push.title,push.item,push.state,gf_item.name FROM  push left join gf_item on push.item = gf_item.id where 1=1
+	     and push.id not in(SELECT id FROM push WHERE push.action like '%good%' or push.action like '%article%')
+	     order by push.pushd DESC
+	  .}
+	   return this.query(sql,params.page);
+	}else{
+	  sql{.
+	    SELECT 	push.action,push.id,push.content,push.pushd,push.title,push.item,push.state,gf_item.name FROM  push left join gf_item on push.item = gf_item.id where 1=1
+		sql{.?(params.action)
+			 	and push.action like :action .}
+		order by push.pushd DESC
+	    .}
+	}
+
+	return this.query(sql,params,params.page);
+}
+
+//添加
+d2js.exports.addMessags= d2js.addMessags= function(params){
+      params.id = this.nextId("push_id_seq");
+      params.item = parseInt(params.item);
+      params.state ='W';
+      params.pushd=params.pushd;
+      logger.info('add addMessags ' + JSON.stringify(params));
+	 return this.insertRow('push', params, ['id','action',  'content', 'pushd','title','item','state'])
+}
+
+//修改
+d2js.exports.updateMessags= d2js.updateMessags= function(params){
+      params.item = parseInt(params.item);
+      params.state ='W';
+      logger.info('add uodateMessags ' + JSON.stringify(params));
+    return  this.updateRow('push', params, ['id', 'action',  'content','pushd','title','item','state']);
+}
+
+
+//删除
+
+d2js.exports.delMessags= d2js.delMessags= function(params){
+     logger.info('del delMessags:'+JSON.stringify(params));
+	sql{.
+	   DELETE from push WHERE push.id =:id
+	.}
+
+	return this.execute(sql,params);
+}

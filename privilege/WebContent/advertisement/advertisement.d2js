@@ -1,0 +1,80 @@
+//获取轮播图
+d2js.exports.getCarouselFigure = d2js.getCarouselFigure= function(params){
+	sql{.
+		SELECT 
+			gf_ad.id AS ad_id,
+			gf_ad.image AS ad_image,
+			gf_ad.url AS ad_url
+			FROM  gf_ad
+	.}
+	return this.query(sql);
+}
+
+
+//广告后台
+d2js.exports.getAdvertisement = d2js.getAdvertisement= function(params){
+	if (params.action) {
+		params.action ='%' +params.action+  '%';
+	} else {
+		params.action = '%'+'%';
+	}
+
+    //搜寻网址特殊处理
+	if(params.action.indexOf("channel") > 0){
+	  sql{.
+		SELECT gf_ad.*,gf_item.name as itemName
+		 FROM  gf_ad  left join gf_item on gf_ad.item = gf_item.id
+		 WHERE gf_ad.id not in (select id FROM  gf_ad  WHERE url like '%good%' or  url like '%article%')
+	    .}
+	  return this.query(sql,params.page);
+	}else{
+	 sql{.
+		 SELECT gf_ad.* ,gf_item.name as itemName FROM  gf_ad  left join gf_item on gf_ad.item = gf_item.id
+		 WHERE 1=1
+		sql{.?(params.action) and url like ?  .}
+	 .}
+		return this.query(sql,[params.action],params.page);
+	}
+}
+
+//添加
+d2js.exports.addAdvertisement = d2js.addAdvertisement= function(params){
+      params.id = this.nextId("gf_ad_id_seq");
+      if(params.item != null && params.item != "" && params.item != undefined && params.item != 0){
+         params.item = parseInt(params.item);
+      }else{
+       params.item = null;
+      }
+   
+      params.post_employee =this.session.user.person.employee;
+      logger.info('add addAdvertisement ' + JSON.stringify(params));
+	  this.insertRow('gf_ad', params, ['id','image',  'url', 'post_employee','item'])
+}
+
+//修改
+d2js.exports.modAdvertisement = d2js.modAdvertisement= function(params){
+      logger.info('mod addAdvertisement ' + JSON.stringify(params)); 
+       if(params.item != null && params.item != "" && params.item != undefined && params.item != 0){
+         params.item = parseInt(params.item);
+      }else{
+       params.item = null;
+      }
+      if(params.image!=null||params.image!=''|| params.image=='undefined' || params.image==undefined)
+      {
+      	this.updateRow('gf_ad', params, ['id', 'image',  'url','item']);
+      }else{
+      	this.updateRow('gf_ad', params, ['id',  'url','item']);
+      }
+      
+}
+
+//删除
+
+d2js.exports.delAdvertisement= d2js.delAdvertisement= function(params){
+     logger.info('Advertisement params:'+JSON.stringify(params));
+	sql{.
+	   DELETE from gf_ad WHERE gf_ad.id =:id
+	.}
+
+	return this.execute(sql,params);
+}

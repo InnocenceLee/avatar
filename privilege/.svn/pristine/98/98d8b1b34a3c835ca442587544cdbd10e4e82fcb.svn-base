@@ -1,0 +1,25 @@
+imports("../common/jsFunctionExtends.js");
+imports("config/website.js");
+
+/****************************ueditor上传文件*************************************/
+/**
+ *ueditor上传文件
+**/
+d2js.exports.ueditorUploadFile = d2js.ueditorUploadFile=function(){
+	var arr;
+	var rcd = new Object();
+	var dataUrl = '';
+	logger.info('in1');
+	var imports = new JavaImporter(com.baidu.ueditor);
+	logger.info('in');
+	with(imports){
+		var Ueditor = Java.type("ueditor.Ueditor");
+		var smsResult=Ueditor.Update(request,response);
+		if(smsResult == null){
+			throw new Error('上传失败');
+		}
+		dataUrl= smsResult;
+	}
+	logger.info('dataUrl为：'+dataUrl);
+	return JSON.parse(dataUrl);
+}

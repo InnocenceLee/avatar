@@ -1,0 +1,167 @@
+imports("../common/jsFunctionExtends.js");
+imports("jssp-lib/cryptutil.js");
+
+//获取订阅专栏
+d2js.exports.getChannelAll = d2js.getChannelAll= function(params){
+		params.memberid = getCurrentMemberId();
+	sql{.
+		SELECT 
+			gch.id AS  channel_id,
+			gch.name AS  channel_name,
+			gch.assignee AS  channel_assignee,
+			gch.suites AS  channel_suites,
+			gch.author_name AS  channel_anthorname,
+			gch.author_field AS  channel_authorfield,
+			gch.brief AS  channel_brief,
+			gf_item.tag,
+			scu.member 
+		FROM 
+		gf_channel gch
+		LEFT JOIN
+		channel_subscription scu on gch.id=scu.channel and scu.member=:memberid
+		LEFT JOIN gf_item ON gf_item.id=gch.id
+		ORDER BY rank
+	.}
+
+	return this.query(sql,params);
+}
+
+//获取订阅附件
+d2js.exports.getArticleList= d2js.getArticleList= function(params){
+
+	sql{.
+		SELECT 
+		gf_item.*
+		FROM gf_item
+		WHERE gf_item."type" = 'A' AND gf_item.channel = :channel_id
+	.}
+	return this.query(sql,params);
+}
+
+//获取会员订阅
+
+d2js.exports.getMemberSubscriber  = d2js.getMemberSubscriber= function(params){
+	sql{.
+		SELECT 
+			gf_channel.id,
+			gf_channel.name,
+			//channel_subscription.suite,
+			gf_channel.suites AS suite,
+			gf_channel.author_name,
+			gf_channel.author_field,
+			gf_channel.brief,
+			gf_item.buy_count AS view_count,  // 浏览总数
+			gf_item.tag,
+			(SELECT COUNT(*) FROM gf_item WHERE type ='A' AND id not IN (SELECT item FROM read_log WHERE member = ?)  and channel = gf_channel.id) AS notReadCount
+		FROM  channel_subscription
+		LEFT JOIN gf_channel ON channel_subscription.channel = gf_channel.id
+		LEFT JOIN gf_item ON gf_item.id = gf_channel.id
+		WHERE channel_subscription.member = ? ORDER BY rank
+	.}
+	
+	return this.query(sql,[getCurrentMemberId(),getCurrentMemberId()]);
+}
+
+//获取会员未订阅
+d2js.exports.getNotSubscriber  = d2js.getNotSubscriber= function(params){
+	sql{.
+		SELECT 
+			gf_channel.id AS id,
+			gf_channel.name AS name,
+			gf_channel.suites AS suite,
+			gf_channel.author_name AS author_name,
+			gf_channel.author_field AS author_field,
+			gf_channel.brief AS brief,
+			gf_item.buy_count AS view_count,
+			gf_item.tag
+		FROM  gf_channel
+		LEFT JOIN gf_item ON   gf_item.id = gf_channel.id
+		WHERE gf_channel.id  NOT IN(SELECT channel FROM channel_subscription WHERE "member" = ?)
+		ORDER BY rank
+	.}
+	return this.query(sql,[getCurrentMemberId()]);
+}
+
+
+//获取每日有料
+d2js.exports.getHeadLine  = d2js.getHeadLine= function(params){
+var condition = new Object();
+condition._page=params._page;
+	sql{.
+	  SELECT 
+	     gf_today.* ,
+	     gf_item.view_count AS view_count,
+	     gf_item.type AS type,
+	     gf_item.name AS item_name,
+	     gf_item.price AS item_price,
+	     gf_item.supplier AS item_supplier
+        FROM 
+         gf_today
+         LEFT JOIN gf_item ON  gf_item.id = gf_today.item
+        WHERE
+         gf_today.state='A'
+         order by gf_today.postd desc
+	.}
+	return this.query(sql, condition, condition._page);
+}
+
+//获取订阅详情
+d2js.exports.getChannelDetail  = d2js.getChannelDetail= function(params){
+
+	sql{.
+	    SELECT 
+	      gf_channel.* 
+	      FROM gf_channel WHERE gf_channel.id = :id
+	.}
+	return this.query(sql, params);
+}
+
+//搜索(栏目)
+d2js.exports.searchChannel= d2js.searchChannel= function(params){
+	params.memberid = getCurrentMemberId();
+   sql{.
+	      select 
+	      gch.*,
+	      scu.member 
+	      from gf_channel gch
+		  LEFT JOIN
+		  channel_subscription scu on gch.id=scu.channel and scu.member=:memberid
+	      WHERE 1=1
+	       sql{.?(params.keyWord)
+		    and strpos(gch.name,:keyWord) >0 or	
+		        strpos(gch.author_name,:keyWord) >0
+		  .}
+	.}
+	return this.query(sql, params);
+}
+//搜索(物品)
+d2js.exports.searchItem= d2js.searchItem= function(params){
+
+   sql{.
+	     SELECT gf_item.*
+         from gf_item
+         WHERE 1=1 and gf_item.type='G'
+	       sql{.?(params.keyWord)
+		    and strpos(gf_item.name,:keyWord) >0 
+		  .}
+	.}
+	return this.query(sql, params);
+}
+//搜索(今日有料)
+d2js.exports.searchToday= d2js.searchToday= function(params){
+
+   sql{.
+	     SELECT gf_today.*,
+	     gf_item.type AS type,
+	     gf_item.name AS item_name,
+	     gf_item.price AS item_price,
+	     gf_item.supplier AS item_supplier
+           from gf_today
+           LEFT JOIN gf_item ON  gf_item.id = gf_today.item
+           WHERE 1=1
+	        sql{.?(params.keyWord)
+		    and strpos(gf_today.title,:keyWord) > 0
+		   .}
+	.}
+	return this.query(sql, params);
+}

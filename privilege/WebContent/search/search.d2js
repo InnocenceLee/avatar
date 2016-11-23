@@ -1,0 +1,60 @@
+
+imports("jssp-lib/cryptutil.js");
+
+//获取热门搜索词
+d2js.exports.gethotWord = d2js.gethotWord= function(params){
+	sql{.
+		SELECT
+				hot_word.id AS word_id,
+				hot_word.word AS word_content,
+				hot_word.times AS word_times
+				FROM hot_word
+				ORDER BY type desc,times desc
+	.}
+	return this.query(sql);
+}
+// 搜索(栏目,每日有料，物品)
+d2js.exports.search= d2js.search= function(params){
+
+	//********以下是对热门词的业务处理 add by zhangqiang 2016年11月1日15:36:58*******//
+	var cid=params.cid;//设备号
+	logger.info("cid: "+cid);
+	if(cid!=null && cid!=undefined && cid!='' && cid!='null' && cid!='undefined'){//cid设备号不为空，则要进行热门词的相关处理
+		var imports = new JavaImporter(java.util,java.io);//引入java类的相关package
+		with(imports){
+			var HotWordUtils = Java.type("privilege.HotWordUtils");
+			var isNeed=HotWordUtils.insert2CacheMap(params.keyWord,cid);//调用java方法，插入到缓存map中，返回“是否需要处理DB”
+			if(isNeed=='IS_NEED_UPDATE'){//需要更新hot_word表
+				sql{.
+					SELECT COUNT(*) FROM hot_word WHERE 1=1
+					code{.
+						sql{.?(params.keyWord) and word = ?  .}
+					.}
+				.}
+				
+				var data = this.queryRow(sql,[params.keyWord]);//首先查询数据表里是否存在记录
+				logger.info("根据keyWord查询hot_word的数量："+JSON.stringify(data));
+				if(data.count==0){//如果数据表里不存在记录，则新增
+					var hotWord=new Object();
+					hotWord.id = this.nextId("hot_word_id_seq");
+					hotWord.word=params.keyWord;
+					hotWord.times=3;
+					hotWord.type='A';
+					this.insertRow('hot_word',hotWord,['id','word','times','type']);
+				}else{//如果数据表里存在记录，则更新
+					this.execute("UPDATE hot_word SET times = times+1 where word = ?", [params.keyWord]);
+				}
+				logger.info("插入到CACHE_MAP、更新hot_word表成功！");
+			}else{
+				logger.info("不需要更新hot_word表！");
+			}
+			
+		}
+	}
+
+    var result = {channel:"",item:"",today:""}
+	result.channel = this.callD2js('../channel/channel.d2js', 'searchChannel', params);
+	result.item = this.callD2js('../channel/channel.d2js', 'searchItem', params);
+	result.today = this.callD2js('../channel/channel.d2js', 'searchToday', params);
+	return result;
+}

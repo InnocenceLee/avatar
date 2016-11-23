@@ -1,0 +1,1941 @@
+
+imports("config/website.js");
+
+//execute()返回的int，代表影响的行数，不代表执行是否成功
+//return this.insertRow()返回的是插入的对象（带ID）
+
+//评论相关
+//访问接口：http://localhost:8082/fk/comment/commentService.d2js?_m=getItemCommentsByID&params={"id":"1"}
+
+
+/****************************物品管理-start*************************************/
+/**
+ *管理员可以新增新产品，新增新产品需要录入产品名称、产品价格、产品图片，并编辑产品详情页面等。
+**/
+d2js.exports.addItem = d2js.addItem=function(params){
+	$V(this,params, {//校验参数
+		name : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = this.nextId("gf_item_id_seq");//id
+	condition.name = params.name;
+	condition.type = 'G';
+	condition.sub_type = 'G';
+	
+	condition.price = parseFloat(params.price);
+	//condition.price = params.price;
+	condition.created = new Date();
+	condition.inputed = new Date();
+	
+	condition.input_employee = this.session.user.person.employee;
+	condition.view_count = parseInt(params.view_count);
+	condition.real_view_count = 0;
+	condition.store_count = parseInt(params.store_count);
+	
+	condition.supplier = 1;//parseInt(params.supplier);
+	condition.channel = null;
+	condition.state='S'
+	condition.buy_count = 10;//默认设置
+	condition.real_buy_count = 0;
+	condition.catalog = parseInt(params.catalog);
+	
+	/**上传文件
+	var dataUrl;
+	var tag=new Object();
+	tag.images=new Array();
+	
+	tag.thumb=params.thumb;// 缩略图（用于推荐）
+	tag.large_thumb=params.large_thumb;//大缩略图（用于商品页）
+	tag.images.push(params.images);//展示图
+	
+	tag.description=params.description;
+	tag.catalog=params.catalog;
+	tag.author_name=params.author_name;
+	**/
+	condition.tag = params.tag;
+	
+	//插入gf_item表 insertItem.id
+	var insertItem=this.insertRow('gf_item', condition, ['name','type','sub_type','price',
+		'tag','created','inputed','input_employee','view_count','real_view_count',
+		'store_count','supplier','channel'
+		,'buy_count','real_buy_count','catalog','state']);
+	
+	return insertItem;
+}
+
+/**
+ *物品查询(条件：名称、类别、单价、状态)
+**/
+d2js.exports.searchItem = d2js.searchItem=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	var condition = new Object();
+	if(params.name==null || params.name=='' || params.name=='undefined' || params.name==undefined){
+		params.name='';
+	}
+	condition.name = '%'+params.name+'%';
+	if(params.catalog!=null && params.catalog!='' && params.catalog!='undefined' && params.catalog!=undefined){
+		condition.catalog = parseInt(params.catalog);
+	}
+	if(params.price!=null && params.price!='' && params.price!='undefined' && params.price!=undefined){
+		condition.price = parseFloat(params.price);
+	}
+	condition.state = params.state;//状态
+	condition.type = 'G';
+	condition.sub_type = 'G';
+	
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	var sql = 'select * from gf_item where 1=1 ';
+	if(condition.name != null) sql += ' and name like :name';
+	if(condition.type != null) sql += ' and type = :type';
+	if(condition.price != null) sql += ' and price = :price';
+	if(condition.catalog != null) sql += ' and catalog = :catalog';
+	if(condition.state != null && condition.state !="") sql += ' and state = :state';
+	sql += ' and type = :type';
+	sql += ' and sub_type = :sub_type';
+	//sql = this.appendSort(sql, condition._sorts);
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, condition, condition._page);
+	
+	//return this.query(sql,[condition.name]);
+}
+
+/**
+ *物品修改
+**/
+d2js.exports.updateItem = d2js.updateItem=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition.name = params.name;
+	condition.price = parseFloat(params.price);
+	condition.supplier = parseInt(params.supplier);
+	condition.channel = null;
+	condition.catalog = parseInt(params.catalog);
+	condition.tag = params.tag;
+	condition.view_count = parseInt(params.view_count);
+	condition.store_count = parseInt(params.store_count);
+	
+	//{"id":1,"name":"商品2222","price":100.5,"supplier":1,"catalog":1,"sub_type":"A"}
+	
+	var sql = 'update gf_item set id=id ';
+	if(condition.name != null) sql += ' , name = :name';
+	if(condition.price != null) sql += ' , price = :price';
+	if(condition.supplier != null) sql += ' , supplier = :supplier';
+	if(condition.catalog != null) sql += ' , catalog = :catalog';
+	if(condition.tag != null) sql += ' , tag = :tag';
+	if(condition.view_count != null) sql += ' , view_count = :view_count';
+	if(condition.store_count != null) sql += ' , store_count = :store_count';
+	sql += ' where 1=1 ';
+	if(condition.id != null) sql += ' and id = :id';
+	//修改gf_item表
+	return this.execute(sql,condition);
+	
+//	return this.updateRow('gf_item', condition, ["id","name","price","supplier","catalog","tag"]);
+	
+}
+
+/**
+ *物品删除
+**/
+d2js.exports.deleteItem = d2js.deleteItem=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = params.id;
+	
+	//修改gf_item表
+	sql{.
+		delete from gf_item
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+	.}
+	return this.doTransaction(function(){
+        this.execute('DELETE from gf_ad WHERE gf_ad.item = ?',[condition.id]);
+        return this.execute(sql,[condition.id]);
+    })
+	
+}
+
+/**
+ *物品上架(含批量)
+**/
+d2js.exports.onSale = d2js.onSale=function(params){
+	$V(this,params, {//校验参数
+		ids : [V.notNull]
+	});
+	
+	var result='', ids = params.ids;
+	ids.forEach(function(id){
+		this.doTransaction(function(){
+			var condition = new Object();
+			condition.id = parseInt(id, 10);
+			condition.created = new Date();
+			condition.inputed = new Date();
+			condition.state = 'U';//上架状态
+			condition.input_employee = this.session.user.person.employee;
+			result=this.updateRow('gf_item', condition, ["id","created","state","inputed","input_employee"]);
+		});
+	},this);
+	return result;
+}
+
+/**
+ *物品下架(含批量)
+**/
+d2js.exports.offSale = d2js.offSale=function(params){
+	$V(this,params, {//校验参数
+		ids : [V.notNull]
+	});
+	
+	var result='', ids = params.ids;
+	ids.forEach(function(id){
+		this.doTransaction(function(){
+			var condition = new Object();
+			condition.id = parseInt(id, 10);
+			condition.removed = new Date();
+			condition.inputed = new Date();
+			condition.state = 'S';//下架状态
+			condition.input_employee = this.session.user.person.employee;
+			result=this.updateRow('gf_item', condition, ["id","removed","state","inputed","input_employee"]);
+		});
+	},this);
+	return result;
+}
+
+/**
+ *推送到首页 gf_today1
+**/
+d2js.exports.push2Index = d2js.push2Index=function(params){
+	$V(this,params, {//校验参数
+		title : [V.notNull],
+		item : [V.notNull]
+	});
+	$V(this,params, {item : [T.int]  });//转换INT
+	var condition = new Object();
+	condition.id = this.nextId("gf_item_id_seq");//id
+	condition.title = params.title;
+	condition.sub_title = params.sub_title;
+	condition.tags = params.tags;//标签
+	condition.view_mode = params.view_mode;//图片模式
+	condition.postd = params.postd;//上线时间
+	condition.picture = params.picture;//图片
+	condition.item = params.item;//物品
+	condition.input_employee = this.session.user.person.employee;//推送人
+	condition.state = 'W';//状态 W-未发布，A-在线，X-过期
+	
+	//插入gf_today表 insertItem.id
+	var insertItem=this.insertRow('gf_item', condition, ['name','type','sub_type','price',
+		'tag','created','inputed','input_employee','view_count','real_view_count',
+		'store_count','supplier','channel'
+		,'buy_count','real_buy_count','catalog']);
+	
+	return insertItem;
+}
+
+
+/****************************内容管理-start*************************************/
+/**
+ *新增内容
+**/
+d2js.exports.addArticle = d2js.addArticle=function(params){
+	$V(this,params, {//校验参数
+		name : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = this.nextId("gf_item_id_seq");//id
+	condition.name = params.name;
+	condition.type = 'A';
+	condition.sub_type = params.sub_type;
+	condition.price = 0;//params.price;//价格
+	condition.inputed = new Date();
+	
+	condition.input_employee = this.session.user.person.employee;
+	condition.view_count = parseInt(params.view_count, 10);//默认设置
+	condition.real_view_count = 0;
+	condition.store_count = 0;//params.store_count;
+	
+	condition.supplier = 1;
+	condition.channel = null;
+	condition.buy_count = 10;//默认设置
+	condition.real_buy_count = 0;
+	condition.catalog = 1;//params.catalog;
+	condition.created=new Date();
+	condition.state='A';
+	//上传文件
+	var dataUrl;
+	var tag=new Object();
+	tag.images=new Array();
+	
+	tag.thumb=params.tag.thumb;
+	tag.large_thumb=params.tag.thumb;
+	tag.screenshots = params.tag.screenshots;
+	tag.author_pic = params.tag.author_pic;
+	
+	tag.banner=params.tag.banner;
+	//tag.images.push(params.images);//--------------------------内容暂无轮播图 byTL 20161008---------------------
+	
+	tag.author_name=params.tag.author_name;//作者
+	//tag.src=params.src;//来源
+	tag.title=params.name;//标题
+	tag.content=params.tag.content;//正文
+	tag.suggestion=[];//params.suggestion;//{id: , name: '', thumb: '', type: },  // 推荐商品名称、缩略图等
+	tag.good_count=0;//赞的数目
+	tag.low_count=0;//踩的数目
+	condition.tag = tag;
+	condition.state='A';
+	
+	//插入gf_item表 insertItem.id
+	var insertItem=this.insertRow('gf_item', condition, ['name','type','sub_type','price',
+		'tag','inputed','input_employee','view_count','real_view_count',
+		'store_count','supplier','channel'
+		,'buy_count','real_buy_count','catalog','created','state']);
+	logger.info('channel'+params.channel);
+	if(params.channel!=undefined&&params.channel!='undefined'&&params.name!=null && params.name!='' && params.name!='undefined' && params.name!=undefined){//如果前台传了channel，则需要保存栏目和内容的关系
+		condition = new Object();
+		condition.id = parseInt(insertItem.id);
+		
+		condition.channel = parseInt(params.channel);//前台传来channel
+		
+		//修改gf_item表，保存栏目和内容的关系
+		this.updateRow('gf_item', condition, ["id","channel"]);
+		sql{.
+			select * from channel_subscription where channel = ?
+			.}
+		 var channels=this.query(sql,[parseInt(params.channel)]);
+		 //给已订阅用户发送推送信息
+		 var android = new Array();
+		 var ios= new Array();
+		 for(var i=0;i<channels.rows.length;i++)
+			{
+				if(channels.rows[i].member==null)
+				{
+					continue;
+				}
+				sql{.
+					select * from member where id = ?
+				.}
+				var tmp_member = this.queryRow(sql,[channels.rows[i].member]);
+				logger.info("tmp_member:"+JSON.stringify(tmp_member));
+				for(var j=0;j<tmp_member.tag.devices.length;j++)
+				{
+					if(tmp_member.tag.devices[j].system!=undefined&&tmp_member.tag.devices[j].system!='undefined'&&tmp_member.tag.devices[j].system!=null&&tmp_member.tag.devices[j].system!='')
+						{	
+							if(tmp_member.tag.devices[j].system=='ios')
+							{
+								if(tmp_member.tag.devices[j].cid!=undefined&&tmp_member.tag.devices[j].cid!='undefined'&&tmp_member.tag.devices[j].cid!=null&&tmp_member.tag.devices[j].cid!='')
+								{
+									ios.push(tmp_member.tag.devices[j].cid);
+								}
+							}else if(tmp_member.tag.devices[j].system=='android'){
+								if(tmp_member.tag.devices[j].cid!=undefined&&tmp_member.tag.devices[j].cid!='undefined'&&tmp_member.tag.devices[j].cid!=null&&tmp_member.tag.devices[j].cid!='')
+								{
+									android.push(tmp_member.tag.devices[j].cid);
+								}
+							}
+						}
+				}				
+			}
+		 	sql{.
+				select * from gf_channel where id = ?
+			.}
+			var tmp_channel_push = this.queryRow(sql,[parseInt(params.channel)]);
+		 	if(ios.length>0)
+			{
+				logger.info("ios.length"+ios.length);
+				var result='';
+				var imports = new JavaImporter(java.util,java.io);
+				with(imports){
+					var AppPush = Java.type("privilege.AppPush");
+					result=AppPush.AllPush_I('专栏更新通知','您订阅的专栏'+tmp_channel_push.name+'更新了','article/'+insertItem.id,ios);
+					logger.info(result);
+					logger.info("ORiosPUSH结果"+result);
+				}
+			}
+			if(android.length>0)
+			{
+				logger.info("android.length"+android.length);
+				var result='';
+				var result2='';
+				var imports2 = new JavaImporter(java.util,java.io);
+				with(imports2){
+					var AppPush2 = Java.type("privilege.AppPush");
+					result2=AppPush2.AllPush_A('专栏更新通知','您订阅的专栏'+tmp_channel_push.name+'更新了','article/'+insertItem.id,android);
+					logger.info(result2);
+					logger.info("ORANPUSH结果"+result);
+				}
+			}
+	}
+	
+	return insertItem;
+	
+}
+
+/**
+ *内容查询(条件：标题、类型、发表人)
+**/
+d2js.exports.searchArticle = d2js.searchArticle=function(params){
+
+
+	
+	if(params.startDate){
+		params.startDate = new Date(params.startDate.getTime() + 8 * 60 * 60 *1000);
+		
+	}
+	if(params.endDate){
+		if(params.startDate.getTime()==params.endDate.getTime()){//如果是同一天，则查询当天的所有数据
+			params.endDate.setHours(23);
+			params.endDate.setMinutes(59);
+			params.endDate.setSeconds(59);
+			params.endDate = params.endDate;
+		}else{
+		
+			params.endDate = new Date(params.endDate.getTime() +31 * 60 * 60 *1000 + 59 * 60 * 1000) ;
+		}
+		
+	}
+	logger.info('params:'+JSON.stringify(params));
+	 sql{.
+	       select * from gf_item where 1=1 and gf_item.type = 'A' and gf_item.state !='D'
+	       sql{.?(params.name) and strpos(gf_item."name", :name) > 0   .}
+	       sql{.?(params.type) and gf_item."sub_type" = :type  .}
+	       sql{.?(params.author_name) and strpos(gf_item.tag->>'author_name', :author_name) > 0   .}
+	       sql{.?(params.startDate) and gf_item.created >=:startDate  .}
+	       sql{.?(params.endDate) and gf_item.created <=:endDate    .}
+	   .}
+
+	sql = this.orderBy(sql, params._sorts, {'id' : 'desc'});
+	return this.query(sql, params, params.page);
+}
+
+/**
+ *内容查看详情
+**/
+d2js.exports.getArticleDeatil = d2js.getArticleDeatil=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	
+	var condition = new Object();
+	condition.id = params.id;
+	
+	//动态拼接查询条件进行查询
+	var sql = 'select * from gf_item where 1=1 ';
+	if(condition.id != null) sql += ' and id = :id';
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, condition, condition._page);
+}
+
+/**
+ *内容修改（保存内容详情）
+**/
+d2js.exports.updateArticle = d2js.updateArticle=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	
+	var condition = new Object();
+	condition.id = params.id;
+	condition.name = params.name;
+	condition.tag = params.tag;
+	condition.sub_type=params.sub_type;
+	condition.type=params.type;
+	
+	condition.view_count=(typeof params.view_count=='string'?parseInt(params.view_count):params.view_count);
+	//修改gf_item表
+	return this.updateRow('gf_item', condition, ["id","name","tag","sub_type","type","view_count"]);
+}
+
+/**
+ *内容删除
+**/
+d2js.exports.deleteArticle = d2js.deleteArticle=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	
+	var condition = new Object();
+	condition.id = params.id;
+	condition.state = 'D';//删除
+	//修改gf_item表
+	return this.updateRow('gf_item', condition, ["id","state"]);
+}
+
+/**
+ *添加推荐 "suggestion": [{"id":1,"name":"","thumb":"http://http://121.40.216.238/Service/Attrachment/article1.png","type":"G"}]
+**/
+d2js.exports.addSuggestion = d2js.addSuggestion=function(params){
+	$V(this,params, {//校验参数
+		articleId : [V.notNull],
+		itemId : [V.notNull]
+	});
+	$V(this,params, {articleId : [T.int]  });//转换INT
+	$V(this,params, {itemId : [T.int]  });//转换INT
+	var condition = new Object();
+	condition.articleId = params.articleId;
+	condition.item = params.itemId;
+	
+	//动态拼接查询条件进行查询，查询推荐商品
+	var sql = 'select * from gf_item where 1=1 ';
+	if(condition.item != null) sql += ' and id = :item';
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	var data= this.query(sql, condition, condition._page);
+	var suggestion=new Object();
+	suggestion.id=data.rows[0].id;
+	suggestion.name=data.rows[0].name;
+	suggestion.thumb=data.rows[0].tag.thumb;
+	suggestion.type=data.rows[0].type;
+	condition.suggestion = suggestion;
+	//condition.suggestion = {"suggestion":suggestion};
+	
+	//更新gf_item表的tag.suggestion（添加）
+	//return this.execute("update gf_item set tag->>'suggestion' = tag->>suggestion || ? where id=?", [condition.suggestion,condition.articleId]);
+	
+	return this.execute("update gf_item set tag->>'suggestion' = array_append(tag->>'suggestion',?) where id=?", [condition.suggestion,condition.articleId]);
+}
+
+/**
+ *移除推荐
+**/
+d2js.exports.removeSuggestion = d2js.removeSuggestion=function(params){
+	$V(this,params, {//校验参数
+		articleId : [V.notNull],
+		itemId : [V.notNull]
+	});
+	$V(this,params, {articleId : [T.int]  });//转换INT
+	$V(this,params, {itemId : [T.int]  });//转换INT
+	var condition = new Object();
+	condition.articleId = params.articleId;
+	condition.item = params.itemId;
+	
+	//动态拼接查询条件进行查询，查询推荐商品
+	var sql = 'select * from gf_item where 1=1 ';
+	if(condition.item != null) sql += ' and id = :item';
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	var data= this.query(sql, condition, condition._page);
+	var suggestion=new Object();
+	suggestion.id=data.rows[0].id;
+	suggestion.name=data.rows[0].name;
+	suggestion.thumb=data.rows[0].tag.thumb;
+	suggestion.type=data.rows[0].type;
+	condition.suggestion = suggestion;
+	//condition.suggestion = {"suggestion":suggestion};
+	
+	//更新gf_item表的tag.suggestion（添加）
+	return this.execute("update gf_item set tag->>'suggestion' = array_remove(tag->>'suggestion',?) where id=?", [condition.suggestion,condition.articleId]);
+}
+
+/**
+ *根据内容ID查询推荐商品
+**/
+d2js.exports.searchItemByArticle = d2js.searchItemByArticle=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	var sql = 'select * from gf_item where 1=1 ';
+	if(params.name != null && params.name!='') sql += ' and name like :name';
+	if(params.type != null && params.type!='') sql += ' and type = :type';
+	if(params.author_name != null && params.author_name != '') sql += " and tag->>'author_name' like :author_name";
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, condition, condition._page);
+}
+/****************************内容管理-end*************************************/
+
+
+/****************************订单管理-start*************************************/
+/**
+ *待付款订单查询(查询条件：订单编号、收货人、电话、地址；结果：订单编号、)
+**/
+d2js.exports.searchUnPayOrder = d2js.searchUnPayOrder=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	//var condition = new Object();
+	//if(params.order_no!=null && params.order_no!=''){//订单编号
+	//	condition.order_no = '%'+params.order_no+'%';
+	//}
+	//if(params.name!=null && params.name!=''){//收货人
+	//	condition.name = '%'+params.name+'%';
+	//}
+	//if(params.phone!=null && params.phone!=''){//电话
+	//	condition.phone = '%'+params.phone+'%';
+	//}
+	//if(params.address!=null && params.address!=''){//地址
+	//	condition.address = '%'+params.address+'%';
+	//}
+	//condition.state = 'p';//待支付
+	//condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	//var sql = 'select * from gf_order where 1=1 ';
+	//sql += ' and state = :state';
+	//if(params.order_no!=null && params.order_no!='') sql += ' and order_no like :order_no';
+	//if(params.name!=null && params.name!='') sql += " and receive_info->>'name' like :name";
+	//if(params.phone!=null && params.phone!='') sql += " and receive_info->>'phone' like :phone";
+	//if(params.address!=null && params.address!='') sql += " and receive_info->>'address' like :address";
+	
+	sql{.
+		 select * from  gf_order go where 1 = 1 and go.state = 'p'
+		 sql{.?(params.order_no) and strpos(go.order_no, :order_no) > 0 .}
+		 sql{.?(params.name) and strpos(go.receive_info->>'name', :name) > 0 .}
+		 sql{.?(params.phone) and strpos(go.receive_info->>'phone', :phone) > 0 .}
+		 sql{.?(params.address) and strpos(go.receive_info->>'address', :address) > 0 .}
+	.}
+	sql+=" and order_no IN (SELECT distinct order_no FROM (SELECT unnest(items) AS productid,order_no,state FROM gf_order)X,gf_item item WHERE X.productid = item.id AND type = 'G')";
+	sql = this.orderBy(sql, params._sorts, {'go.orderd' : 'desc'});
+	return this.query(sql, params, params.page);
+}
+
+/**
+ *取消订单
+**/
+d2js.exports.cancelOrder = d2js.cancelOrder=function(params){
+logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	//1、设置订单状态为“取消”	
+	var cancle = new Object();
+	cancle.id = params.id;
+	cancle.state = 'C'; //状态：取消
+	this.execute("update gf_order set state = ? where id=?", [cancle.state,cancle.id]);
+	//2、设置item的数量+N
+	sql{.
+		select 
+			gi.id,gi.name,gi.store_count,
+			gi.buy_count,gi.real_buy_count,god.order_detail->>'items' AS items
+		from gf_item gi,gf_order god 
+		where gi.id = any(god.items)
+		sql{.?(cancle.id) and god.id= ?  .}
+	.}
+	var data = this.query(sql,[cancle.id]);
+	logger.info('data:'+JSON.stringify(data));
+	var result='';
+	data.rows.forEach(function(row){
+	     logger.info('data-row:'+JSON.stringify(row));
+	     var items = JSON.parse(row.items);
+	     for(var i = 0; i < items.length;i++){  
+	    	
+	    	  logger.info('items-id:'+JSON.stringify(items[i].id));
+	          if(row.id  == items[i].id){
+	          sql{.
+			       update gf_item set id=id
+				   sql{.?(items[i].count) , store_count =store_count+ ?  .}
+				   sql{.?(items[i].count) , buy_count =buy_count - ?  .}
+				   sql{.?(items[i].count) , real_buy_count =real_buy_count - ?  .}
+			       where 1=1
+				   sql{.?(row.id) and id = ?  .}
+		       .}
+				logger.info('sql:'+sql);
+				logger.info('row:'+items[i].count+" "+row.id);
+				result = this.execute(sql,[items[i].count,items[i].count,items[i].count,row.id]);   
+				break;
+	         }
+	     
+	     }
+
+	},this);
+	return result;
+}
+
+/**
+ *根据订单查询商品详情
+**/
+d2js.exports.getItemsByOrder = d2js.getItemsByOrder=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	var condition = new Object();
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	condition.id=params.id;
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	sql{. select gi.price,gi.name,gi.id,go.order_detail from gf_order go left join gf_item  gi on gi.id = any(go.items) where go.id = :id .}
+	sql = this.orderBy(sql, condition._sorts, {'gi.id' : 'desc'});
+	var table = this.query(sql, condition, condition._page);
+	table.rows.forEach(function(row, index){
+	 var items = row.order_detail.items;
+	 for(var i = 0; i  < items.length;i++){
+	    if(items[i].id == row.id){
+	    row.buy_count = items[i].count;
+	    row.totleprice = items[i].price * items[i].count;
+	    break;
+	   }
+	 }
+	logger.info(index+':item:'+ row.id);
+     });
+	return table
+}
+
+/**
+ *待发货订单查询(查询条件：订单编号、收货人、电话、地址；结果：订单编号、)
+**/
+d2js.exports.searchUnSendOrder = d2js.searchUnSendOrder=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	sql{.
+		 select * from  gf_order go where 1 = 1 and go.state = 's'
+		 sql{.?(params.order_no) and strpos(go.order_no, :order_no) > 0 .}
+		 sql{.?(params.name) and strpos(go.receive_info->>'name', :name) > 0 .}
+		 sql{.?(params.phone) and strpos(go.receive_info->>'phone', :phone) > 0 .}
+		 sql{.?(params.address) and strpos(go.receive_info->>'address', :address) > 0 .}
+		 sql{.?(params.urging) and strpos(go.urging, :urging) > 0 .}
+	.}
+	sql+=" and order_no IN (SELECT distinct order_no FROM (SELECT unnest(items) AS productid,order_no,state FROM gf_order)X,gf_item item WHERE X.productid = item.id AND type = 'G')";
+	sql = this.orderBy(sql, params._sorts, {'go.payd' : 'desc'});
+	return this.query(sql, params, params.page);
+}
+/**
+订阅订单列表
+*/
+d2js.exports.searchSubscribeOrder = d2js.searchSubscribeOrder=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	
+
+	sql{.
+		 SELECT  order_no,item.name as ItemName,orderd,person.name as personName,person.username as username,person.mobile FROM (SELECT unnest(items) AS productid,order_no,state,orderd,order_member FROM gf_order where state ='O')X , gf_item item ,member member,person person WHERE X.productid = item.id AND item.type = 'C' and member.id = order_member and person.id = member.person and 1 =1
+		 sql{.?(params.order_no) and strpos(gf_order.order_no,:order_no )> 0 .}
+		 sql{.?(params.itemName) and strpos(item.Name,:itemName)> 0 .}
+		 sql{.?(params.personName) and strpos(person.name,:personName)>0 .}
+	.}
+	sql = this.orderBy(sql, params._sorts, {'orderd' : 'desc'});
+	return this.query(sql, params, params.page);
+}
+/**
+ *订单发货
+**/
+d2js.exports.sendOrder = d2js.sendOrder=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		id : [V.notNull],
+		logistics_no : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	
+	var condition = new Object();
+	condition.id = params.id;
+	condition.state = 'L';//发货
+	condition.logistics_no = params.logistics_no;
+	condition.sendd = new Date();
+	//修改gf_order表
+	return this.updateRow('gf_order', condition, ["id","state","logistics_no","sendd"]);
+}
+
+/**
+ *待收货订单查询(查询条件：订单编号、收货人、电话、地址；结果：订单编号、)
+**/
+d2js.exports.searchUnGetOrder = d2js.searchUnGetOrder=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	//var condition = new Object();
+	//if(params.order_no!=null && params.order_no!=''){//订单编号
+	//	condition.order_no = '%'+params.order_no+'%';
+	//}
+	//if(params.name!=null && params.name!=''){//收货人
+	//	condition.name = '%'+params.name+'%';
+	//}
+	//if(params.phone!=null && params.phone!=''){//电话
+	//	condition.phone = '%'+params.phone+'%';
+	//}
+	//if(params.address!=null && params.address!=''){//地址
+	//	condition.address = '%'+params.address+'%';
+	//}
+	//condition.state = 'L';//待收货，在途
+	//condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	//var sql = 'select * from gf_order where 1=1 ';
+	//sql += ' and state = :state';
+	//if(params.order_no!=null && params.order_no!='') sql += ' and order_no like :order_no';
+	//if(params.name!=null && params.name!='') sql += " and receive_info->>'name' like :name";
+	//if(params.phone!=null && params.phone!='') sql += " and receive_info->>'phone' like :phone";
+	//if(params.address!=null && params.address!='') sql += " and receive_info->>'address' like :address";
+	sql{.
+		 select * from  gf_order go where 1 = 1 and go.state = 'L'
+		 sql{.?(params.order_no) and strpos(go.order_no, :order_no) > 0 .}
+		 sql{.?(params.name) and strpos(go.receive_info->>'name', :name) > 0 .}
+		 sql{.?(params.phone) and strpos(go.receive_info->>'phone', :phone) > 0 .}
+		 sql{.?(params.address) and strpos(go.receive_info->>'address', :address) > 0 .}
+	.}
+	sql+=" and go.order_no IN (SELECT distinct order_no FROM (SELECT unnest(items) AS productid,order_no,state FROM gf_order)X,gf_item item WHERE X.productid = item.id AND type = 'G')";
+	sql = this.orderBy(sql, params._sorts, {'go.sendd' : 'desc'});
+	return this.query(sql, params, params.page);
+}
+
+/**
+ *查看订单物流
+ {"time": "2016-09-18 02:27:04", "express": "顺风快递", "order_no": "32987179321", "destination": "北京和平里小区12号", "logistics_no": "0525377224"}
+**/
+d2js.exports.getOrderLogistics = d2js.getOrderLogistics=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	var condition = new Object();
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	condition.id=params.id;
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询 logistics_info
+	var sql = 'select * from gf_order go where 1=1 ';
+	sql += ' and go.id = :id';
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, condition, condition._page);
+}
+
+/**
+ *已完成订单查询(查询条件：订单编号、收货人、电话、地址；结果：订单编号、)
+**/
+d2js.exports.searchfinishedOrder = d2js.searchfinishedOrder=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	//var condition = new Object();
+	//if(params.order_no!=null && params.order_no!=''){//订单编号
+	//	condition.order_no = '%'+params.order_no+'%';
+	//}
+	//if(params.name!=null && params.name!=''){//收货人
+	//	condition.name = '%'+params.name+'%';
+	//}
+	//if(params.phone!=null && params.phone!=''){//电话
+	//	condition.phone = '%'+params.phone+'%';
+	//}
+	//if(params.address!=null && params.address!=''){//地址
+	//	condition.address = '%'+params.address+'%';
+	//}
+	//condition.state = 'O';//送达
+	//condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	//var sql = 'select * from gf_order where 1=1 ';
+	//sql += ' and state = :state';
+	//if(params.order_no!=null && params.order_no!='') sql += ' and order_no like :order_no';
+	//if(params.name!=null && params.name!='') sql += " and receive_info->>'name' like :name";
+	//if(params.phone!=null && params.phone!='') sql += " and receive_info->>'phone' like :phone";
+	//if(params.address!=null && params.address!='') sql += " and receive_info->>'address' like :address";
+		
+   sql{.
+		 select * from  gf_order go where 1 = 1 and go.state = 'O'
+		 sql{.?(params.order_no) and strpos(go.order_no, :order_no) > 0 .}
+		 sql{.?(params.name) and strpos(go.receive_info->>'name', :name) > 0 .}
+		 sql{.?(params.phone) and strpos(go.receive_info->>'phone', :phone) > 0 .}
+		 sql{.?(params.address) and strpos(go.receive_info->>'address', :address) > 0 .}
+	.}
+	sql+=" and go.order_no IN (SELECT distinct order_no FROM (SELECT unnest(items) AS productid,order_no,state FROM gf_order)X,gf_item item WHERE X.productid = item.id AND type = 'G')";
+	
+	sql = this.orderBy(sql, params._sorts, {'go.received' : 'desc'});
+	return this.query(sql, params, params.page);
+}
+
+/**
+ *催单
+**/
+d2js.exports.urge = d2js.urge=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+	var urge = new Object();
+	urge.id = params.id;
+	urge.urging = 'Y';
+	this.execute("update gf_order set urging = ? where id=?", [urge.urging,urge.id]);
+	return;
+}
+
+/**
+ *修改订单号
+**/
+d2js.exports.modifyOrder_no = d2js.modifyOrder_no=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull],
+		logistics_no : [V.notNull]
+	});
+	$V(this,params, {id : [T.int]  });//转换INT
+
+	
+	return this.execute("update gf_order set logistics_no = ? where id=?", [params.logistics_no,params.id]);
+}
+
+
+/****************************订单管理-end*************************************/
+
+/****************************物品类别管理-start*************************************/
+/**
+ *物品类型查询
+**/
+d2js.exports.searchCatalog = d2js.searchCatalog=function(params){
+	var condition = new Object();
+	if(params.name==null || params.name=='' || params.name=='undefined' || params.name==undefined){
+		params.name='';
+	}
+	condition.name = '%'+params.name+'%';
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	sql{.
+		SELECT * FROM catalog WHERE 1=1
+			sql{.?(condition.name) and name like ?  .}
+	.}
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, [condition.name], condition._page);
+	
+	//return this.query(sql,[condition.name]);
+}
+
+/**
+ *物品类型新增
+**/
+d2js.exports.addCatalog = d2js.addCatalog=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		name : [V.notNull]
+	});
+	var condition = new Object();
+	condition.name = params.name;
+	condition.parent_catalog = params.parent_catalog;
+	condition.type = params.type;
+	condition.sub_type = params.sub_type;
+	condition.id = this.nextId("catalog_id_seq");
+	//插入catalog表 insertCatalog.id
+	var insertCatalog=this.insertRow('catalog', condition, ['id','name','parent_catalog','type','sub_type']);
+	return insertCatalog;
+}
+
+/**
+ *物品类型修改
+**/
+d2js.exports.updateCatalog = d2js.updateCatalog=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = params.id;
+	condition.name = params.name;
+	condition.parent_catalog = params.parent_catalog;
+	condition.type = params.type;
+	condition.sub_type = params.sub_type;
+	
+	//修改catalog表
+	return this.updateRow('catalog', condition, ["id","name","parent_catalog","type","sub_type"]);
+	
+}
+
+/**
+ *物品类型删除
+**/
+d2js.exports.deleteCatalog = d2js.deleteCatalog=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = params.id;
+	
+	//修改catalog表
+	sql{.
+		delete from catalog
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+	.}
+	return this.execute(sql,[condition.id]);
+}
+
+/****************************物品类别管理-end*************************************/
+
+/****************************供货人管理-start*************************************/
+/**
+ *供货人查询
+**/
+d2js.exports.searchSupplier = d2js.searchSupplier=function(params){
+	var condition = new Object();
+	condition.name = '%'+params.name+'%';
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	sql{.
+		SELECT * FROM gf_supplier WHERE 1=1
+			sql{.?(condition.name) and name like ?  .}
+	.}
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, [condition.name], condition._page);
+}
+
+/**
+ *供货人新增
+**/
+d2js.exports.addSupplier = d2js.addSupplier=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		name : [V.notNull]
+	});
+	var condition = new Object();
+	condition.name = params.name;//名称
+	condition.info = params.info;//jsonb 其他信息
+	condition.id = this.nextId("gf_supplier_id_seq");
+	//插入gf_supplier表
+	var insertSupplier=this.insertRow('gf_supplier', condition, ['id','name','info']);
+	return insertSupplier;
+}
+
+/**
+ *供货人修改
+**/
+d2js.exports.updateSupplier = d2js.updateSupplier=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = params.id;
+	condition.name = params.name;
+	condition.info = params.info;
+	
+	//修改gf_supplier表
+	return this.updateRow('gf_supplier', condition, ["id","name","info"]);
+}
+
+/**
+ *供货人删除
+**/
+d2js.exports.deleteSupplier = d2js.deleteSupplier=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = params.id;
+	
+	//修改gf_supplier表
+	sql{.
+		delete from gf_supplier
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+	.}
+	return this.execute(sql,[condition.id]);
+}
+/****************************供货人管理-end*************************************/
+
+
+/****************************栏目管理-start*************************************/
+/**
+ *栏目新增
+**/
+d2js.exports.addChannel = d2js.addChannel=function(params){
+	$V(this,params, {//校验参数
+		name : [V.notNull],
+		type : [V.notNull],
+		sub_type : [V.notNull]
+	});
+	logger.info('addChannel_params'+JSON.stringify(params));
+		
+		
+		
+	var item = new Object();
+	//item.id = this.nextId("gf_item_id_seq");//id
+	item.name = params.name;
+	item.type = 'C';
+	item.sub_type = 'C';
+	item.price = parseFloat(params.suites[0].price);
+	item.created = new Date();
+	item.inputed = new Date();
+	item.input_employee = this.session.user.person.employee;
+	item.view_count = 10;//默认设置
+	item.real_view_count = 0;
+	item.store_count = parseInt(params.store_count);
+	item.supplier = 1;//供货人，暂时写1
+	item.buy_count = parseInt(params.buy_count);//订阅量
+	item.real_buy_count = 0;
+	item.catalog = 1;//分类，暂时写1
+	
+	//上传文件
+	var dataUrl;
+	//栏目对应tag
+	//	{"brief": "从改革的视体之成房。", 
+	//	"thumb": "http://121.40.216.238/Service/Attrachment/zuo.jpg", 
+	//	"information": "1.本专栏为年付费订阅产品，199元/年<br>2.本产品为虚拟内容服务，一经订阅概不退款",
+	//	"large_thumb": "http://121.40.216.238/Service/Attrachment/lb2.jpg",
+	//	 "suit_crowds": "所有渴望实现财富自由，并对自己能实现财富自由深信不疑的人"}
+	//
+	var tag=new Object();
+	//tag.images=new Array();
+	
+
+	tag.thumb=params.tag.thumb;// 缩略图（用于推荐）
+	tag.large_thumb="无";//大缩略图（用于商品页）
+	//tag.images.push(params.images);//展示图------栏目没有展示图
+	
+	tag.brief="无";//简介
+	tag.suit_crowds="无";//适宜人群
+	tag.information="无";//订阅须知
+	
+	
+	item.tag=tag;//传入tag
+	
+	
+	//插入gf_item表 insertItem.id
+	var insertItem=this.insertRow('gf_item', item, ['name','type','sub_type','price',
+		'tag','created','inputed','input_employee','view_count','real_view_count',
+		'store_count','supplier','channel'
+		,'buy_count','real_buy_count','catalog']);
+	//logger.info('insertItem'+JSON.stringify(insertItem));
+	//插入gf_channel表 insertChannel.id
+	var channel=new Object();
+	//channel.id = this.nextId("gf_channel_id_seq");//id
+	channel.name=params.name;//名称
+	channel.assignee=this.session.user.person.employee;//负责人
+	
+//	var suites=new Array();
+//	if(params.suites[0].unit=='Y')
+//	{
+//	suites.push({"name": "包年", "unit": "Y", "price": parseInt(params.suites[0].price), "effectDuration": parseInt(params.suites[0].effectDuration)});
+//	}else if(params.suites[0].unit=='M')
+//	{
+//	suites.push({"name": "包月", "unit": "M", "price": parseInt(params.suites[0].price), "effectDuration": parseInt(params.suites[0].effectDuration)});
+//	}else if(params.suites[0].unit=='D')
+//	{
+//	suites.push({"name": "按日计数", "unit": "D", "price": parseInt(params.suites[0].price), "effectDuration": parseInt(params.suites[0].effectDuration)});
+//	}
+	channel.apple_id=params.apple_id;
+	channel.id=insertItem.id;
+	channel.suites=params.suites;//可提供套餐
+	channel.author_name=params.author_name;//作者
+	channel.author_field=params.author_field;//作者领域
+	channel.brief=params.brief;//一句话简介
+	
+	//设置rank的值，取一个比当前所有专栏的rank都大的值作初始值
+	var sql = 'select max(rank) as rank from gf_channel where 1=1 ';
+	var data= this.query(sql);
+	var suggestion=new Object();
+	var rank=data.rows[0].rank;
+	if(rank==null){//可能为空
+		rank=0;
+	}
+	channel.rank=rank+1;//rank
+	
+	//create sequence gf_channel_id_seq increment by 1 minvalue 1 no maxvalue start with 1; 增加的sql，已经执行
+	var insertChannel=this.insertRow('gf_channel', channel, ['id','name','assignee','suites','author_name',
+		'author_field','brief','rank','apple_id']);
+	
+	return insertItem;
+}
+
+/**
+ *栏目查询
+**/
+d2js.exports.searchChannel = d2js.searchChannel=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	var condition = new Object();
+	if(params.id!=null && params.id!='' && params.id!='undefined' && params.id!=undefined){//id
+		condition.id = parseInt(params.id);
+	}
+	if(params.name!=null && params.name!=''){//名称
+		condition.name = '%'+params.name+'%';
+	}
+	if(params.author_name!=null && params.author_name!=''){//作者
+		condition.author_name = '%'+params.author_name+'%';
+	}
+	if(params.author_field!=null && params.author_field!=''){//作者领域
+		condition.author_field = '%'+params.author_field+'%';
+	}
+	
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	var sql = 'select * from gf_channel gc,gf_item gi where 1=1 ';
+	if(condition.id != null) sql += ' and gc.id = :id';
+	if(condition.name != null) sql += ' and gc.name like :name';
+	if(condition.author_name != null) sql += ' and gc.name like :author_name';
+	if(condition.author_field != null) sql += ' and gc.author_field like :author_field';
+	sql += ' and gc.id = gi.id';
+	sql = this.orderBy(sql, condition._sorts, {'gc.rank' : 'asc'});
+	return this.query(sql, condition, condition._page);
+	
+	//return this.query(sql,[condition.name]);
+}
+
+/**
+ *栏目修改（保存详情）栏目名、学者姓名、学者领域、一句话简介、订阅数、专栏头像图
+**/
+d2js.exports.updateChannel = d2js.updateChannel=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	
+	//修改gf_channel表
+	var channel=new Object();
+	channel.id = parseInt(params.id);
+	channel.apple_id=params.apple_id;
+	channel.name=params.name;//名称
+	channel.assignee=this.session.user.person.employee;//负责人
+	//{"id":1,"name":"aa","assignee":1,"suites":[{"name": "免费试用2天", "effectDuration": 222, "price": 0, "type":"T"},{"name": "精彩一月", "effectDuration": 222, "price": 50}],"author_name":"zq","author_field":"it","brief":"一句话！！"}
+//	var suites=new Array();
+//	suites.push({name: '免费试用2天', effectDuration: 222, price: 0, type:'T'});
+//	suites.push({name: '精彩一月', effectDuration: 222, price: 50});
+//	suites.push({name: '超值半年', effectDuration: 222, price: 150});
+//	suites.push({name: '惊喜一年', effectDuration: 222, price: 200});
+	channel.suites=params.suites;//可提供套餐
+	channel.author_name=params.author_name;//作者
+	channel.author_field=params.author_field;//作者领域
+	channel.brief=params.brief;//一句话简介
+	
+	//{"id":1,"name":"商品2222","price":100.5,"supplier":1,"catalog":1,"sub_type":"A"}
+	
+//	var suites=new Array();
+//	if(params.suites[0].unit=='Y')
+//	{
+//	suites.push({"name": "包年", "unit": "Y", "price": parseInt(params.suites[0].price), "effectDuration": parseInt(params.suites[0].effectDuration)});
+//	}else if(params.suites[0].unit=='M')
+//	{
+//	suites.push({"name": "包月", "unit": "M", "price": parseInt(params.suites[0].price), "effectDuration": parseInt(params.suites[0].effectDuration)});
+//	}else if(params.suites[0].unit=='D')
+//	{
+//	suites.push({"name": "按日计数", "unit": "D", "price": parseInt(params.suites[0].price), "effectDuration": parseInt(params.suites[0].effectDuration)});
+//	}
+//	channel.suites=suites;
+	
+	var sql = 'update gf_channel set id=id ';
+	if(channel.name != null) sql += ' , name = :name';
+	if(channel.assignee != null) sql += ' , assignee = :assignee';
+	if(channel.suites != null) sql += ' , suites = :suites';
+	if(channel.author_name != null) sql += ' , author_name = :author_name';
+	if(channel.author_field != null) sql += ' , author_field = :author_field';
+	if(channel.brief != null) sql += ' , brief = :brief';
+	if(channel.apple_id != null) sql += ' , apple_id = :apple_id';
+	sql += ' where 1=1 ';
+	sql += ' and id = :id';
+	this.execute(sql,channel);
+	
+	////修改gf_item表
+	var item=new Object();
+	item.id = parseInt(params.id);
+	item.name=params.name;//名称
+	item.buy_count = parseInt(params.buy_count);//订阅量
+	item.tag=params.tag;//tag
+	item.price = parseInt(params.suites[0].price);
+	logger.info(JSON.stringify(params.tag));
+	sql = 'update gf_item set id=id ';
+	if(item.name != null) sql += ' , name = :name';
+	if(item.buy_count != null) sql += ' , buy_count = :buy_count';
+	if(item.tag != null) sql += ' , tag = :tag';
+	if(channel.suites != null) sql += ' , price = :price';
+	sql += ' where 1=1 ';
+	sql += ' and id = :id';
+	
+	return this.execute(sql,item);
+	
+}
+
+/**
+ *栏目rank修改：提升或降低某个专栏的排序位置，会传给后台两个专栏的数据，就是直接调换这两个专栏的排序位置
+**/
+d2js.exports.exchangeChannelRank = d2js.exchangeChannelRank=function(params){
+	$V(this,params, {//校验参数
+		firstId : [V.notNull],
+		firstRank : [V.notNull],
+		secondId : [V.notNull],
+		secondRank : [V.notNull]
+	});
+	
+	//修改gf_channel表
+	var channel=new Object();
+	channel.firstId = parseInt(params.firstId);
+	channel.firstRank=params.firstRank;//firstRank
+	channel.secondId = parseInt(params.secondId);
+	channel.secondRank=params.secondRank;//secondRank
+
+	//更新第一个channel的rank
+	sql = 'update gf_channel set id=id ';
+	if(channel.secondRank != null) sql += ' , rank = :secondRank';
+	sql += ' where 1=1 ';
+	sql += ' and id = :firstId';
+	this.execute(sql,channel);
+	
+	//更新第二个channel的rank
+	sql = 'update gf_channel set id=id ';
+	if(channel.firstRank != null) sql += ' , rank = :firstRank';
+	sql += ' where 1=1 ';
+	sql += ' and id = :secondId';
+	this.execute(sql,channel);
+	
+}
+
+/**
+ *栏目删除
+**/
+d2js.exports.deleteChannel = d2js.deleteChannel=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	
+	//修改gf_item中channel=id的记录
+	sql{.
+		update gf_item set channel=null
+		where 1=1
+			sql{.?(condition.id) and channel = ?  .}
+	.}
+	this.execute(sql,[condition.id]);
+	
+	//修改gf_channel表
+	sql{.
+		delete from gf_channel
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+	.}
+	this.execute(sql,[condition.id]);
+	
+	//修改gf_item表
+	sql{.
+		delete from gf_item
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+	.}
+	return this.execute(sql,[condition.id]);
+}
+
+/**
+ *添加栏目与内容的关系
+**/
+d2js.exports.addItem2Channel = d2js.addItem2Channel=function(params){
+	$V(this,params, {//校验参数
+		channel : [V.notNull],
+		id : [V.notNull]
+	});
+	logger.info('addItem2Channel_params'+JSON.stringify(params));
+	
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition.channel = parseInt(params.channel);
+	
+	//修改gf_item表
+	return this.updateRow('gf_item', condition, ["id","channel"]);
+	
+}
+
+/**
+ *移除栏目与内容的关系
+**/
+d2js.exports.removeItem2Channel = d2js.removeItem2Channel=function(params){
+	$V(this,params, {//校验参数
+		channel : [V.notNull],
+		id : [V.notNull]
+	});
+	logger.info('removeItem2Channel_params'+JSON.stringify(params));
+	
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition.channel = parseInt(params.channel);
+	
+	//取消gf_item中指定ID的栏目关系
+	sql{.
+		update gf_item set channel=null
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+			sql{.?(condition.channel) and channel = ?  .}
+	.}
+	return this.execute(sql,[condition.id,condition.channel]);
+	
+	
+}
+
+/**
+ *根据栏目ID查询内容
+**/
+d2js.exports.searchContentByChannel = d2js.searchContentByChannel=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);//栏目id
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	var sql = "select gi.id as id,gi.name as name,* from gf_channel gc,gf_item gi where 1=1 and gi.state != 'D'";
+	if(condition.id != null) sql += ' and gc.id = :id';
+	sql += ' and gc.id = gi.channel';
+	sql = this.orderBy(sql, condition._sorts, {'gc.id' : 'desc'});
+	return this.query(sql, condition, condition._page);
+	
+	//return this.query(sql,[condition.name]);
+}
+
+/****************************栏目管理-end*************************************/
+
+/****************************评论管理-start*************************************/
+/**
+ *评论查询（条件：评论人、标题、评论时间范围；结果：评论人、标题、内容、评论时间、显示状态、操作删除）
+**/
+d2js.exports.searchComment = d2js.searchComment=function(params){
+	logger.info('searchComment params:'+JSON.stringify(params));
+	var condition = new Object(), searchColumn = [];
+	if(params.personName==null || params.personName=='' || params.personName=='undefined' || params.personName==undefined){
+		params.personName='';
+	}
+	condition.personName = '%'+params.personName+'%';
+	if(params.content==null || params.content=='' || params.content=='undefined' || params.content==undefined){
+		params.content='';
+	}
+	condition.content = '%'+params.content+'%';
+	
+	if (params.itemId) {
+		condition.itemId = parseInt(params.itemId, 10);
+		searchColumn = [condition.personName,condition.content,condition.itemId];
+	} else {
+		
+		searchColumn = [condition.personName,condition.content];
+	}
+	if(params.startDate){
+		condition.startDate = new Date(params.startDate.getTime() + 8 * 60 * 60 *1000);
+		searchColumn.push(condition.startDate);
+	}
+	if(params.endDate){
+		if(params.startDate.getTime()==params.endDate.getTime()){//如果是同一天，则查询当天的所有数据
+			params.endDate.setHours(23);
+			params.endDate.setMinutes(59);
+			params.endDate.setSeconds(59);
+			condition.endDate = params.endDate;
+		}else{
+		
+		  condition.endDate = new Date(params.endDate.getTime() +31 * 60 * 60 *1000 + 59 * 60 * 1000) ;
+		}
+		searchColumn.push(condition.endDate);
+	}
+	
+	//condition.startDate='2016-09-10';//评论开始时间
+	//condition.endDate='2016-09-20';//评论结束时间
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//condition._page.start=params.page.start;
+	//condition._page.limit=params.page.limit;
+	
+	logger.info('searchComment condition:'+JSON.stringify(condition));
+	sql{.
+		SELECT g.*,p.name person_name FROM gf_comment g,member m,person p WHERE 1=1
+			and g.author=m.id and m.person=p.id
+			sql{.?(condition.personName) and p.name like ?  .}
+			sql{.?(condition.content) and g.content like ?  .}
+			sql{.?(condition.itemId) and g.item = ?  .}
+			sql{.?(condition.startDate) and g.postd >= ?  .}
+			sql{.?(condition.endDate) and g.postd <= ?  .}
+	.}
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, searchColumn, condition._page);
+}
+
+/**
+ *评论删除
+**/
+d2js.exports.deleteComment = d2js.deleteComment=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	
+	$V(this,params, {id : [T.int]  });//转换INT
+	
+	//params.id = $ARRAY('int', params.id);
+	
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition.state = 'D';//状态D-删除
+	
+	return this.updateRow('gf_comment', condition, ["id","state"]);
+	
+/*	var result='';
+	this.doTransaction(function(){
+		//删除comment_log表
+		sql{.
+			delete from comment_log
+			where 1=1
+				sql{.?(condition.id) and comment = ?  .}
+		.}
+		result=this.execute(sql,[condition.id]);
+		
+		//删除gf_comment表，状态D-删除
+		sql{.
+			delete from gf_comment
+			where 1=1
+				sql{.?(condition.id) and id = ?  .}
+		.}
+		result=this.execute(sql,[condition.id]);
+	});
+	return result;
+*/
+
+}
+
+/**
+ *评论审批
+**/
+d2js.exports.auditComment = d2js.auditComment=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition.validated = new Date();
+	condition.validate_employee = this.getCurrentMemberId();
+	condition.state = params.state;//状态R-驳回，A-审核通过
+	
+	//修改gf_comment表
+	return this.updateRow('gf_comment', condition, ["id","validated","validate_employee","state"]);
+}
+/****************************评论管理-end*************************************/
+
+/****************************标签管理-start*************************************/
+/**
+ *标签查询
+**/
+d2js.exports.searchTag = d2js.searchTag=function(params){
+	var condition = new Object();
+	if(params.label==null || params.label=='' || params.label=='undefined' || params.label==undefined){
+		params.label='';
+	}
+	condition.label = '%'+params.label+'%';
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	sql{.
+		SELECT * FROM gf_tag WHERE 1=1
+			sql{.?(condition.label) and label like ?  .}
+	.}
+	
+	sql = this.orderBy(sql, condition._sorts, {'id' : 'desc'});
+	return this.query(sql, [condition.label], condition._page);
+	
+	//return this.query(sql,[condition.name]);
+}
+
+/**
+ *标签新增
+**/
+d2js.exports.addTag = d2js.addTag=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		label : [V.notNull]
+	});
+	var condition = new Object();
+	condition.label = params.label;
+	condition.id = this.nextId("gf_tag_id_seq");
+	//插入gf_tag表
+	var insertTag=this.insertRow('gf_tag', condition, ['id','label']);
+	return insertTag;
+}
+
+/**
+ *标签修改
+**/
+d2js.exports.updateTag = d2js.updateTag=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition.label = params.label;
+	
+	//修改gf_tag表
+	return this.updateRow('gf_tag', condition, ["id","label"]);
+	
+}
+
+/**
+ *标签删除
+**/
+d2js.exports.deleteTag = d2js.deleteTag=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	
+	//修改gf_tag表
+	sql{.
+		delete from gf_tag
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+	.}
+	return this.execute(sql,[condition.id]);
+}
+
+/****************************物品类别管理-end*************************************/
+
+
+/****************************首页推送-start*************************************/
+/**
+ *首页推送查询
+**/
+d2js.exports.searchToday = d2js.searchToday=function(params){
+	var condition = new Object(), conditionArr = [];
+	if(params.title==null || params.title=='' || params.title=='undefined' || params.title==undefined){
+		params.title='';
+	}
+	if(!params.type || params.type=='undefined'){
+		params.type='';
+	}
+	if(!params.view_mode || params.view_mode=='undefined'){
+		params.view_mode='';
+	}
+	if(!params.postd || params.postd=='undefined'){
+		params.postd='';
+	}
+	condition.title = '%'+params.title+'%';//标题
+	condition.type = params.type;//类型
+	condition.view_mode = params.view_mode;//模式
+	condition.postd = params.postd;//上线时间
+	
+	conditionArr.push(condition.title);
+	['type', 'view_mode', 'postd'].forEach(function (n) {
+		if (condition[n]) {
+			conditionArr.push(condition[n]);
+		}
+	});
+
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//关联查询gf_today gt,gf_item gi
+	sql{.
+		SELECT * FROM gf_today gt,gf_item gi WHERE 1=1
+			sql{.?(condition.title) and gt.title like ?  .}
+			sql{.?(condition.type) and gi.type = ?  .}
+			sql{.?(condition.view_mode) and gt.view_mode = ?  .}
+			sql{.?(condition.postd) and gt.postd = ?  .}
+			and gt.item=gi.id
+	.}
+	
+	sql = this.orderBy(sql, condition._sorts, {'gt.id' : 'desc'});
+	return this.query(sql, conditionArr, condition._page);
+	
+	//return this.query(sql,[condition.name]);
+}
+
+/**
+ *首页推送新增
+**/
+d2js.exports.addToday = d2js.addToday=function(params){
+	logger.info('params:'+JSON.stringify(params));
+	$V(this,params, {//校验参数
+		title : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = this.nextId("gf_today_id_seq");
+	condition.title = params.title;
+	condition.sub_title = params.sub_title;
+	condition.tags = $ARRAY('varchar', params.tags);
+	condition.view_mode = params.view_mode;//模式：L-大图 T-小图
+	condition.postd = params.postd;//上线时间
+	condition.picture = params.picture;
+	condition.item = parseInt(params.item, 10);
+	condition.input_employee = this.session.user.person.employee;
+//	condition.state = params.state;
+	condition.state = 'W';//状态:默认在线，A-在线 W-未发布 X-过期
+	
+	
+	//插入gf_today表
+	var insertToday=this.insertRow('gf_today', condition, ['id','title','sub_title','tags','view_mode','postd','picture','input_employee','state','item']);
+	return insertToday;
+}
+
+/**
+ *首页推送修改
+**/
+d2js.exports.updateToday = d2js.updateToday=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	condition.title = params.title;
+	condition.sub_title = params.sub_title;
+	condition.tags = $ARRAY('varchar', params.tags);
+	condition.view_mode = params.view_mode;//L-大图 T-小图
+	condition.postd = params.postd;
+	condition.picture = params.picture;
+	condition.item = parseInt(params.item, 10);
+	condition.input_employee = this.session.user.person.employee;
+//	condition.state = params.state;
+	condition.state = 'W';//默认在线，A-在线 W-未发布 X-过期
+	
+	//修改gf_today表
+	return this.updateRow('gf_today', condition, ['id','title','sub_title','tags','view_mode','postd','picture','input_employee','state','item']);
+	
+}
+
+/**
+ *首页推送删除
+**/
+d2js.exports.deleteToday = d2js.deleteToday=function(params){
+	$V(this,params, {//校验参数
+		id : [V.notNull]
+	});
+	var condition = new Object();
+	condition.id = parseInt(params.id);
+	
+	//修改gf_today表
+	sql{.
+		delete from gf_today
+		where 1=1
+			sql{.?(condition.id) and id = ?  .}
+	.}
+	return this.execute(sql,[condition.id]);
+}
+
+/****************************首页推送-end*************************************/
+
+
+/****************************获取用户信息-start*************************************/
+/**
+ *获取当前用户session
+**/
+d2js.exports.getCurrentUser = d2js.getCurrentUser=function(){
+	return this.session.user;
+}
+
+/****************************获取用户信息-end*************************************/
+
+/****************************ueditor上传文件-start*************************************/
+/**
+ *ueditor上传文件
+**/
+d2js.exports.ueditoruploadFile = d2js.ueditoruploadFile=function(){
+var parts = this.request.getParts();
+
+	var arr;
+	var rcd = new Object();
+	var dataUrl = '';
+	var imports = new JavaImporter(org.json,java.util,java.io,java.text,com.taobao.api);
+	with(imports){
+		var Test = Java.type("privilege.Test");
+		var smsResult=Test.ueditorUpdateFile(parts,request);
+		if(smsResult == null){
+			throw new Error('上传失败');
+		}
+		dataUrl= smsResult;
+	}
+	logger.info("dataUrl："+dataUrl);
+	var dataUrl_=JSON.parse(dataUrl);
+	return dataUrl_;
+}
+
+/****************************通用上传文件-end*************************************/
+/****************************通用上传文件-start*************************************/
+/**
+ *通用上传文件
+**/
+d2js.exports.uploadFile = d2js.uploadFile=function(){
+var parts = this.request.getParts();
+
+	var arr;
+	var rcd = new Object();
+	var dataUrl = '';
+	var imports = new JavaImporter(org.json,java.util,java.io,java.text,com.taobao.api);
+	with(imports){
+		var Test = Java.type("privilege.Test");
+		var smsResult=Test.UpdateFile(parts,request);
+		if(smsResult == null){
+			throw new Error('上传失败');
+		}
+		dataUrl= smsResult;
+	}
+	var imports11 = new JavaImporter(java.util);
+			logger.info(imports11);
+			with(imports11){
+				var WriteTxt1 = Java.type("privilege.WriteTxt");
+				WriteTxt1.contentToTxt('上传结果'+dataUrl);
+			}
+			var dataUrl_=JSON.parse(dataUrl);
+			if(dataUrl_.type)
+			{
+				var imports11 = new JavaImporter(java.util);
+			logger.info(imports11);
+			with(imports11){
+				var WriteTxt1 = Java.type("privilege.WriteTxt");
+				WriteTxt1.contentToTxt('上传的是视频');
+			}
+		}
+	return dataUrl_.msg;
+}
+
+/****************************通用上传文件-end*************************************/
+
+/**
+ *查询待发货订单数量
+**/
+d2js.exports.searchUnSendOrderCount = d2js.searchUnSendOrderCount=function(params){
+	var condition = new Object();
+	condition.state = 's';//待发货
+	
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	var sql = 'select count(*) from gf_order where 1=1 ';
+	sql+=" and order_no IN (SELECT distinct order_no FROM (SELECT unnest(items) AS productid,order_no,state FROM gf_order)X,gf_item item WHERE X.productid = item.id AND type = 'G')";
+	if(condition.state != null) sql += ' and state = :state';
+	return this.query(sql, condition, condition._page);
+	
+}
+
+
+
+/**
+ *个推多用户推送
+**/
+d2js.exports.pushAll = d2js.pushAll=function(params){
+	$V(this,params, {//校验参数
+		title : [V.notNull],
+		content : [V.notNull],
+		action : [V.notNull]
+	});
+	
+	sql{.
+		SELECT * FROM member
+	.}
+	var members = this.query(sql);
+	for(var i=0;i<members.rows.length;i++)
+	{
+		
+	}
+	var imports = new JavaImporter(java.util,java.io);
+	with(imports){
+		var AppPush = Java.type("privilege.AppPush");
+		result=AppPush.Push('测试推送','这是一条推送消息~');
+		if(result == null){
+			throw new Error('请求失败');
+		}
+	}
+	logger.info('result'+result);	
+	if(result=='ok')
+	{
+		return;
+	}
+	return result;// 
+	
+}
+/****************************个推多用户推送-end*************************************/
+/**
+ *查询待审核评论数量
+**/
+d2js.exports.searchWCommentCount = d2js.searchWCommentCount=function(params){
+	var condition = new Object();
+	condition.state = 'W';//待审核
+	
+	condition._page=params.page;//分页 _page = JSON.stringify({start : this.page * this.pageSize, limit : this.pageSize});
+	
+	//动态拼接查询条件进行查询
+	var sql = 'select count(*) from gf_comment where 1=1 ';
+	if(condition.state != null) sql += ' and state = :state';
+	return this.query(sql, condition, condition._page);
+	
+}
+
+/**
+ * 定时调用此接口保持session
+ */
+d2js.exports.notify = d2js.notify = function (params) {
+	return { newTask: 0 };
+}
+
+/**
+ * 建议列表
+ */
+d2js.exports.suggest = d2js.suggest = function (params) {
+	logger.info('params:'+JSON.stringify(params));
+	if(params.startDate){
+		params.startDate = new Date(params.startDate.getTime() + 8 * 60 * 60 *1000);
+		
+	}
+	if(params.endDate){
+		if(params.startDate.getTime()==params.endDate.getTime()){//如果是同一天，则查询当天的所有数据
+			params.endDate.setHours(23);
+			params.endDate.setMinutes(59);
+			params.endDate.setSeconds(59);
+			params.endDate = params.endDate;
+		}else{
+		
+			params.endDate = new Date(params.endDate.getTime() +31 * 60 * 60 *1000 + 59 * 60 * 1000) ;
+		}
+		
+	}
+	sql{. SELECT gf_feedback.id,person.name, gf_feedback.content ,gf_feedback.feedbackd FROM gf_feedback 
+		  LEFT JOIN member ON gf_feedback.member = member.id
+		  LEFT JOIN person ON member.person = person.id
+		  WHERE 1 = 1 and gf_feedback.state = 'N'
+		  sql{.?(params.startDate) and gf_feedback."feedbackd" >= :startDate  .}
+		  sql{.?(params.endDate) and gf_feedback."feedbackd" <= :endDate  .}
+	      sql{.?(params.content) and  strpos(gf_feedback."content",:content)> 0 .}
+		  ORDER BY gf_feedback.feedbackd DESC.}
+	return this.query(sql, params, params.page);
+}
+
+d2js.exports.hotwordList = d2js.hotwordList = function (params) {
+	logger.info('params:'+JSON.stringify(params));
+	if(params.top !="" && params.top !=null){
+		params.top = Number(params.top);
+	}
+	if(params.bottom !="" && params.bottom !=null){
+		params.bottom = Number(params.bottom);
+	}
+	sql{. 
+		SELECT * FROM hot_word  WHERE hot_word.type !='D'
+			 sql{.?(params.top) and hot_word.times <= :top  .}
+	         sql{.?(params.bottom) and hot_word.times>= :bottom  .}
+	         sql{.?(params.word) and strpos(hot_word.word, :word)>0  .}
+		ORDER BY hot_word.times DESC.}
+	return  this.query(sql, params, params.page);
+}
+
+/**
+ * 删除建议
+ */
+d2js.exports.delsuggest = d2js.delsuggest = function (params) {
+	logger.info('params:'+JSON.stringify(params));
+	params.state = 'D';
+	return  this.updateRow('gf_feedback', params, ["id","state"]);
+}
+
+/**
+ * 删除热词
+ */
+d2js.exports.delhotword = d2js.delhotword = function (params) {
+	logger.info('params:'+JSON.stringify(params));
+	var data = this.queryRow('SELECT * FROM hot_word WHERE id = ?',[params.id]);
+	logger.info('data:'+JSON.stringify(data));
+	var HotWordUtils = Java.type("privilege.HotWordUtils");
+	HotWordUtils.removeHotword(data.word);//调用java方法,shan'chu
+	return  this.execute('DELETE from hot_word WHERE hot_word.id = ?',[params.id]);
+}
+
+/**
+ * 新增热词
+ */
+d2js.exports.insethotword = d2js.insethotword = function (params) {
+	logger.info('insethotword:'+JSON.stringify(params));
+	params.type = 'H';
+	params.id = this.nextId("hot_word_id_seq");
+	params.word =params.word;
+	params.times = parseInt(params.times,10);
+	
+	return  this.insertRow('hot_word', params, ['id','word','times','type']);
+}
+/**
+ * 修改热词
+ */
+d2js.exports.updatehotword = d2js.updatehotword = function (params) {
+	logger.info('updatehotword:'+JSON.stringify(params));
+	params.times  = 	parseInt(params.times);
+	return  this.updateRow('hot_word', params, ['id','word','times']);
+}
+

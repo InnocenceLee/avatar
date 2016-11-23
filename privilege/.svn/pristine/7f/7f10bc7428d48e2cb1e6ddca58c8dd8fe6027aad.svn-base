@@ -1,0 +1,47 @@
+	<!--Basic Styles-->
+    <link href="../jslib/beyond/css/bootstrap.min.css" rel="stylesheet" />
+    <link id="bootstrap-rtl-link" href="" rel="stylesheet" />
+    <link href="../jslib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../jslib/beyond/css/weather-icons.min.css" rel="stylesheet" />
+    
+    <!--Beyond styles-->
+    <link id="beyond-link" href="../jslib/beyond/css/beyond.min.css" rel="stylesheet" type="text/css" />
+    <link href="../jslib/beyond/css/demo.min.css" rel="stylesheet" />
+    <link href="../jslib/beyond/css/typicons.min.css" rel="stylesheet" />
+    <link href="../jslib/beyond/css/animate.min.css" rel="stylesheet" />
+    <link id="skin-link" href="" rel="stylesheet" type="text/css" />
+    
+    <link href="../common/layout-beyond.css" rel="stylesheet" />
+
+    <!--Skin Script: Place this script in head to load scripts for skins and rtl support-->
+    <script src="../jslib/beyond/js/skins.min.js"></script>
+
+    <!--Basic Scripts-->
+    <script src="../jslib/jquery-1.10.2.js"></script>
+    <script src="../jslib/beyond/js/bootstrap.min.js"></script>
+    <script src="../jslib/date.js/Date.js"></script>
+    
+    <script src="../jslib/d2js/dataset.js"></script>
+    <script src="../jslib/d2js/render.js"></script>
+    <script src="../jslib/d2js/renderers.js"></script>
+    <script src="../jslib/d2js/bootstrap-renderers.js"></script>
+    <script src="../jslib/d2js/collector.js"></script>
+    <script src="../jslib/d2js/pipelines.js"></script>
+
+    <script src="../jslib/molecule.js"></script>
+    
+    <script>
+    	Molecule.ModulesPath = '[%= website %]molecules/';
+	    Molecule.loadHtml('/molecules/bootstrap-basic.html');
+	    Molecule.loadHtml('/molecules/bootstrap-tree.html');
+	    Molecule.loadHtml('/molecules/bootstrap-trigger.html');
+    </script>
+    <script src="../jslib/bootstrap-datepicker-1.4.0-dist/js/bootstrap-datepicker.js"></script>
+    <script src="../jslib/bootstrap-datepicker-1.4.0-dist/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <link href="../jslib/bootstrap-datepicker-1.4.0-dist/css/bootstrap-datepicker3.min.css"" rel="stylesheet">
+    
+    <script>
+    	if(window.self == window.top){		// not in frame
+    		setInterval(function(){$.get([%~ website %] + 'common/keep_alive.html?t=' + new Date() * 1)}, 60000);
+    	}
+    </script>

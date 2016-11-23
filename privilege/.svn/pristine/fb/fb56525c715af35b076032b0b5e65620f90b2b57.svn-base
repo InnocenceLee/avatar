@@ -1,0 +1,112 @@
+d2js.fetch=function(params){
+	sql{.
+		select em.id id,em.employee_no, em.state,em.nodes,em.sys_stations,
+			pe.id person_id,pe.password,pe.name,pe.address,pe.tel,pe.mobile,pe.tag,
+			pe.wechat,pe.username,pe.email,pe.birth,pe.gender,pe.id_card, 
+			array_to_string(array(select name from node where id = any(em.nodes)), ',') node_names
+		from employee em, person pe where pe.id = em.person 
+		and exists (select * from nd where id = any(em.nodes))
+	
+		sql{.?(params.name)
+			 	and strpos(pe.name, :name) > 0 
+		.}
+		
+		sql{.?(params.username)
+			 	and strpos(pe.username, :username) > 0 
+			 
+		.}
+		sql{.?(params.no_state)
+				and em.state!=:no_state 
+		.}
+		
+	.}
+	sql = this.appendSort(sql, params._sorts);
+	return this.query(nodeSql(params, findAncientTypes('PERSON')) + sql, params,params._page);
+
+};
+
+d2js.modify = function(rcd){
+//	logger.info("---------"+JSON.stringify(rcd));
+	
+	this.doTransaction(function(){
+		var sys_stations=rcd.sys_stations;
+		
+		if(rcd._children&&rcd._children.length&&rcd._children[0].name=="station"){
+			rcd._children[0].rows.forEach(function(row){
+				if(row._state=="new"){
+					sys_stations.push(row.station);
+				}
+				if(row._state=="remove"&&row.id){
+					sys_stations.forEach(function(val,index){
+						if(val==row.station){
+							sys_stations.splice(index,1);
+							return;
+						}
+					});
+				}
+				if(row._state=="edit"){
+					sys_stations.forEach(function(val,index){
+						if(val==row._origin.station){
+							sys_stations.splice(index,1);
+							return;
+						}
+					});
+					sys_stations.push(row.station);
+				}
+			});
+		}
+		var nodes=this.findStationByIds({stations:sys_stations});
+		if(nodes&&nodes.rows.length){
+			rcd.nodes=$ARRAY("int",nodes.rows[0].array);
+		}
+		rcd.sys_stations=$ARRAY("int",sys_stations);
+		this.updateRow('employee',rcd,['id','employee_no','state',"nodes","sys_stations"]);
+		d2js.callD2js("person.d2js","modify",rcd);
+	});
+};
+
+
+
+d2js.create = function(rcd){
+	$V(rcd, {id : [],  
+		state : [V.notNull],
+		employee_no:[V.notNull],
+	});
+	rcd.id = this.nextId("employee_id_seq");
+	session.employeeid = rcd.id;
+	
+	this.doTransaction(function(){
+		var stationArray=new Array();
+		if(rcd._children&&rcd._children.length&&rcd._children[0].name=="station"){
+			rcd._children[0].rows.forEach(function(row){
+				if(row._state!="remove"){
+					stationArray.push(row.station);
+				}
+			});
+			var nodes=this.findStationByIds({stations:stationArray});
+			if(nodes&&nodes.rows.length){
+				rcd.nodes=$ARRAY("int",nodes.rows[0].array);
+			}
+		}
+		rcd.sys_stations=$ARRAY("int",stationArray);
+		rcd.person=d2js.callD2js("person.d2js","create",rcd);
+		this.insertRow('employee', rcd, ['id','employee_no','state','person','nodes','sys_stations']);
+	});
+	
+
+	return rcd.id;		
+};
+
+d2js.findStationByIds = function(rcd){
+	return this.query("select array(select distinct node from sys_station where id=any(?) and is_root='Y')",[$ARRAY("int",rcd.stations)]);
+};
+
+d2js.destroy = function(rcd){
+//	actas('person.delete', 'person_station', rcd.id, rcd);
+	this.doTransaction(function(){
+		this.updateRow('employee',{'id':rcd.id,'nodes':null,'sys_stations':null});
+		this.deleteRows('employee_station',{'employee':rcd.id});
+	});
+	
+};
+

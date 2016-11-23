@@ -1,0 +1,29 @@
+d2js.fetch = function(params){
+	logger.info('fetch order ' + JSON.stringify(params));
+	sql{.
+		select b.* from gf_order b where 1=1
+		code{. 
+			sql{.?(params.state) and b.state = :state  .}
+			sql{.?(params.id) and b.id = :id  .}
+		.}
+	.}
+	sql = this.orderBy(sql, params._sorts, {'b.orderd' : 'asc'});
+	var orders=this.query(sql, params, params._page);
+	logger.info('orders result: ' + JSON.stringify(orders));
+	return orders;
+}
+
+d2js.create = function(rcd){
+	logger.info('add gf_order ' + JSON.stringify(rcd));
+	this.insertRow('gf_order', rcd, ['description',  'order_no', 'order_member', 'orderd', 'payd', 'items'])
+}
+
+d2js.modify = function(rcd){
+	logger.info('edit book ' + JSON.stringify(rcd));
+	this.updateRow('book', rcd, ['id', 'title',  'kind', 'isbn', 'remarks'])
+}
+
+d2js.destroy = function(rcd){
+	logger.info('delete book ' + JSON.stringify(rcd));
+	this.deleteRow('book', rcd)
+}
