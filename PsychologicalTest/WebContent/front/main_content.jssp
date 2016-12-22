@@ -1,0 +1,233 @@
+[%
+ 	var functions = session.user.functions;		
+	// 顶级功能
+	var funcRoots = functions.roots || (functions.roots = function(){ 
+		var stk = [];
+		var tops = [];
+		var data = functions;
+		for(var i=0; i < data.length;i++){
+			var row = data[i];
+			while(stk.length){
+				var prev = stk[stk.length -1];
+				if(row.parent_id == prev.id){
+					if(prev.data) prev.data.push(row); else prev.data = [row];	// 因为行数组用的属性名是 data，子节点也必须用 data，如果用children，因为没有标为 leaf，会发生反复递归
+					if(stk.length <= 2) {	// 展开 2 层
+						prev.expanded = true;
+					}
+					break;
+				} else {
+					prev.leaf = (prev.data == null);
+					stk.pop();
+				}
+			}
+			if(stk.length == 0) tops.push(row);
+			stk.push(row);
+		}
+		if(stk.length){stk[stk.length-1].leaf = true;}
+		return tops;
+	}());
+%]
+
+[%
+ 	function createSysFunLink(fun){
+ 		logger.info('test ' + JSON.stringify(fun));
+		var s = '<li><a href="###" onclick=\'openFunction.apply(this,' + JSON.stringify([fun.id, fun.name, fun.code, fun.uri, fun.open_mode]) +')\'>' + fun.name +  '</a></li>';
+		out.print(s);
+	}
+%]
+		
+<div class="container container-full">
+	<div class="row">
+		<ul id="left_nav" class="nav nav-list col-xs-1 col-md-1 well">
+		[% funcRoots.forEach(function(fun, index){ %]			
+			[% if(fun.leaf){
+					createSysFunLink(fun);
+		    } else { %]
+		    	[% if(index){%] <li class="nav-header">[%= fun.name %]</li> [%}%]
+		    [% 	fun.data.forEach(function(fun, index){%]
+				    <ul class="nav nav-list">
+				    [% if(fun.leaf){
+				    	createSysFunLink(fun);
+			    	} else { %]
+			    		<li class="nav-header">[%= fun.name %]</li>
+					[%  fun.data.forEach(function(fun){ %]
+							[% if(fun.leaf){
+									createSysFunLink(fun);
+					    	} %]
+							[% !fun.leaf && fun.data.forEach(function(fun){
+					    			createSysFunLink(fun);
+						    });%]		     
+<!-- 						    <li class="nav-divider"></li>   -->
+					[% });} %]
+<!-- 						<li class="nav-divider"></li> -->
+					</ul>
+ 					[%if(fun.data && index <= fun.data.length){%]<li class="nav-divider"></li>[%}%]
+				[%});%]
+			[%}%]
+		[% }); %]
+		</ul> 
+		<div id="split_div" style="width:6px;float:left; solid;position:relative" >
+			<div style="height: 40px; width:6px; top: 50%; left: 0px;margin-top:-50px; cursor: pointer; background-color:gray;position:relative" onclick="hideLeftNav()"></div>
+		</div>
+		<div id="content_div" class="nav nav-list col-xs-11 col-md-11" style="padding-left : 20px">
+			<ul class="nav nav-pills" id="tabActionsNav">
+			  <li class="active"><a href="#home" data-toggle="tab">首页</a></li>
+			</ul>
+	
+			<!-- Tab panes -->
+			<div class="tab-content" id="tabContents">			
+			  <div class="tab-pane active" id="home"><iframe src="welcome.jssp" frameborder="0" onLoad="autoResize(this);"></iframe></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script language="JavaScript">
+var website = [%~ website %];
+function autoResize(frame){
+    frame.width = frame.contentWindow.document.body.scrollWidth + 'px';
+    frame.height = (frame.contentWindow.document.body.scrollHeight + 20) + 'px';
+}
+
+function setupIframe(id){
+	var frame = document.getElementById(id);
+	frame.contentWindow.iframe = frame;
+	frame.contentDocument.iframe = frame;
+	// frame.height = frame.contentWindow.height;
+	console.log("setup");
+};
+
+function openFunction(id,name,code,uri,openMode){
+	uri = website + uri;
+	switch(openMode){
+	case 't' : 
+		var aId = 'a_id_' + code; 
+		var id = 'tab_id_' + code;
+		if(document.getElementById(id)){			
+			$('#' + aId).tab('show');
+		} else {
+			var ele = document.createElement('li');
+			ele.innerHTML = '<a href="#' + id + '" data-toggle="tab" id="' + aId + '">' + name + '&nbsp;<span class="close">×</span></a>';
+			tabActionsNav.appendChild(ele);
+
+			// var random = Ext.Number.randomInt(0, 200);
+			var randomId = Ext.id();
+			
+			var cnt = document.createElement('div');
+			cnt.className = "tab-pane";
+			cnt.id = id;
+			cnt.style.marginTop = '6px';
+			cnt.innerHTML = '<iframe id="' + randomId + '" src="' + uri + '" frameborder="0"  width="100%" height="500px" onLoad=\'setupIframe("' + randomId + '")\'></iframe>';
+			tabContents.appendChild(cnt);
+			$('#tabActionsNav a:last').tab('show');
+			
+			$(".close").click(function () {
+			     //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
+			     var tabContentId = $(this).parent().attr("href");
+			     $(this).parent().parent().remove(); //remove li of tab
+			     $('#tabActionsNav a:last').tab('show'); // Select first tab
+			     $(tabContentId).remove(); //remove respective tab content
+			});
+		}
+		break;
+	case 'W':
+		window.open(uri);
+		break;
+	case 'M':
+		var w = Ext.getBody().getViewSize().width * .9;
+		var h = Ext.getBody().getViewSize().height * .9;
+		window.showModalDialog(uri, null, 'dialogWidth:' + w + 'dialogHeight：' + h);
+		break;
+	case 'w':	// ext new window
+		var win = new Ext.Window ({
+		  height: '80%', 
+		  width: '85%', 
+		  title: name, 
+		  maximizable : true,
+		  //minimizable : true, //TODO 这个仅仅是个按钮
+		  html: '<iframe frameborder="0" width="100%" height="100%" src="' + uri +'"></iframe>'
+		}).show();
+		win.setSize('90%', '85%');
+		break;
+	case 'm': 	// ext new modal dialog
+		var win = new Ext.Window ({
+			  height: '80%', 
+			  width: '85%', 
+			  modal : true,
+			  maximizable : true,
+			  title: name, 
+			  html: '<iframe frameborder="0" width="100%" height="100%" src="' + uri +'"></iframe>'
+			}).show();
+		win.setSize('90%', '85%');
+		break;
+	case 'C' : // molecule 标签
+		var aId = 'a_id_' + code; 
+		var id = 'tab_id_' + code;
+		if(document.getElementById(id)){			
+			$('#' + aId).tab('show');
+		} else {
+			var ele = document.createElement('li');
+			ele.innerHTML = '<a href="#' + id + '" data-toggle="tab" id="' + aId + '">' + name + '&nbsp;<span class="close">×</span></a>';
+			tabActionsNav.appendChild(ele);
+
+			// var random = Ext.Number.randomInt(0, 200);
+			var randomId = Ext.id();
+			
+			var cnt = document.createElement('div');
+			cnt.className = "tab-pane";
+			cnt.id = id;
+			cnt.style.marginTop = '6px';
+			Molecule.loadHtml(uri);
+			//cnt.innerHTML = '<iframe id="' + randomId + '" src="' + uri + '" frameborder="0"  width="100%" height="500px" onLoad=\'setupIframe("' + randomId + '")\'></iframe>';
+			tabContents.appendChild(cnt);
+			$('<div molecule=' + code + '></div>').appendTo(cnt)
+			$('#tabActionsNav a:last').tab('show');
+			
+			$(".close").click(function () {
+			     //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
+			     var tabContentId = $(this).parent().attr("href");
+			     $(this).parent().parent().remove(); //remove li of tab
+			     $('#tabActionsNav a:last').tab('show'); // Select first tab
+			     $(tabContentId).remove(); //remove respective tab content
+			});
+		}
+		break;
+	case 'N':
+		// nothing todo
+	}
+}
+
+// // add by dzr hide left
+// var defaultContentWidth = 200;
+
+// $(document).ready(function(){
+// 	$('#left_nav').width(180);
+// 	$('#split_div').height($('.container').height());
+// 	$('#content_div').width($(window).width()-defaultContentWidth);
+	
+// 	$(window).resize(function(){
+// 		layout();
+// 	});
+// })
+
+// function layout(){
+// 	//console.info($('#left_nav').width());
+// 	var display = $('#left_nav').is(':hidden');
+// 	if(display==false){
+//     	$('#content_div').width($(window).width()-defaultContentWidth);
+//     }else{
+//     	$('#content_div').width($(window).width()-70);
+//     }
+// }
+
+// function hideLeftNav(){
+// 	$('#left_nav').toggle(0,function(){
+// 		var display = $('#left_nav').is(':hidden');
+// 		if(display==false){
+// 	    	$('#content_div').width($(window).width()-defaultContentWidth);
+// 	    }else{
+// 	    	$('#content_div').width($(window).width()-70);
+// 	    }
+// 	});
+// }
+</script>

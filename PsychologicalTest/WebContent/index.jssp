@@ -1,0 +1,167 @@
+
+[%  	
+		var cookies = request.getCookies();
+		if(cookies){
+			var cookie = Array.prototype.slice.apply(cookies).filter(function(item,index){
+				return item.name == "JSESSIONID";
+			})[0];
+			
+			var test = Array.prototype.slice.apply(cookies).filter(function(item,index){
+				return item.name == "test";
+			})[0];
+			
+			if(test && test.value != ""){
+				var coo = new javax.servlet.http.Cookie("JSESSIONID",test.value);
+				coo.setPath(request.contextPath+"/");
+				response.addCookie(coo);
+				response.sendRedirect("front/main.jssp");
+			}
+		}
+%]
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>[%=loginTitle%]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./login.css">
+    <link rel="shortcut icon" href="./images/favicon.ico" />
+    <script src="jslib/cookie.js"></script>
+    <script>
+    	if(typeof console == 'undefined') console = {log : function(){}};
+    	window.alert = function (msg) {
+    		var elMessage = document.getElementById('message');
+    		elMessage.innerText = msg;
+    		elMessage.style.display = 'block';
+    	}
+    	
+    	
+    	
+    	
+    </script>
+    
+    [% 
+     	var random = java.util.UUID.randomUUID().toString();
+    	random=random.replace(/-/g,'').substr(0,20);
+    	session.random=random;
+    %] 
+    <script src="jslib/sha1.js"></script>
+    <script src="jslib/jquery-1.10.2.js"></script>
+    <script src="jslib/json2.js"></script>
+    <script>
+    var random = [%~ random %];
+    
+    function encrypt(pwd){
+    	var pwd2=CryptoJS.SHA1(pwd);
+    	
+    	
+    	var arrRandom = [];
+    	for(var i=0; i<random.length; i++)
+    		arrRandom.push(random.charCodeAt(i));
+
+    	var arrInt = [];
+    	for(var i=0; i<arrRandom.length;i+=4){
+    		var int = (arrRandom[i] << 24) | 
+						(arrRandom[i+1] << 16) |
+						(arrRandom[i+2] << 8) |
+						arrRandom[i+3];
+    		arrInt.push(int);
+    	}
+    	
+    	var concated = arrInt.concat(CryptoJS.SHA1(pwd2).words);
+
+    	var b = CryptoJS.SHA1({words : concated, sigBytes : 40});
+    	
+    	var arr=[];
+    	for(var i=0;i<5;i++){
+    		var r = pwd2.words[i] ^ b.words[i];
+    		arr.push(r);
+    	}
+    	return CryptoJS.lib.WordArray.create(arr).toString();
+    }
+    
+    function submitForm(input) {
+    	var username= document.getElementById('username').value;
+    	if(username=='' || username == '员工编号'){
+    		alert('用户名不能为空，请检查！');
+    		return;
+    	}
+	    var txPassword=document.getElementById("pw").value.toUpperCase();
+	    if(txPassword=='' || txPassword == '登录密码'){
+	    	alert('密码不能为空，请检查！');
+	    	return;
+	    }
+	    
+	    [%
+	    	if(requireValidCode){
+	    		%]
+	    			var txValidCode = document.getElementById("txValidationCode").value;
+	    			if(txValidCode=='' || txValidCode == '验证码'){
+	    				alert('验证码不能为空，请检查！');
+	    				return;
+	    			}
+	    		[%
+	    	}
+	    %]
+	    var encryptPwd=encrypt(txPassword)
+		document.getElementById("txPassword").value =encryptPwd ;
+		$(input).parents('form:first')[0].submit();
+    }
+    </script>
+</head>
+<body>
+    <div id="bg">
+        <img src="./images/background.png" alt="" />
+    </div>
+    <div class="logo"></div>
+    <div class="panel" id="panel">
+        <div class="panel-header">
+            <div class="title"></div>
+        </div>
+        <div class="panel-body">
+            <form class="form" action="login.d2js?_m=login" method="post" onsubmit="return false">
+                <div class="input-group"><input id="username" type="text" name="u" class="input" placeholder="员工编号" /></div>
+                <div class="input-group">
+                    <input type="hidden" name="p" id="txPassword"/>
+                    <input id="pw" name="" type="password" class="input" placeholder="登录密码" />
+                </div>
+                [% imports('jssp_lib/checknum.js');  
+                    if(requireValidCode){
+                        %]
+                            <div class="input-group" id="validationDiv">
+                                <input id="txValidationCode" type="text" name="validation" class="input" placeholder="验证码" autocomplete="off" />
+                                [%= this.callD2js("sys/validation.d2js","createCode") %]
+                            </div>
+                        [%}%]
+                <div class="input-group">
+                    <input type="hidden" name="autologin"/>
+                    <input class="btn" type="submit" value="登 录" onclick="submitForm(this)" />
+                </div>
+                <div class="message" id="message"></div>
+            </form>
+        </div>
+    </div>
+    [%if(session.error){ %]
+        <script>alert('[%= session.error.toString() %]');</script>
+    [% session.error = null; } %]
+    <script src="jslib/jquery.placeholder.js"></script>
+    <script>
+        $('#username,#pw,#txValidationCode').placeholder();
+        $('#username,#pw,#txValidationCode').on('focus', function () {
+            $('#message').text('');
+        });
+    </script>
+    
+    <script>
+    	$(function(){
+    		$("#validationDiv img").click(function(){
+    			var imgObj = this;
+    			$.get("sys/validation.d2js?_m=generateSrc&date="+new Date()*1,function(info){
+    				imgObj.src = info;
+    			})
+    		})
+    	})
+    </script>
+</body>
+</html>

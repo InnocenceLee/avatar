@@ -1,0 +1,468 @@
+[%
+ 	if(request._la == 'true'){	// list actions
+ 		if(include(request.lf)){
+ 		%][%~ listActions() %][%
+ 		} else {
+ 		%][%~ [] %][%
+ 		}
+ 		return;
+ 	}
+ 	var anonymous = request.anonymous;
+	if(session.user == null && !anonymous){
+		return response.sendRedirect(website + 'index.jssp');
+	}
+%]<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Loading...</title>
+
+<script>
+	var website = [%~ website %];
+	var viewPort;
+	var subGrid;
+</script>
+<script type="text/javascript" src="[%= website  %]jslib/include-ext.js"></script>
+<script type="text/javascript" src="[%= website  %]jslib/ext-4.2.1.883/locale/ext-lang-zh_CN.js"></script>
+<script type="text/javascript" src="[%= website  %]jslib/json2.js"></script>
+<script type="text/javascript" src="[%= website  %]common/common.js"></script>
+<script type="text/javascript" src="[%= request.lf %]"></script>
+
+<style type="text/css">
+.icon-grid {
+	background-image:
+		url([%= website  %]images/icons/fam/grid.png) !important;
+}
+
+.add {
+	background-image:
+		url([%= website  %]images/icons/fam/add.gif) !important;
+}
+
+.option {
+	background-image:
+		url([%= website  %]images/icons/fam/plugin.gif) !important;
+}
+
+.remove {
+	background-image:
+		url([%= website  %]images/icons/fam/delete.gif) !important;
+}
+
+.save {
+	background-image: url([%= website  %]images/icons/save.gif)
+		!important;
+}
+
+.save {
+	background-image: url([%= website  %]images/icons/save.gif)
+		!important;
+}
+
+.x-grid-rowbody p {
+	margin: .5em 0;
+}
+
+a.edit {
+	text-decoration: none;
+	color: blue;
+}
+
+a.edit :link,a.edit :visited {
+	text-decoration: underline
+}
+
+a.edit :focus,a.edit :HOVER {
+	outline: invert dotted thin;
+	text-decoration: underline;
+}
+</style>
+
+</head>
+<body>
+	<iframe id='downloadFrame' name='downloadFrame' src='' height=0 width=0 style="display: none"></iframe>
+</body>
+
+<script>
+
+	(function(){
+		var allowedChildTypes = [%~ application.allowedChildTypes %];
+		var allowedParentTypes = [%~ application.allowedParentTypes %];
+		var allowedAncientTypes = [%~ application.allowedAncientTypes %];
+		window.findChildTypes = function(type){
+			return allowedChildTypes[type];
+		};
+		window.findParentTypes = function(type){
+			return allowedParentTypes[type];
+		};
+		window.findAncientTypes = function(type){
+			return allowedAncientTypes[type];
+		};
+		
+	})();
+	var allowed = [%~ (!request.anonymous ? session.user.allowed : {"all": true, "gen_ecode.add":true,"gen_ecode.edit":true,"gen_ecode.delete":true}) %];
+
+	Ext.QuickTips.init();
+
+	var stores = null;
+	Ext.onReady(function() {
+		var modelDefs = getModelDefs();
+		createModels(modelDefs);
+		stores = createStores(modelDefs);
+
+		var listUi = createListUiDef();
+		document.title = listUi.applyItem;
+		var storeName = listUi.store;
+		listUi.store = storeName.isStore ? storeName : stores[storeName];
+		
+		if(listUi.onStoreWrite){
+			listUi.store.on('write', listUi.onStoreWrite); 
+		}
+
+		function afterLoad(records, operation, success){
+			if(!success){
+				Ext.MessageBox.alert('错误', operation.error);
+			}
+		}
+		
+		var bnDelete = {
+				text : '删除选中记录',
+				iconCls : 'remove',
+				disabled : true,
+				itemId : 'removeButton',
+				handler : function() {
+					var sel = grd.getView().getSelectionModel().getSelection();
+					if (sel.length == 0) {
+						Ext.MessageBox.alert('提示', '没有选择任何记录');
+					} else {
+						Ext.MessageBox.confirm('提示', '所选 ' + sel.length + ' 条记录将被删除，该操作无法撤销，继续请点击[是]', function(r) {
+							if (r == 'yes') {
+								Ext.each(sel, function(rcd) {
+									if(rcd.remove) rcd.remove(); else rcd.store.remove(rcd);
+								});
+								if(listUi.onSyncDelete) listUi.onSyncDelete();
+								listUi.store.sync({
+								    success: function(batch) {
+								    	listUi.store.load();
+								    },
+								    failure: function(batch) {
+								    	var response = this.getReader().jsonData;
+								    	var message = response["message"];
+								        Ext.Msg.alert("提交失败", message);
+								    }
+								});
+							}
+						});
+
+					}
+				}
+			};
+		
+		var listBBar = null;
+		if(listUi.supportPage != false){
+			listBBar = new Ext.PagingToolbar({
+				store : listUi.store,
+				displayInfo : true,
+				displayMsg : '显示 {2} 中的 {0} - {1}',
+				emptyMsg : "无查询结果",
+				dock : 'bottom',
+				ui : 'footer',
+				layout : { pack : 'left'},
+				prependButtons : true,
+				items : listUi.allowDelete ? [bnDelete , '-', '->' ] : ['-'] 
+			}); 
+		} else {
+			listBBar = new Ext.Toolbar({
+				dock : 'bottom',
+				ui : 'footer',
+				layout : { pack : 'left'},
+				prependButtons : true,
+				items : listUi.allowDelete ? [bnDelete , '-', '->' ] : ['-']
+			}); 
+		}
+		
+		var listTBarButtons = [ {
+			text : '搜索',
+			iconCls : 'x-form-search-trigger',
+			handler : function() {
+				var items = grd.query('component[argname]');
+				var args = {};
+				for (var i = 0; i < items.length; i++) {
+					var v = items[i].getValue();
+					if (v != null && v != '') {
+						args[items[i].argname] = v;
+					}
+				}
+				listUi.store.currentPage = 1;
+				listUi.store.load(listUi.store.baseParams = { params : { q : args }}, {callback : afterLoad});
+			}
+		}];
+		if(listUi.allowAdd){
+			listTBarButtons.push('-');
+			listTBarButtons.push({
+				text : '新增',
+				iconCls : 'add',
+				handler : function() {
+					var def = modelDefs[listUi.store.model.getName()]
+					var item = def.newItem(listUi.store);
+					
+					if(listUi.store.getRootNode){		// 树特殊处理
+						var rcd = listUi.store.create(item);
+						listUi.store.getRootNode().appendChild(rcd);
+					} else {
+						var rcd = listUi.store.insert(0, item)[0];;
+					}
+					window.edit(rcd);
+				}
+			});
+		}
+		
+		var tbars = [];
+		for(var i=0; i<listUi.searchCondition.length; i++){
+			var cond = listUi.searchCondition[i];
+			var row = cond.row || 0;
+			if(tbars[row]){
+				tbars[row].push(cond);
+			} else {
+				tbars[row] = [cond];
+			}
+		}
+		
+		var dockItems = null;
+		if(tbars.length < 2){
+			dockItems = [{
+				xtype : 'toolbar',				
+				items : [ '->' ].concat(listUi.searchCondition).concat(listTBarButtons)
+			}, listBBar];
+		} else {
+			tbars = tbars.map(function(btns, i){
+				if(i == tbars.length -1){
+					return {xtype : 'toolbar', items : [ '->' ].concat(btns).concat(listTBarButtons)}; 
+				} else {
+					return {xtype : 'toolbar', items : btns };
+				}
+			});
+			
+			dockItems = tbars;		
+			dockItems.push(listBBar);
+		}
+		
+		Ext.applyIf(listUi, {
+			selType : 'checkboxmodel',
+			// columnLines : true,
+			iconCls : 'icon-grid',
+			xtype : listUi.xtype || 'grid' ,
+			singleSelect : false,
+			autoScroll : true,
+			title : listUi.applyItem,
+			store : listUi.store,
+			layout: 'auto',
+			itemId : 'grdMain',
+			minHeight: 500,
+			listeners : {
+				itemdblclick : function(grd, rcd) {if(listUi.allowEdit) window.edit(rcd);}
+			},
+			dockedItems : dockItems
+		});
+
+		var formDef = null;
+		function edit(record) {
+			formDef = createEditFormDef(record);				
+			
+			var goAhead = function(){
+				
+				var detailConfig = {
+					title : (record.phantom ? '新建' : '编辑') + formDef.applyItem,
+					formItems : formDef.items,
+					store : listUi.store,
+					modal: true, visible : false, autoScroll : true,
+					//,layout : listUi.layoutStyle||'fit'
+				};
+				
+				if(!listUi.layoutStyle){
+					detailConfig.layout= 'fit';
+				}
+				var edtWin = Ext.create('Com.Softview.DetailWindow', detailConfig);
+				
+				edtWin.show();
+
+				var form = edtWin.down('form');
+				form.loadRecord(record);
+				form.focus();
+			}
+			
+			if(formDef.onSetRecord){
+				if(formDef.onSetRecord(record, goAhead) != false){
+					goAhead();
+				}
+			} else goAhead();
+			
+		}
+		
+		window.edit = window.edit || edit;		
+
+		function updateRecord(win, form) {
+			if(form.isValid()){
+				var record = form.getRecord();
+				var values = form.getValues();
+				record.set(values);
+				if(!record.isValid()){
+					var errors = record.validate();
+					form.getForm().markInvalid(errors);
+					return;
+				}
+				if(formDef && formDef.onBeforeSubmit){
+					if(formDef.onBeforeSubmit(record) == false) return;
+				}
+	
+				var store = listUi.store;
+	
+				store.sync({
+				    success: function(batch) {
+				    	if(formDef && formDef.onAfterSubmit){
+							if(formDef.onAfterSubmit(record) == false) return;
+						}
+				    	win.close();
+				    	listUi.store.load();
+				    },
+				    failure: function(batch) {
+				    	var error = this.getReader().jsonData;
+				    	if(batch.exceptions && batch.exceptions.length){
+				    		var exception = batch.exceptions[0];
+				    		error = exception.error;
+				    		if(typeof error == 'string'){
+				    			error = {message : error};		// error.statusText
+				    		}
+				    	}
+				    	var message = error.message || error.statusText;				    	
+				    	var field = error.field;
+				    	if(field){
+				    		form.getForm().markInvalid([{id: field, msg: message}]);
+				    	} else {
+				        	Ext.Msg.alert("提交失败", message);
+				    	}
+				    }
+				});
+			}
+		}
+		window.edit.updateRecord = updateRecord;
+
+		if(listUi.allowEdit){
+			listUi.columns.push({
+				text: '编辑',
+				menuDisabled: true,
+				width : 55,
+				icon: '[%= website  %]images/icons/edit_task.png',
+				xtype: 'actioncolumn',
+				handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+	                window.edit(record);
+	            }
+			});
+		}
+
+		Ext.define('Com.Softview.DetailWindow', {
+			extend : 'Ext.window.Window',
+
+			requires : [ 'Ext.form.Panel' ],
+			title : 'Edit User',
+			autoShow : true,
+			minWidth : 480,
+			maxHeight : Ext.getBody().getViewSize().height * .9,
+			maxWidth : Ext.getBody().getViewSize().width * .8,
+			buttonAlign: 'center',
+			autoScroll : true,
+			initComponent : function() {
+				this.items = [ {
+					xtype : 'form',
+					padding : '5 5 0 5',
+					border : false,
+					style : 'background-color: #fff;',	
+					autoScroll : true,
+					items : this.initialConfig.formItems
+				} ];
+
+				   
+				this.buttons = [ {
+					text : '保存',
+					scope : this,
+					handler : function() {
+						updateRecord(this, this.down('form'));
+					}
+				}, {
+					text : '取消',
+					scope : this,
+					handler : this.close
+
+				} ];
+
+				this.callParent(arguments);
+			},
+			listeners : {
+				beforeclose : function(win) {
+					var rcd = this.down('form').getRecord();
+					if (rcd.phantom && rcd.store) {
+						if(rcd.remove) rcd.remove(); else rcd.store.remove(rcd);
+					}
+				}
+			}
+		});
+		
+        var viewPort;
+        if(listUi.autoHeight){
+			viewPort = {
+				xclass: 'Ext.panel.Panel',
+				layout: 'auto',
+	    		width: "100%",
+	    		items: [ listUi ],
+	    		itemId: 'grdPanel',
+	    		renderTo: Ext.getBody(),
+	    		listeners: {
+        			afterlayout: function(panel){
+        				var iframe = window.iframe;
+        				if(iframe){
+        					iframe.height = Math.max(500, panel.getHeight());
+        					console.log("resize")
+        				}
+        				console.log("do panel grid");
+        				console.log(panel.getHeight());
+        			}
+        		}
+    		};
+        } else {
+		   viewPort = {
+			  layout: 'fit',
+			  xclass: 'Ext.container.Viewport',
+			  items : [ listUi ]
+		    };
+		}
+
+		viewPort = Ext.create(viewPort);
+		var grd = viewPort.down('#grdMain');
+
+		grd.getSelectionModel().on('selectionchange', function(selModel, selections) {
+		    if(grd.down('#removeButton')){
+				grd.down('#removeButton').setDisabled(selections.length === 0);
+			}
+		});
+
+		document.body.addEventListener('DOMAttrModified', function() {		//firefox
+			resizeIframeHeight(document.body.scrollHeight);
+		});
+		
+		document.body.addEventListener('resize', function() {		// ie
+			resizeIframeHeight(document.body.scrollHeight);
+		});
+		
+		document.body.addEventListener('overflowchanged', function() {		// chrome
+			resizeIframeHeight(document.body.scrollHeight);
+		});
+
+		function resizeIframeHeight(height){
+			var iframe = window.iframe;
+			if(iframe) iframe.height = height;
+		}
+		
+		if(listUi.autoLoad != false) listUi.store.load(afterLoad);
+	});
+</script>
+</html>

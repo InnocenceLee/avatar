@@ -1,0 +1,25 @@
+d2js.fetchStation=function(params){
+	if(params.person){
+		var sql = "select ps.id id,s.node node,s.id station,ps.person person from person_station ps,sys_station s where ps.station=s.id and ps.person=:person and s.is_root='Y'";
+		return this.query(sql, params);
+	}
+	
+}
+
+d2js.destroy = function(rcd){
+	this.deleteRows('person_station',{'id':rcd.id});
+
+};
+
+
+d2js.modify = function(rcd){
+	return this.updateRow('person_station',rcd,["id","person","station"]);
+};
+
+d2js.create = function(rcd){
+	rcd.id = this.nextId("person_station_id_seq");
+	if(rcd.person == -1) {
+		rcd.person = this.session.personid;
+	}     
+	return this.insertRow('person_station', rcd, ["id","person","station"]);
+};
